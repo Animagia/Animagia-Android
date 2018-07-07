@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Animagia.pl</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="drawer_item_watch">Oglądaj</string>
+    <string name="drawer_item_shop">Sklep</string>
+    <string name="drawer_item_account">Konto</string>
+    <string name="drawer_item_downloads">Pliki</string>
+
+    <string name="title_activity_fullscreen_playback">Wideo</string>
+    <string name="nav_section_company">Wydawnictwo</string>
+    <string name="contact_info">Kontakt</string>
+    <string name="documents">Dokumenty</string>
+    <string name="title_activity_document">DocumentActivity</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+</resources>
