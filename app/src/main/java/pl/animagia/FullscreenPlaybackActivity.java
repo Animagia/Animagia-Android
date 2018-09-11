@@ -1,11 +1,15 @@
 package pl.animagia;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import pl.animagia.video.VideoSourcesKt;
+import pl.animagia.video.VideoUrl;
+
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -46,7 +50,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         hideSystemUi();
 
-        mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this));
+        String url = VideoUrl.getUrl();
+
+        Intent intent = getIntent();
+        VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+
+        mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
         mPlayer.addListener(createPlayPauseListener());
 

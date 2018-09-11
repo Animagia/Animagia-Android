@@ -19,8 +19,8 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     private static VideoData[] prepareVideos() {
         VideoData arr[] =
                 {new VideoData("A feature film", Uri.parse("file:///android_asset/oscar_nord.jpg")),
-                        new VideoData("A TV series",
-                                Uri.parse("file:///android_asset/serrah_galos.jpg"))};
+                 new VideoData("A TV series", Uri.parse("file:///android_asset/serrah_galos.jpg")),
+                 new VideoData("Amagi", Uri.parse("file:///android_asset/oscar_nord.jpg"))};
         return arr;
     }
 
