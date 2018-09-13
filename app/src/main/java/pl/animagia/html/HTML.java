@@ -12,9 +12,8 @@ import com.android.volley.toolbox.Volley;
 
 public class HTML{
 
-    public static void getHtml(Context con, final VolleyCallback callback){
+    public static void getHtml(String url, Context con, final VolleyCallback callback){
         RequestQueue queue = Volley.newRequestQueue(con);
-        String url = "https://animagia.pl/amagi-brilliant-park-odc-1/";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
@@ -23,7 +22,7 @@ public class HTML{
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                System.out.println("NIE MA HTML");
+                callback.onFailure(volleyError);
             }
         });
         queue.add(stringRequest);

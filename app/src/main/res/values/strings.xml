@@ -14,6 +14,6 @@
     <string name="contact_info">Kontakt</string>
     <string name="documents">Dokumenty</string>
     <string name="title_activity_document">DocumentActivity</string>
-    <string name="title_activity_main2">Main2Activity</string>
+    <string name="terms">Regulamin</string>
 
 </resources>

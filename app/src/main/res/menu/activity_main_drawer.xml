@@ -33,6 +33,10 @@
                     android:id="@+id/nav_documents"
                     android:icon="@drawable/ic_info_outline"
                     android:title="@string/documents"/>
+            <item
+                    android:id="@+id/nav_terms_and_conditions"
+                    android:icon="@drawable/ic_info_outline"
+                    android:title="@string/terms" />
             </group>
         </menu>
     </item>

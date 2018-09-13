@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_documents) {
             activateFragment(new DocumentListFragment());
+        } else if (id == R.id.nav_terms_and_conditions) {
+            activateFragment(new TermsFragment());
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
