@@ -1,44 +1,31 @@
 
 package pl.animagia.html;
 
-import android.os.AsyncTask;
+import android.content.Context;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
-import javax.net.ssl.HttpsURLConnection;
+public class HTML{
 
-public class HTML extends AsyncTask<Void, Void, String> {
-
-
-    @Override
-    protected String doInBackground(Void... voids) {
-        URL url = null;
-        HttpsURLConnection urlConnection = null;
-        String htmll = "";
-        try {
-            url = new URL("https://animagia.pl/amagi-brilliant-park-odc-1/");
-            urlConnection = (HttpsURLConnection) url.openConnection();
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuilder html = new StringBuilder();
-            for (String line; (line = reader.readLine()) != null;) {
-                if(line.contains("https://static.animagia.pl/video/stream/serve_stream.php/Amagi1")){
-                    html.append(line);
-                }
+    public static void getHtml(Context con, final VolleyCallback callback){
+        RequestQueue queue = Volley.newRequestQueue(con);
+        String url = "https://animagia.pl/amagi-brilliant-park-odc-1/";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                callback.onSuccess(s);
             }
-            in.close();
-            htmll = html.toString();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return htmll;
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                System.out.println("NIE MA HTML");
+            }
+        });
+        queue.add(stringRequest);
     }
 }
