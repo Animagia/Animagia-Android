@@ -11,7 +11,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
+import pl.animagia.video.VideoUrl;
+
 public class CatalogFragment extends Fragment {
+
+    public static final String NAME_OF_URL = "video url";
 
     @Nullable
     @Override
@@ -35,15 +41,22 @@ public class CatalogFragment extends Fragment {
                 launchPlayback(adapter.getItem(position));
             }
         });
-
-
     }
 
 
-    private void launchPlayback(VideoData videoData) {
-        Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-        intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-        startActivity(intent);
+    private void launchPlayback(final VideoData videoData) {
+        HTML.getHtml(getContext(), new VolleyCallback() {
+            @Override
+            public void onSuccess (String result){
+                String url =  VideoUrl.getUrl(result);
+
+                Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
+                intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
+                intent.putExtra(CatalogFragment.NAME_OF_URL, url);
+
+                startActivity(intent);
+            }
+        });
     }
 
 }
