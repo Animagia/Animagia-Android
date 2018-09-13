@@ -1,5 +1,6 @@
 package pl.animagia;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.android.volley.NoConnectionError;
+import com.android.volley.VolleyError;
+
+import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.video.VideoUrl;
@@ -45,7 +50,8 @@ public class CatalogFragment extends Fragment {
 
 
     private void launchPlayback(final VideoData videoData) {
-        HTML.getHtml(getContext(), new VolleyCallback() {
+        String videoUrl = "https://animagia.pl/amagi-brilliant-park-odc-1/";
+        HTML.getHtml(videoUrl, getContext(), new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 String url =  VideoUrl.getUrl(result);
@@ -55,6 +61,20 @@ public class CatalogFragment extends Fragment {
                 intent.putExtra(CatalogFragment.NAME_OF_URL, url);
 
                 startActivity(intent);
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        launchPlayback(videoData);
+                    }
+                };
+
+                if (volleyError instanceof NoConnectionError) {
+                    Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                }
             }
         });
     }
