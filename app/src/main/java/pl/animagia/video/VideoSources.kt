@@ -14,6 +14,7 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
     val dataSourceFactory: DataSource.Factory = object : DataSource.Factory {
         override fun createDataSource(): DataSource {
             val source = DefaultHttpDataSource(Util.getUserAgent(activity, "animagia"), null)
+            source.setRequestProperty("Range", "0-1023")
             return source
         }
     }
@@ -28,5 +29,4 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
     }
 
     return videoSource
-
 }
