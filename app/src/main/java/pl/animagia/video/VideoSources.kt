@@ -20,13 +20,8 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
     }
 
     val videoSource : MediaSource
-    if (videoTitle == "Amagi") {
         videoSource = ExtractorMediaSource(Uri.parse(url),
                 dataSourceFactory, DefaultExtractorsFactory(), null, null)
-    } else {
-        videoSource = ExtractorMediaSource(Uri.parse(" http://dl3.webmfiles.org/big-buck-bunny_trailer.webm"),
-                dataSourceFactory, DefaultExtractorsFactory(), null, null)
-    }
 
     return videoSource
 }

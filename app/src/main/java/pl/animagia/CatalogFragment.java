@@ -50,8 +50,7 @@ public class CatalogFragment extends Fragment {
 
 
     private void launchPlayback(final VideoData videoData) {
-        String videoUrl = "https://animagia.pl/amagi-brilliant-park-odc-1/";
-        HTML.getHtml(videoUrl, getContext(), new VolleyCallback() {
+        HTML.getHtml(videoData.getVideoUrl(), getContext(), new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 String url =  VideoUrl.getUrl(result);
