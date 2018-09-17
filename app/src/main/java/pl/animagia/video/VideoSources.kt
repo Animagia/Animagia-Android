@@ -18,7 +18,7 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
         }
     }
 
-    val videoSource : ExtractorMediaSource
+    val videoSource : MediaSource
     if (videoTitle == "Amagi") {
         videoSource = ExtractorMediaSource(Uri.parse(url),
                 dataSourceFactory, DefaultExtractorsFactory(), null, null)
