@@ -1,5 +1,8 @@
 package pl.animagia;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,7 +58,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
 
         String url = intent.getStringExtra(CatalogFragment.NAME_OF_URL);
-
+        ClipboardManager clipboard = (ClipboardManager)
+                getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("simple text", url);
+        clipboard.setPrimaryClip(clip);
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
         mPlayer.addListener(createPlayPauseListener());

@@ -14,11 +14,12 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
     val dataSourceFactory: DataSource.Factory = object : DataSource.Factory {
         override fun createDataSource(): DataSource {
             val source = DefaultHttpDataSource(Util.getUserAgent(activity, "animagia"), null)
+            source.setRequestProperty("Range", "0-1023")
             return source
         }
     }
 
-    val videoSource : ExtractorMediaSource
+    val videoSource : MediaSource
     if (videoTitle == "Amagi") {
         videoSource = ExtractorMediaSource(Uri.parse(url),
                 dataSourceFactory, DefaultExtractorsFactory(), null, null)
@@ -28,5 +29,4 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
     }
 
     return videoSource
-
 }
