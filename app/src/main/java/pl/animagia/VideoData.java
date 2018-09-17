@@ -10,10 +10,12 @@ class VideoData implements Parcelable {
 
     private final String title;
     private final Uri posterAsssetUri;
+    private final String videoUrl;
 
-    VideoData(String title, Uri posterAssetUri) {
+    VideoData(String title, Uri posterAssetUri, String videoUrl) {
         this.title = title;
         this.posterAsssetUri = posterAssetUri;
+        this.videoUrl = videoUrl;
     }
 
     public String getTitle() {
@@ -22,6 +24,10 @@ class VideoData implements Parcelable {
 
     public Uri getPosterAsssetUri() {
         return posterAsssetUri;
+    }
+
+    public String getVideoUrl(){
+        return videoUrl;
     }
 
     @Override
@@ -46,6 +52,7 @@ class VideoData implements Parcelable {
     protected VideoData(Parcel in) {
         this.posterAsssetUri = in.readParcelable(null);
         this.title = in.readString();
+        this.videoUrl = in.readString();
     }
 
     @Override
@@ -57,6 +64,7 @@ class VideoData implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(posterAsssetUri, 0);
         dest.writeString(title);
+        dest.writeString(videoUrl);
     }
 
     public static final Creator<VideoData> CREATOR = new Creator<VideoData>() {

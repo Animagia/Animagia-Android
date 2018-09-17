@@ -18,9 +18,11 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
     private static VideoData[] prepareVideos() {
         VideoData arr[] =
-                {new VideoData("A feature film", Uri.parse("file:///android_asset/oscar_nord.jpg")),
-                 new VideoData("A TV series", Uri.parse("file:///android_asset/serrah_galos.jpg")),
-                 new VideoData("Amagi", Uri.parse("file:///android_asset/oscar_nord.jpg"))};
+                {new VideoData("A feature film", Uri.parse("file:///android_asset/oscar_nord.jpg"), "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm"),
+                 new VideoData("A TV series", Uri.parse("file:///android_asset/serrah_galos.jpg"), "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm"),
+                 new VideoData("Amagi", Uri.parse("file:///android_asset/oscar_nord.jpg"), "https://animagia.pl/amagi-brilliant-park-odc-1/"),
+                 new VideoData("Chuuni", Uri.parse("https://static.animagia.pl/film_poster.jpg"), "https://animagia.pl")
+                };
         return arr;
     }
 
