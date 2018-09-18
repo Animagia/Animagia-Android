@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 public class Alerts {
 
@@ -25,6 +26,23 @@ public class Alerts {
                 .setMessage(message)
                 .setPositiveButton("Spróbuj ponownie", onClickTryAgainButton)
                 .setNegativeButton("Włącz internet", turnOnInternet)
+                .show();
+    }
+
+    public static void primeVideoError(final Context context){
+        String message = "Jakiś napis";
+        DialogInterface.OnClickListener toastButton = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(context, "Jakiś toast", Toast.LENGTH_SHORT).show();
+            }
+        };
+        new AlertDialog.Builder(context)
+                .setCancelable(true)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
+                .setTitle("Jakiś blad")
+                .setMessage(message)
+                .setNeutralButton("jakis przycisk", toastButton)
                 .show();
     }
 }

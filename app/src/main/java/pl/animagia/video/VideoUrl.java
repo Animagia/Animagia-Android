@@ -10,7 +10,15 @@ public class VideoUrl {
         String line = getLine(html);
         int firstIndex = line.indexOf("source src=") + "source src=".length()+1;
         int last = line.lastIndexOf(" type=");
-        return line.substring(firstIndex, last-1);
+
+        String customString = "";
+        if (line.equals("")) {
+            customString = "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm";
+        } else {
+            customString =  line.substring(firstIndex, last-1);
+        }
+
+        return customString;
     }
 
     private static String getLine(String html) {
