@@ -1,15 +1,16 @@
 package pl.animagia;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+
+import pl.animagia.error.Alerts;
 import pl.animagia.video.VideoSourcesKt;
 
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -42,10 +43,27 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private boolean mVisible;
 
+    private Context context;
+
+    final Handler handler = new Handler();
+    final Runnable r = new Runnable()
+    {
+        public void run()
+        {
+            long sek = mPlayer.getCurrentPosition();
+            if(sek >= 420000){
+                mPlayer.seekTo(415000);
+                Alerts.primeVideoError(context);
+                onPause();
+            }
+            handler.postDelayed(this, 300);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = this;
         setContentView(R.layout.activity_fullscreen_playback);
 
         mVisible = true;
@@ -58,11 +76,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
 
         String url = intent.getStringExtra(CatalogFragment.NAME_OF_URL);
-        ClipboardManager clipboard = (ClipboardManager)
-                getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("simple text", url);
-        clipboard.setPrimaryClip(clip);
+
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
+
+        if(!isPrime(video.getTitle())){
+            handler.postDelayed(r, 300);
+        }
 
         mPlayer.addListener(createPlayPauseListener());
 
@@ -158,4 +177,42 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
     }
 
+    private boolean isPrime(String title) {
+        boolean prime = true;
+        if (title.equals("Amagi")){
+            prime = false;
+        }
+        return prime;
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        resumeLivePreview();
+    }
+
+
+    private void resumeLivePreview() {
+        if (mPlayer != null) {
+            mPlayer.setPlayWhenReady(false);
+        }
+    }
+
+
+    private void releaseMediaPlayer() {
+        if (r != null) {
+            handler.removeCallbacks(r );
+    }
+        if (mPlayer!= null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer= null;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        releaseMediaPlayer();
+        finish();
+    }
 }
