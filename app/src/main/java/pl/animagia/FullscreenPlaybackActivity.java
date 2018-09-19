@@ -179,7 +179,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private boolean isPrime(String title) {
         boolean prime = true;
-        if (title.equals("Amagi")){
+        if (title.equals("Chuuni")){
             prime = false;
         }
         return prime;

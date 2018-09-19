@@ -4,25 +4,29 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-class VideoData implements Parcelable {
+public class VideoData implements Parcelable {
 
     public static final String NAME_OF_INTENT_EXTRA = "video data";
 
     private final String title;
-    private final Uri posterAsssetUri;
+    private String posterAsssetUri;
     private final String videoUrl;
 
-    VideoData(String title, Uri posterAssetUri, String videoUrl) {
+    public VideoData(String title, String posterAssetUri, String videoUrl) {
         this.title = title;
         this.posterAsssetUri = posterAssetUri;
         this.videoUrl = videoUrl;
+    }
+
+    public void setUri(String uri){
+        this.posterAsssetUri = uri;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public Uri getPosterAsssetUri() {
+    public String getPosterAsssetUri() {
         return posterAsssetUri;
     }
 
@@ -50,7 +54,7 @@ class VideoData implements Parcelable {
     }
 
     protected VideoData(Parcel in) {
-        this.posterAsssetUri = in.readParcelable(null);
+        this.posterAsssetUri = in.readString();
         this.title = in.readString();
         this.videoUrl = in.readString();
     }
@@ -62,7 +66,7 @@ class VideoData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(posterAsssetUri, 0);
+        dest.writeString(posterAsssetUri);
         dest.writeString(title);
         dest.writeString(videoUrl);
     }

@@ -15,6 +15,8 @@ import android.widget.GridView;
 import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 
+import java.util.ArrayList;
+
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -37,9 +39,9 @@ public class CatalogFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         GridView gridview = (GridView) view.findViewById(R.id.gridview);
+
         final VideoThumbnailAdapter adapter = new VideoThumbnailAdapter(getActivity());
         gridview.setAdapter(adapter);
-
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
