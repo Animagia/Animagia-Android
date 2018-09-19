@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
-//import pl.animagia.images.Cos;
 import pl.animagia.video.VideoUrl;
 
 public class CatalogFragment extends Fragment {
