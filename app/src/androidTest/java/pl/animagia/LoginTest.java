@@ -53,12 +53,6 @@ public class LoginTest{
 
         onView(withId(R.id.email)).perform(typeText(EMAIL), closeSoftKeyboard());
         onView(withId(R.id.password)).perform(typeText(PASSWD),closeSoftKeyboard());
-//        EditText email = fragment.getActivity().findViewById(R.id.email);
-//        EditText password = fragment.getActivity().findViewById(R.id.password);
-//        Button button = fragment.getActivity().findViewById(R.id.sign_in_button);
-
-//        email.setText(EMAIL);
-//        password.setText(PASSWD);
         onView(withId(R.id.sign_in_button)).perform(click());
 
         NavigationView nav = rule.getActivity().findViewById(R.id.nav_view);
@@ -66,24 +60,6 @@ public class LoginTest{
         TextView emailTextView = headView.findViewById(R.id.userEmail);
 
         Assert.assertEquals(EMAIL, emailTextView.getText().toString());
-
-
-
-
-
-//        Intent intent = new Intent();
-//        final String film_title = "A feature film";
-//        VideoData originalData =
-//                new VideoData(film_title, "file:///android_asset/oscar_nord.jpg", "https://animagia.pl");
-//        intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, originalData);
-//        Activity activityUnderTest = rule.launchActivity(intent);
-//
-//
-//        Parcelable dataReceivedViaIntent =
-//                activityUnderTest.getIntent().getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
-//        Assert.assertEquals(originalData, dataReceivedViaIntent);
-
-
     }
 
 }
