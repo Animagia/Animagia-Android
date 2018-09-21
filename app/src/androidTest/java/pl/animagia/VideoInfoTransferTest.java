@@ -9,6 +9,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.google.android.exoplayer2.C;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +31,10 @@ public class VideoInfoTransferTest {
         Intent intent = new Intent();
         final String film_title = "A feature film";
         VideoData originalData =
-                new VideoData(film_title, Uri.parse("file:///android_asset/oscar_nord.jpg"));
+                new VideoData(film_title, "file:///android_asset/oscar_nord.jpg", "https://animagia.pl");
+        final String url = "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm";
         intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, originalData);
+        intent.putExtra(VideoData.NAME_OF_URL, url);
         Activity activityUnderTest = rule.launchActivity(intent);
 
 

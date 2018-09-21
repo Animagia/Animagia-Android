@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
@@ -23,8 +25,6 @@ import pl.animagia.html.VolleyCallback;
 import pl.animagia.video.VideoUrl;
 
 public class CatalogFragment extends Fragment {
-
-    public static final String NAME_OF_URL = "video url";
 
     @Nullable
     @Override
@@ -59,7 +59,7 @@ public class CatalogFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
                 intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-                intent.putExtra(CatalogFragment.NAME_OF_URL, url);
+                intent.putExtra(VideoData.NAME_OF_URL, url);
 
                 startActivity(intent);
             }

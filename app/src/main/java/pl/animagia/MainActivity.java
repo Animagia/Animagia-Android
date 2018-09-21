@@ -49,8 +49,7 @@ public class MainActivity extends AppCompatActivity
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent( MainActivity.this, LoginActivity.class);
-                startActivity(intent);
+                activateFragment(new LoginFragment());
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawer(GravityCompat.START);
             }

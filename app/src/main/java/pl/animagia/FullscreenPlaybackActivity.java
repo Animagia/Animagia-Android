@@ -75,7 +75,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         Intent intent = getIntent();
         VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
 
-        String url = intent.getStringExtra(CatalogFragment.NAME_OF_URL);
+        String url = intent.getStringExtra(VideoData.NAME_OF_URL);
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
