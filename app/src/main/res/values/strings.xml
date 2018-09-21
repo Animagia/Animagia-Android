@@ -15,5 +15,14 @@
     <string name="documents">Dokumenty</string>
     <string name="title_activity_document">DocumentActivity</string>
     <string name="terms">Regulamin</string>
+    <string name="title_activity_login">Logowanie</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Login</string>
+    <string name="prompt_password">Hasło</string>
+    <string name="action_sign_in">Zaloguj się</string>
+    <string name="action_sign_in_short">Logowanie</string>
+    <string name="mail" />
+
 
 </resources>

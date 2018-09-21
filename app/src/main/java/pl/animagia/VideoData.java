@@ -7,6 +7,8 @@ import android.os.Parcelable;
 public class VideoData implements Parcelable {
 
     public static final String NAME_OF_INTENT_EXTRA = "video data";
+    public static final String NAME_OF_URL = "video url";
+
 
     private final String title;
     private String posterAsssetUri;

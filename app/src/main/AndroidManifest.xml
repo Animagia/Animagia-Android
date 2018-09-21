@@ -34,6 +34,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pl.animagia.MainActivity" />
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login" />
     </application>
 
 </manifest><!--
