@@ -10,8 +10,6 @@ import java.util.Map;
 
 public class CookieRequest extends StringRequest {
 
-    // Since we're extending a Request class
-    // we just use its constructor
     public CookieRequest(int method, String url,
                          Response.Listener<String> listener, Response.ErrorListener errorListener) {
         super(method, url, listener, errorListener);
@@ -19,14 +17,7 @@ public class CookieRequest extends StringRequest {
 
     private Map<String, String> headers = new HashMap<>();
 
-    /**
-     * Custom class!
-     */
     public void setCookies(String cookies) {
-//        StringBuilder sb = new StringBuilder();
-//        for (String cookie : cookies) {
-//            sb.append(cookie).append("; ");
-//        }
         headers.put("Cookie", cookies);
     }
 
