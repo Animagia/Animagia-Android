@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +26,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import pl.animagia.user.User;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -52,8 +67,8 @@ public class LoginFragment extends Fragment {
                 EditText emailText = getActivity().findViewById(R.id.email);
                 EditText passwordText = getActivity().findViewById(R.id.password);
 
-                String email = emailText.getText().toString();
-                String password = passwordText.getText().toString();
+                final String email = emailText.getText().toString();
+                final String password = passwordText.getText().toString();
 
                 Toast.makeText(getContext(), email + " " + password, Toast.LENGTH_SHORT).show();
 
@@ -62,9 +77,44 @@ public class LoginFragment extends Fragment {
                 View headView = navigationView.getHeaderView(0);
                 TextView emailTextView = headView.findViewById(R.id.userEmail);
 
+                RequestQueue queue = Volley.newRequestQueue(getContext());
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl/", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        System.out.println(s);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("log", email);
+                        params.put("pwd", password);
+
+                        return params;
+                    }
+
+                    @Override
+                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                        Log.i("response",response.headers.toString());
+                        Map<String, String> responseHeaders = response.headers;
+                        String rawCookies = responseHeaders.get("Set-Cookie");
+                        User user = User.getInstance();
+                        user.setCookie(rawCookies);
+                        Log.i("cookies",rawCookies);
+                        return super.parseNetworkResponse(response);
+                    }
+
+                };
+                queue.add(stringRequest);
+
                 emailTextView.setText(email);
                 activateFragment(new CatalogFragment());
-               hideSoftKeyboard();
+                hideSoftKeyboard();
             }
         });
 
