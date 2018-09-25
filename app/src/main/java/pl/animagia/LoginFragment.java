@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pl.animagia.html.CookieRequest;
-import pl.animagia.user.User;
+import pl.animagia.user.Cookies;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
@@ -79,7 +79,7 @@ public class LoginFragment extends Fragment {
                 TextView emailTextView = headView.findViewById(R.id.userEmail);
 
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl/", new Response.Listener<String>() {
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         System.out.println(s);
@@ -105,13 +105,12 @@ public class LoginFragment extends Fragment {
                         Log.i("response",response.headers.toString());
                         Map<String, String> responseHeaders = response.headers;
                         String rawCookies = responseHeaders.get("Set-Cookie");
-                        User user = User.getInstance();
                         int firstIndex = rawCookies.indexOf(";");
                         String cookie = rawCookies.substring(0, firstIndex);
-                        System.out.println("Ciacho: " + cookie);
-                        user.setCookie(cookie);
+                        Cookies.setCookie("Cookie", cookie, getActivity());
 
                         sendRequest("animagia.pl/account", getContext());
+
                         Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
                     }
@@ -120,7 +119,7 @@ public class LoginFragment extends Fragment {
                 queue.add(stringRequest);
 
                 emailTextView.setText(email);
-                activateFragment(new CatalogFragment());
+               // activateFragment(new CatalogFragment());
                 hideSoftKeyboard();
             }
         });
@@ -153,8 +152,8 @@ public class LoginFragment extends Fragment {
 //                callback.onFailure(volleyError);
             }
         });
-        User user = User.getInstance();
-        stringRequest.setCookies(user.getCookie());
+        String cookie = Cookies.getCookie("Cookie", getActivity());
+        stringRequest.setCookies(cookie);
         queue.add(stringRequest);
     }
 
