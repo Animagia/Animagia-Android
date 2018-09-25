@@ -39,6 +39,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.animagia.html.CookieRequest;
 import pl.animagia.user.User;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
@@ -94,6 +95,7 @@ public class LoginFragment extends Fragment {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("log", email);
                         params.put("pwd", password);
+                        params.put("testcookie", "1");
 
                         return params;
                     }
@@ -104,7 +106,12 @@ public class LoginFragment extends Fragment {
                         Map<String, String> responseHeaders = response.headers;
                         String rawCookies = responseHeaders.get("Set-Cookie");
                         User user = User.getInstance();
-                        user.setCookie(rawCookies);
+                        int firstIndex = rawCookies.indexOf(";");
+                        String cookie = rawCookies.substring(0, firstIndex);
+                        System.out.println("Ciacho: " + cookie);
+                        user.setCookie(cookie);
+
+                        sendRequest("animagia.pl/account", getContext());
                         Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
                     }
@@ -131,6 +138,24 @@ public class LoginFragment extends Fragment {
     private void hideSoftKeyboard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+
+    private void sendRequest(String url, Context con) {
+        RequestQueue queue = Volley.newRequestQueue(con);
+        CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) {
+                System.out.println(s);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+//                callback.onFailure(volleyError);
+            }
+        });
+        User user = User.getInstance();
+        stringRequest.setCookies(user.getCookie());
+        queue.add(stringRequest);
     }
 
 }
