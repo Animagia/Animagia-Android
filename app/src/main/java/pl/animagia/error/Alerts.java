@@ -45,4 +45,15 @@ public class Alerts {
                 .setNeutralButton("jakis przycisk", toastButton)
                 .show();
     }
+
+    public static void logInError(final Context context, DialogInterface.OnClickListener login){
+        String message = "Nie jesteś zalogowany";
+        new AlertDialog.Builder(context)
+                .setCancelable(true)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
+                .setTitle("Błąd logowania")
+                .setMessage(message)
+                .setNeutralButton("Zaloguj", login)
+                .show();
+    }
 }

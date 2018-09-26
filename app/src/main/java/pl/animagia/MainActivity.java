@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity
             activateFragment(new DocumentListFragment());
         } else if (id == R.id.nav_terms_and_conditions) {
             activateFragment(new TermsFragment());
+        }else if (id == R.id.nav_downloads) {
+            activateFragment(new FilesFragment());
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
