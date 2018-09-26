@@ -82,7 +82,7 @@ public class LoginFragment extends Fragment {
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
-                        System.out.println(s);
+
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -107,9 +107,10 @@ public class LoginFragment extends Fragment {
                         String rawCookies = responseHeaders.get("Set-Cookie");
                         int firstIndex = rawCookies.indexOf(";");
                         String cookie = rawCookies.substring(0, firstIndex);
-                        Cookies.setCookie("Cookie", cookie, getActivity());
-
-                        sendRequest("animagia.pl/account", getContext());
+                        if(cookie.startsWith("wordpress_logged_in")) {
+                            Cookies.setCookie(Cookies.LOGIN, cookie, getActivity());
+                        }
+                        activateFragment(new CatalogFragment());
 
                         Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
@@ -119,7 +120,6 @@ public class LoginFragment extends Fragment {
                 queue.add(stringRequest);
 
                 emailTextView.setText(email);
-               // activateFragment(new CatalogFragment());
                 hideSoftKeyboard();
             }
         });
@@ -137,24 +137,6 @@ public class LoginFragment extends Fragment {
     private void hideSoftKeyboard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-    }
-
-    private void sendRequest(String url, Context con) {
-        RequestQueue queue = Volley.newRequestQueue(con);
-        CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                System.out.println(s);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-//                callback.onFailure(volleyError);
-            }
-        });
-        String cookie = Cookies.getCookie("Cookie", getActivity());
-        stringRequest.setCookies(cookie);
-        queue.add(stringRequest);
     }
 
 }
