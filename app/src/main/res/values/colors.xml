@@ -5,4 +5,6 @@
     <color name="colorPrimaryLight">#628ef0</color>
 
     <color name="black_overlay">#20000000</color>
+    <color name="black">#000000</color>
+    <color name="grey">#1a1a1a</color>
 </resources>

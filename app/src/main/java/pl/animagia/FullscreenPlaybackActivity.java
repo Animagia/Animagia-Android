@@ -1,18 +1,23 @@
 package pl.animagia;
 
+//import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import pl.animagia.error.Alerts;
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
 import pl.animagia.video.VideoSourcesKt;
+import pl.animagia.video.VideoUrl;
 
+import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -26,8 +31,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
-import static pl.animagia.CatalogFragment.*;
-
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -36,15 +39,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private final Handler mHideHandler = new Handler();
 
-    private View mMainView;
+    private PlayerView mMainView;
     private View mControlsView;
 
     private SimpleExoPlayer mPlayer;
+    private int episodes;
+    private int currentEpisode;
 
     private boolean mVisible;
-
     private Context context;
-
+    PlayerView playerView;
     final Handler handler = new Handler();
     final Runnable r = new Runnable()
     {
@@ -60,22 +64,47 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     };
 
+    final Runnable hideUi = new Runnable()
+    {
+        public void run()
+        {
+            if(mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) {
+                hideSystemUi();
+                mVisible = false;
+            }
+        }
+    };
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
-        setContentView(R.layout.activity_fullscreen_playback);
-
-        mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mMainView = findViewById(R.id.exoplayerview_activity_video);
-
-        hideSystemUi();
 
         Intent intent = getIntent();
-        VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+        final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+        final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
+        final AppCompatActivity ac = this;
 
-        String url = intent.getStringExtra(VideoData.NAME_OF_URL);
+        episodes = video.getEpisodes();
+        currentEpisode = 1;
+
+
+        if (episodes == 1){
+            setContentView(R.layout.activity_fullscreen_playback);
+            mMainView = findViewById(R.id.exoplayerview_activity_video);
+        } else {
+            setContentView(R.layout.episodes_fullscreen_playback);
+            mMainView = findViewById(R.id.player);
+            TextView next = findViewById(R.id.next);
+            TextView previous = findViewById(R.id.previous);
+            TextView title = findViewById(R.id.film_name);
+            title.setText(video.getTitle() + " odc. " + currentEpisode);
+            next.setOnClickListener(newEpisodeListener(ac, video, 1));
+            previous.setOnClickListener(newEpisodeListener(ac, video, -1));
+        }
+
+        mVisible = true;
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
@@ -84,11 +113,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
         mPlayer.addListener(createPlayPauseListener());
-
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                toggle();
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    toggle();
+
+                }
+
                 return false;
             }
         });
@@ -103,14 +135,65 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady && playbackState == Player.STATE_READY) {
                     // media is playing
-                    hide();
+//                    hide();
+                    handler.postDelayed(hideUi, 5000);
                 } else if (playWhenReady) {
                     // might be idle (plays after prepare()),
                     // buffering (plays when data available)
                     // or ended (plays when seek away from end)
                 } else {
+                    showSystemUi();
+                    if (hideUi != null) {
+                        handler.removeCallbacks(hideUi);
+                    }
+
                     // player paused in any state
                 }
+            }
+        };
+    }
+
+    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(checkEpisodes(newEpisode)){
+                    HTML.getHtml(video.getVideoUrl().substring(0,video.getVideoUrl().length()-2)+(currentEpisode + newEpisode), getApplicationContext(), new VolleyCallback() {
+                        @SuppressLint("ClickableViewAccessibility")
+                        @Override
+                        public void onSuccess(String result) {
+                            releaseMediaPlayer();
+                            String url =  VideoUrl.getUrl(result);
+                            mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(activity, url, video.getTitle()));
+                            if(!isPrime(video.getTitle())){
+                                handler.postDelayed(r, 300);
+                            }
+
+                            mPlayer.addListener(createPlayPauseListener());
+
+                            mMainView.setOnTouchListener(new View.OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    if(event.getAction()==MotionEvent.ACTION_DOWN){
+                                        toggle();
+                                    }
+                                    return false;
+                                }
+                            });
+
+                            mPlayer.setPlayWhenReady(true);
+                            changeCurrentEpisodes(newEpisode);
+                            TextView title = findViewById(R.id.film_name);
+                            title.setText(video.getTitle() + " odc. " + currentEpisode);
+                        }
+
+                        @Override
+                        public void onFailure(VolleyError volleyError) {
+
+                        }
+                    });
+                }
+
             }
         };
     }
@@ -129,16 +212,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         SimpleExoPlayer player =
                 ExoPlayerFactory.newSimpleInstance(this, trackSelector);
 
-        PlayerView playerView = findViewById(R.id.exoplayerview_activity_video);
-
-        playerView.setPlayer(player);
-
+        mMainView.setPlayer(player);
 
         player.prepare(mediaSource);
 
-
-        PlayerControlView controlView = findViewById(R.id.playback_controls);
-        controlView.setPlayer(player);
+        if(episodes==1){
+            PlayerControlView controlView = findViewById(R.id.playback_controls);
+            controlView.setPlayer(player);
+        }
 
         return player;
     }
@@ -146,20 +227,26 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void toggle() {
         if (mVisible) {
             hide();
+
         } else {
             show();
+            if (hideUi !=null)
+                handler.removeCallbacks(hideUi);
+            handler.postDelayed(hideUi, 5000);
         }
     }
 
     private void hide() {
         hideSystemUi();
-        mControlsView.setVisibility(View.GONE);
+        System.out.println("UKRYJ");
+        mMainView.showController();
         mVisible = false;
     }
 
     private void show() {
+        System.out.println("POKAŻ");
         showSystemUi();
-        mControlsView.setVisibility(View.VISIBLE);
+        mMainView.hideController();
         mVisible = true;
     }
 
@@ -179,7 +266,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private boolean isPrime(String title) {
         boolean prime = true;
-        if (title.equals("Chuuni")){
+        if (title.equals("Chuunibyou demo Koi ga Shitai! Take On Me")){
             prime = false;
         }
         return prime;
@@ -201,8 +288,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void releaseMediaPlayer() {
         if (r != null) {
-            handler.removeCallbacks(r );
-    }
+            handler.removeCallbacks(r);
+        }
+        if (hideUi != null) {
+            handler.removeCallbacks(hideUi);
+        }
         if (mPlayer!= null) {
             mPlayer.stop();
             mPlayer.release();
@@ -214,5 +304,19 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onBackPressed() {
         releaseMediaPlayer();
         finish();
+    }
+
+    private boolean checkEpisodes(int newEpisode){
+        boolean isOk = false;
+
+        if (currentEpisode + newEpisode <= episodes && currentEpisode + newEpisode >= 1) {
+            isOk = true;
+        }
+
+        return isOk;
+    }
+
+    private void changeCurrentEpisodes(int change) {
+        currentEpisode += change;
     }
 }

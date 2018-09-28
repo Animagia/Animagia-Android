@@ -12,7 +12,6 @@
         android:id="@+id/exoplayerview_activity_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:use_controller="false"
         />
 
     <!-- This FrameLayout insets its children based on system windows using
@@ -35,7 +34,7 @@
                 android:id="@+id/playback_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:show_timeout="0" />
+                app:show_timeout="5000" />
 
         </LinearLayout>
     </FrameLayout>

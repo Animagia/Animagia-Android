@@ -26,7 +26,6 @@ public class Cookies {
         SharedPreferences pref = activity.getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.remove(key);
-        System.out.println("USUWANKO");
         editor.apply();
     }
 }
