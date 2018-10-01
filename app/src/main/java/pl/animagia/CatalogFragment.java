@@ -5,23 +5,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 
-import java.util.ArrayList;
-
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
+import pl.animagia.location.Geolocation;
 import pl.animagia.video.VideoUrl;
 
 public class CatalogFragment extends Fragment {
@@ -56,12 +56,15 @@ public class CatalogFragment extends Fragment {
             @Override
             public void onSuccess (String result){
                 String url =  VideoUrl.getUrl(result);
+                if(Geolocation.checkLocation(url)) {
+                    Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
+                    intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
+                    intent.putExtra(VideoData.NAME_OF_URL, url);
 
-                Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-                intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-                intent.putExtra(VideoData.NAME_OF_URL, url);
-
-                startActivity(intent);
+                    startActivity(intent);
+                } else {
+                    setText(Geolocation.WRONG_GEOLOCATION);
+                }
             }
 
             @Override
@@ -78,6 +81,24 @@ public class CatalogFragment extends Fragment {
                 }
             }
         });
+    }
+
+    public void setText(String message) {
+        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
+
+        TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
+        if(view == null){
+
+            TextView textView = new TextView(getContext());
+            textView.setId(R.id.geo_text_view);
+            textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            textView.setText(message);
+            textView.setGravity(Gravity.CENTER);
+            textView.setPadding(0, 10, 0, 10);
+            textView.setTextSize(18);
+
+            linearLayout.addView(textView, 0);
+        }
     }
 
 }
