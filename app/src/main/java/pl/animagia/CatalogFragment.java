@@ -63,7 +63,7 @@ public class CatalogFragment extends Fragment {
 
                     startActivity(intent);
                 } else {
-                    setText();
+                    setText(Geolocation.WRONG_GEOLOCATION);
                 }
             }
 
@@ -83,7 +83,7 @@ public class CatalogFragment extends Fragment {
         });
     }
 
-    private void setText() {
+    public void setText(String message) {
         LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
 
         TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
@@ -92,7 +92,7 @@ public class CatalogFragment extends Fragment {
             TextView textView = new TextView(getContext());
             textView.setId(R.id.geo_text_view);
             textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            textView.setText("Nie jesteś w Polsce");
+            textView.setText(message);
             textView.setGravity(Gravity.CENTER);
             textView.setPadding(0, 10, 0, 10);
             textView.setTextSize(18);
