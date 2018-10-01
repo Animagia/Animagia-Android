@@ -63,7 +63,7 @@ public class CatalogFragment extends Fragment {
 
                     startActivity(intent);
                 } else {
-                    setTextt();
+                    setText();
                 }
             }
 
@@ -83,7 +83,7 @@ public class CatalogFragment extends Fragment {
         });
     }
 
-    private void setTextt() {
+    private void setText() {
         LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
 
         TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
