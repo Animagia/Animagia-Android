@@ -13,7 +13,7 @@ public class VideoUrl {
 
         String customString = "";
         if (line.equals("")) {
-            customString = "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm";
+            return line;
         } else {
             customString =  line.substring(firstIndex, last-1);
         }
