@@ -35,11 +35,11 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
     private static VideoData[] prepareVideos() {
         arr =  new VideoData[]{
-                    new VideoData("A feature film", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
-                    new VideoData("A TV series", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
-                    new VideoData("Amagi Brilliant Park", "", "animagia.pl/amagi-brilliant-park-odc-1/", 7),
-                    new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "", "animagia.pl", 1)
-                };
+                new VideoData("A feature film", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
+                new VideoData("A TV series", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
+                new VideoData("Amagi Brilliant Park", "", "https://animagia.pl/amagi-brilliant-park-odc-1/", 7),
+                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "", "https://animagia.pl", 1)
+        };
 
         return arr;
     }
