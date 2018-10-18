@@ -53,12 +53,12 @@ public class CatalogFragment extends Fragment {
 
 
     private void launchPlayback(final VideoData videoData) {
-        HTML.getHtml(videoData.getVideoUrl(), getContext(), new VolleyCallback() {
+        final String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+        HTML.getHtmlCookie(videoData.getVideoUrl(), getContext(), cookie, new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 String url =  VideoUrl.getUrl(result);
                 if(Geolocation.checkLocation(url)) {
-                    String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
                     Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
                     intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
                     intent.putExtra(VideoData.NAME_OF_URL, url);
