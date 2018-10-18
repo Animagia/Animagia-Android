@@ -1,6 +1,5 @@
 package pl.animagia;
 
-//import android.app.Activity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
+import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
@@ -48,6 +48,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private boolean mVisible;
     private Context context;
+    private String cookie;
     PlayerView playerView;
     final Handler handler = new Handler();
     final Runnable r = new Runnable()
@@ -85,6 +86,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
         final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
         final AppCompatActivity ac = this;
+        cookie = intent.getStringExtra(Cookies.LOGIN);
 
         episodes = video.getEpisodes();
         currentEpisode = 1;
@@ -109,7 +111,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
         if(!isPrime(video.getTitle())){
-            handler.postDelayed(r, 300);
+            if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                handler.postDelayed(r, 300);
+            }
         }
 
         mPlayer.addListener(createPlayPauseListener());
@@ -166,7 +170,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             String url =  VideoUrl.getUrl(result);
                             mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(activity, url, video.getTitle()));
                             if(!isPrime(video.getTitle())){
-                                handler.postDelayed(r, 300);
+                                if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                                    handler.postDelayed(r, 300);
+                                }
                             }
 
                             mPlayer.addListener(createPlayPauseListener());
