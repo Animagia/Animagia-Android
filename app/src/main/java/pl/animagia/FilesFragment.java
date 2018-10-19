@@ -80,7 +80,6 @@ public class FilesFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                System.out.println(volleyError);
                 DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

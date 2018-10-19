@@ -1,33 +1,59 @@
 package pl.animagia.file;
 
+import android.text.TextUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileUrl {
 
+    private FileUrl(){
+    }
+
     public static String getText(String html){
-        String line = getLine(html);
-        int firstIndex = line.indexOf("<h2>Pliki do pobrania</h2>") + "<h2>Pliki do pobrania</h2>".length();
+        List<String> lines = getLines(html);
         String customString = "";
-        if (line.equals("")) {
-            return line;
-        } else {
-            customString = line.substring(firstIndex, line.length() );
+        if (lines.isEmpty()) {
+            return "";
         }
-        System.out.println(customString);
+        else if (!lines.get(lines.size()-1).contains("</article>")){
+            return "";
+        }
+        else {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (String s : lines)
+            {
+                stringBuilder.append(s);
+            }
+            customString = stringBuilder.toString();
+            int firstIndex = customString.indexOf("<h2>Pliki do pobrania</h2>") + "<h2>Pliki do pobrania</h2>".length();
+            int lastIndex = customString.lastIndexOf("</p>") + "</p>".length();
+            customString =  customString.substring(firstIndex, lastIndex);
+            customString = customString.replace("  ", "").replace("> ",">").replace(" <a","  <a").replace(" <", "<");
+        }
         return customString;
     }
 
-    private static String getLine(String html) {
+    private static List<String> getLines(String html) {
         Boolean read = true;
-        String urlLine = "";
+        List<String> urlLines = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new StringReader(html));
         try {
             String line = reader.readLine();
             while(line != null && read){
                 if(line.contains("<h2>Pliki do pobrania</h2>")){
-                    urlLine = line;
+                    urlLines.add(line);
+                    read = false;
+                }
+                line = reader.readLine();
+            }
+            read = true;
+            while(line != null && read){
+                urlLines.add(line);
+                if(line.contains("</article>")){
                     read = false;
                 }
                 line = reader.readLine();
@@ -36,7 +62,8 @@ public class FileUrl {
             e.printStackTrace();
         }
 
-        return urlLine;
+
+        return urlLines;
     }
 }
 
