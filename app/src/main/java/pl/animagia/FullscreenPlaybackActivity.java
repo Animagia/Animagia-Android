@@ -107,9 +107,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
         mVisible = true;
-
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
-
         if(!isPrime(video.getTitle())){
             if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
                 handler.postDelayed(r, 300);
@@ -128,7 +126,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         mPlayer.setPlayWhenReady(true);
     }
 
@@ -207,7 +204,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private SimpleExoPlayer createPlayer(MediaSource mediaSource) {
         // 1. Create a default TrackSelector
-        Handler mainHandler = new Handler();
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
                 new AdaptiveTrackSelection.Factory(bandwidthMeter);

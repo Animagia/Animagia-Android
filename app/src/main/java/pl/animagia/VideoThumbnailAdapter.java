@@ -29,7 +29,9 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     public VideoThumbnailAdapter(Context context) {
         super(context, R.layout.video_thumbnail, R.id.thumbnail_text, prepareVideos());
         for(int i = 0; i < arr.length; i++){
-            getImage(i);
+            if (arr[i].getTitle().equals("")){
+                getImage(i);
+            }
         }
     }
 
@@ -38,7 +40,9 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                 new VideoData("A feature film", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
                 new VideoData("A TV series", "", "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm", 1),
                 new VideoData("Amagi Brilliant Park", "", "https://animagia.pl/amagi-brilliant-park-odc-1/", 7),
-                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "", "https://animagia.pl", 1)
+                new VideoData("Aruku to Iu Koto", "", "https://animagia.pl", 1),
+                new VideoData("Shake-chan", "", "https://animagia.pl/", 1),
+                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "", "https://animagia.pl/", 1)
         };
 
         return arr;
