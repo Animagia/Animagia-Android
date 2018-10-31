@@ -1,8 +1,10 @@
 package pl.animagia;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,7 +16,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import pl.animagia.user.Cookies;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -22,7 +31,7 @@ public class MainActivity extends AppCompatActivity
     private static final String SELECTED_ITEM = "selected item";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -43,8 +52,28 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View headView = navigationView.getHeaderView(0);
+        final View headView = navigationView.getHeaderView(0);
         ImageView image = headView.findViewById(R.id.login);
+        String cookie = Cookies.getCookie(Cookies.LOGIN, this);
+        TextView textView = headView.findViewById(R.id.userEmail);
+        if (cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+            textView.setText("Gość");
+        }
+        else {
+            textView.setText("Zalogowany");
+        }
+
+        Button button = headView.findViewById(R.id.account_view_icon_button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment loginPopupFragment = new LoginPopupFragment();
+                loginPopupFragment.show(getSupportFragmentManager(),"popup");
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        });
 
         image.setOnClickListener(new View.OnClickListener() {
             @Override
