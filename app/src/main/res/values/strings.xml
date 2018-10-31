@@ -22,7 +22,7 @@
     <string name="prompt_password">Hasło</string>
     <string name="action_sign_in">Zaloguj się</string>
     <string name="action_sign_in_short">Logowanie</string>
-    <string name="mail" />
+    <string name="mail">Gość</string>
 
 
 </resources>
