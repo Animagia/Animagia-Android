@@ -262,8 +262,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private void showSystemUi() {
-        mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
     private boolean isPrime(String title) {
