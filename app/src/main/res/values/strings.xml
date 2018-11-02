@@ -23,6 +23,8 @@
     <string name="action_sign_in">Zaloguj się</string>
     <string name="action_sign_in_short">Logowanie</string>
     <string name="mail">Gość</string>
+    <string name="action_sign_out">Wyloguj się</string>
+    <string name="guest">Gość</string>
 
 
 </resources>
