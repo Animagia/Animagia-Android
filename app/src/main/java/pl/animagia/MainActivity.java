@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.logout) {
             Cookies.removeCookie(Cookies.LOGIN, this);
-            Toast.makeText(this, "Wylogowano", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.logged_out, Toast.LENGTH_SHORT).show();
             finish();
             overridePendingTransition(0, 0);
             startActivity(getIntent());
