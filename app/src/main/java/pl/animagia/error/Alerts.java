@@ -7,11 +7,12 @@ import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
+import pl.animagia.R;
 
 public class Alerts {
 
     public static void internetConnectionError(final Context context, DialogInterface.OnClickListener onClickTryAgainButton) {
-        String message = "Brak połączenia z internetem. Sprawdź swoje połączenie i spróbuj ponownie";
+        String message = context.getString(R.string.no_connection_message);
         DialogInterface.OnClickListener turnOnInternet = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -22,10 +23,10 @@ public class Alerts {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle("Brak połącznia z internetem")
+                .setTitle(R.string.no_connection_short)
                 .setMessage(message)
-                .setPositiveButton("Spróbuj ponownie", onClickTryAgainButton)
-                .setNegativeButton("Włącz internet", turnOnInternet)
+                .setPositiveButton(R.string.try_again, onClickTryAgainButton)
+                .setNegativeButton(R.string.turn_on_internet, turnOnInternet)
                 .show();
     }
 
@@ -47,13 +48,13 @@ public class Alerts {
     }
 
     public static void logInError(final Context context, DialogInterface.OnClickListener login){
-        String message = "Nie jesteś zalogowany";
+        String message = context.getString(R.string.not_logged);
         new AlertDialog.Builder(context)
                 .setCancelable(true)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle("Błąd logowania")
+                .setTitle(R.string.login_error)
                 .setMessage(message)
-                .setNeutralButton("Zaloguj", login)
+                .setNeutralButton(R.string.action_sign_in, login)
                 .show();
     }
 }
