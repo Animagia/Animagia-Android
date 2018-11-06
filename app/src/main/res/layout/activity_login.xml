@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".LoginActivity">
+    tools:context=".LoginFragment">
 
     <!-- Login progress -->
     <ScrollView
@@ -64,7 +64,12 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
-
+            <ProgressBar
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="117dp"
+                    android:id="@+id/progressBar" android:visibility="gone"/>
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

@@ -4,6 +4,7 @@ package pl.animagia;
 import android.Manifest;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.inputmethodservice.Keyboard;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,25 +21,16 @@ import android.view.View.OnClickListener;
 
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.*;
 
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.animagia.error.Alerts;
 import pl.animagia.html.CookieRequest;
 import pl.animagia.user.Cookies;
 
@@ -60,33 +52,57 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        Button signIn = (Button) getActivity().findViewById(R.id.sign_in_button);
+        final Button signIn = (Button) getActivity().findViewById(R.id.sign_in_button);
+        final EditText emailText = getActivity().findViewById(R.id.email);
+        final EditText passwordText = getActivity().findViewById(R.id.password);
+        final ProgressBar progressBar = getActivity().findViewById(R.id.progressBar);
         signIn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText emailText = getActivity().findViewById(R.id.email);
-                EditText passwordText = getActivity().findViewById(R.id.password);
+
+                emailText.setFocusable(false);
+                passwordText.setFocusable(false);
+                signIn.setEnabled(false);
+                progressBar.setVisibility(View.VISIBLE);
 
                 final String email = emailText.getText().toString();
                 final String password = passwordText.getText().toString();
 
-                Toast.makeText(getContext(), email + " " + password, Toast.LENGTH_SHORT).show();
-
                 NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
 
                 View headView = navigationView.getHeaderView(0);
-                TextView emailTextView = headView.findViewById(R.id.userEmail);
+                final TextView emailTextView = headView.findViewById(R.id.userEmail);
 
                 RequestQueue queue = Volley.newRequestQueue(getContext());
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
+                        progressBar.setVisibility(View.GONE);
+                        signIn.setEnabled(true);
+                        passwordText.setFocusableInTouchMode(true);
+                        passwordText.setFocusable(true);
+                        emailText.setFocusableInTouchMode(true);
+                        emailText.setFocusable(true);
 
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
+                        if (volleyError instanceof NoConnectionError) {
+                            DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            };
+                            Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                        }
+                        progressBar.setVisibility(View.GONE);
+                        signIn.setEnabled(true);
+                        passwordText.setFocusableInTouchMode(true);
+                        passwordText.setFocusable(true);
+                        emailText.setFocusableInTouchMode(true);
+                        emailText.setFocusable(true);
 
                     }
                 }) {
@@ -109,8 +125,9 @@ public class LoginFragment extends Fragment {
                         String cookie = rawCookies.substring(0, firstIndex);
                         if(cookie.startsWith("wordpress_logged_in")) {
                             Cookies.setCookie(Cookies.LOGIN, cookie, getActivity());
+                            activateFragment(new CatalogFragment());
+                            emailTextView.setText(email);
                         }
-                        activateFragment(new CatalogFragment());
 
                         Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
@@ -119,7 +136,6 @@ public class LoginFragment extends Fragment {
                 };
                 queue.add(stringRequest);
 
-                emailTextView.setText(email);
                 hideSoftKeyboard();
             }
         });
