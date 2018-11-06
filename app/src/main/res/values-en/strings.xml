@@ -30,6 +30,7 @@
     <string name="not_logged">You are not logged in</string>
     <string name="login_error">Login error</string>
     <string name="logged_out">Logged out</string>
+    <string name="wrong_credentials">Incorrect login details</string>
 
 
 </resources>

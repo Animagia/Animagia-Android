@@ -56,14 +56,19 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/errorMessage"
+                    android:textColor="?attr/colorError"
+                    android:layout_weight="1"/>
             <Button
-                android:id="@+id/sign_in_button"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/action_sign_in"
-                android:textStyle="bold" />
+                    android:id="@+id/sign_in_button"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_sign_in"
+                    android:textStyle="bold"/>
             <ProgressBar
                     style="?android:attr/progressBarStyle"
                     android:layout_width="match_parent"

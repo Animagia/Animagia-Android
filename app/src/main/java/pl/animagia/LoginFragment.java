@@ -56,14 +56,16 @@ public class LoginFragment extends Fragment {
         final EditText emailText = getActivity().findViewById(R.id.email);
         final EditText passwordText = getActivity().findViewById(R.id.password);
         final ProgressBar progressBar = getActivity().findViewById(R.id.progressBar);
+        final TextView errorMessage = getActivity().findViewById(R.id.errorMessage);
         signIn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                errorMessage.setText("");
                 emailText.setFocusable(false);
                 passwordText.setFocusable(false);
                 signIn.setEnabled(false);
                 progressBar.setVisibility(View.VISIBLE);
+
 
                 final String email = emailText.getText().toString();
                 final String password = passwordText.getText().toString();
@@ -83,7 +85,7 @@ public class LoginFragment extends Fragment {
                         passwordText.setFocusable(true);
                         emailText.setFocusableInTouchMode(true);
                         emailText.setFocusable(true);
-
+//
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -128,7 +130,9 @@ public class LoginFragment extends Fragment {
                             activateFragment(new CatalogFragment());
                             emailTextView.setText(email);
                         }
-
+                        else {
+                            setText(errorMessage,getString(R.string.wrong_credentials));
+                        }
                         Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
                     }
@@ -153,6 +157,14 @@ public class LoginFragment extends Fragment {
     private void hideSoftKeyboard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+    private void setText(final TextView text,final String value){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                text.setText(value);
+            }
+        });
     }
 
 }
