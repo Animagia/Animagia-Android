@@ -30,6 +30,7 @@
     <string name="not_logged">Nie jesteś zalogowany</string>
     <string name="login_error">Błąd logowania</string>
     <string name="logged_out">Wylogowano</string>
+    <string name="wrong_credentials">Nieprawidłowe dane logowania</string>
 
 
 </resources>
