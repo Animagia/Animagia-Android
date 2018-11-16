@@ -55,11 +55,9 @@ public class LoginTest{
         onView(withId(R.id.password)).perform(typeText(PASSWD),closeSoftKeyboard());
         onView(withId(R.id.sign_in_button)).perform(click());
 
-        NavigationView nav = rule.getActivity().findViewById(R.id.nav_view);
-        View headView = nav.getHeaderView(0);
-        TextView emailTextView = headView.findViewById(R.id.userEmail);
+        TextView errorMessage = rule.getActivity().findViewById(R.id.errorMessage);
 
-        Assert.assertEquals(EMAIL, emailTextView.getText().toString());
+        Assert.assertEquals(fragment.getString(R.string.wrong_credentials), errorMessage.getText().toString());
     }
 
 }
