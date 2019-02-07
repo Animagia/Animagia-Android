@@ -37,10 +37,10 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
     private static VideoData[] prepareVideos() {
         arr =  new VideoData[]{
-                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "", "https://animagia.pl/", 1),
-                new VideoData("Amagi Brilliant Park", "", "https://animagia.pl/amagi-brilliant-park-odc-1/", 7),
-                new VideoData("Shake-chan", "", "https://animagia.pl/", 1),
-                new VideoData("Aruku to Iu Koto", "", "https://animagia.pl", 1)
+                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "https://static.animagia.pl/film_poster.jpg", "https://animagia.pl/", 1),
+                new VideoData("Amagi Brilliant Park", "https://static.animagia.pl/Amagi4.jpg", "https://animagia.pl/amagi-brilliant-park-odc-1/", 7),
+                new VideoData("Shake-chan", "https://static.animagia.pl/shake.jpg", "https://static.animagia.pl/video/ddl/syake.mkv", 1),
+                new VideoData("Aruku to Iu Koto", "https://static.animagia.pl/aruku.jpg", "https://static.animagia.pl/video/ddl/aruku.mkv", 1)
         };
 
         return arr;
@@ -133,3 +133,4 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     }
 
 }
+s
