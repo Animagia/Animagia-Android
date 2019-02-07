@@ -76,7 +76,7 @@ public class LoginFragment extends Fragment {
                 final TextView emailTextView = headView.findViewById(R.id.userEmail);
 
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, "animagia.pl", new Response.Listener<String>() {
+                StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://animagia.pl/wp-login.php", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         progressBar.setVisibility(View.GONE);
