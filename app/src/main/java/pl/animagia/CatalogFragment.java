@@ -21,7 +21,6 @@ import com.android.volley.VolleyError;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
-import pl.animagia.location.Geolocation;
 import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoUrl;
 
@@ -65,18 +64,15 @@ public class CatalogFragment extends Fragment {
 
             HTML.getHtmlCookie(videoData.getVideoUrl(), getContext(), cookie, new VolleyCallback() {
                 @Override
-                public void onSuccess (String result){
-                    String url =  VideoUrl.getUrl(result);
-                    if(Geolocation.checkLocation(url)) {
-                        Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-                        intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-                        intent.putExtra(VideoData.NAME_OF_URL, url);
-                        intent.putExtra(Cookies.LOGIN,cookie);
+                public void onSuccess(String result) {
+                    String url = VideoUrl.getUrl(result);
+                    Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
+                    intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
+                    intent.putExtra(VideoData.NAME_OF_URL, url);
+                    intent.putExtra(Cookies.LOGIN, cookie);
 
-                        startActivity(intent);
-                    } else {
-                        setText(Geolocation.WRONG_GEOLOCATION);
-                    }
+                    startActivity(intent);
+
                 }
 
                 @Override
