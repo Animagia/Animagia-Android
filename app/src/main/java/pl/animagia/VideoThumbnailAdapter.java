@@ -133,4 +133,3 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     }
 
 }
-s
