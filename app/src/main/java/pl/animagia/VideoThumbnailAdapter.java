@@ -17,6 +17,9 @@ import com.bumptech.glide.Glide;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -36,12 +39,54 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     }
 
     private static VideoData[] prepareVideos() {
-        arr =  new VideoData[]{
-                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me", "https://static.animagia.pl/film_poster.jpg", "https://animagia.pl/", 1),
-                new VideoData("Amagi Brilliant Park", "https://static.animagia.pl/Amagi4.jpg", "https://animagia.pl/amagi-brilliant-park-odc-1/", 7),
-                new VideoData("Shake-chan", "https://static.animagia.pl/shake.jpg", "https://static.animagia.pl/video/ddl/syake.mkv", 1),
-                new VideoData("Aruku to Iu Koto", "https://static.animagia.pl/aruku.jpg", "https://static.animagia.pl/video/ddl/aruku.mkv", 1)
+
+
+        GregorianCalendar firstMarchRelease = new GregorianCalendar();
+        firstMarchRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
+        firstMarchRelease.set(2019, GregorianCalendar.MARCH,  12);
+
+        GregorianCalendar secondMarchRelease = new GregorianCalendar();
+        secondMarchRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
+        secondMarchRelease.set(2019, GregorianCalendar.MARCH,  23);
+
+        GregorianCalendar aprilRelease = new GregorianCalendar();
+        aprilRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
+        aprilRelease.set(2019, GregorianCalendar.APRIL,  9);
+
+        GregorianCalendar now = new GregorianCalendar();
+        now.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        int totalTitles = 3;
+        if(now.after(aprilRelease)) {
+            totalTitles += 3;
+        } else if(now.after(secondMarchRelease)) {
+            totalTitles += 2;
+        } else if(now.after(firstMarchRelease)) {
+            totalTitles++;
+        }
+
+        VideoData[] fullArr = new VideoData[]{
+                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me",
+                        "https://static.animagia.pl/film_poster.jpg",
+                        "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1),
+                new VideoData("Amagi Brilliant Park",
+                        "https://static.animagia.pl/Amagi4.jpg",
+                        "https://animagia.pl/amagi-brilliant-park-odc-1/", 13),
+                new VideoData("Hanasaku Iroha: Home Sweet Home",
+                        "https://static.animagia.pl/Hana_poster.jpg",
+                        "https://animagia.pl/", 1),
+                new VideoData("Kyoukai no Kanata: I'll Be Here – przeszłość",
+                        "https://static.animagia.pl/KnK_past_poster.jpg",
+                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1),
+                new VideoData("Kyoukai no Kanata: I'll Be Here – przyszłość",
+                        "https://static.animagia.pl/KnK_future_poster.jpg",
+                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1),
+                new VideoData("Tamako Love Story",
+                        "https://static.animagia.pl/Tamako_poster.jpg",
+                        "https://animagia.pl/tamako-love-story.", 1),
         };
+
+        arr = Arrays.copyOfRange(fullArr, 0, totalTitles);
 
         return arr;
     }
