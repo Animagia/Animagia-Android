@@ -1,3 +1,37 @@
 <resources>
-    <string name="app_name">Animagia.pl</string>
+    <string name="app_name" translatable="false">Animagia.pl</string>
+
+    <string name="navigation_drawer_open">Otwórz pasek nawigacji</string>
+    <string name="navigation_drawer_close">Zamknij pasek nawigacji</string>
+
+    <string name="drawer_item_watch">Oglądaj</string>
+    <string name="drawer_item_shop">Sklep</string>
+    <string name="drawer_item_account">Konto</string>
+    <string name="drawer_item_downloads">Pliki</string>
+
+    <string name="title_activity_fullscreen_playback">Wideo</string>
+    <string name="nav_section_company">Wydawnictwo</string>
+    <string name="contact_info">Kontakt</string>
+    <string name="documents">Dokumenty</string>
+    <string name="terms">Regulamin</string>
+    <string name="title_activity_login">Logowanie</string>
+    <string name="title_activity_document">DocumentActivity</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Login</string>
+    <string name="prompt_password">Hasło</string>
+    <string name="action_sign_in">Zaloguj się</string>
+    <string name="action_sign_in_short">Logowanie</string>
+    <string name="action_sign_out">Wyloguj się</string>
+    <string name="guest">Gość</string>
+    <string name="no_connection_message">Brak połączenia z internetem. Sprawdź swoje połączenie i spróbuj ponownie</string>
+    <string name="no_connection_short">Brak połącznia z internetem</string>
+    <string name="try_again">Spróbuj ponownie</string>
+    <string name="turn_on_internet">Włącz internet</string>
+    <string name="not_logged">Nie jesteś zalogowany</string>
+    <string name="login_error">Błąd logowania</string>
+    <string name="logged_out">Wylogowano</string>
+    <string name="wrong_credentials">Nieprawidłowe dane logowania</string>
+
+
 </resources>
