@@ -11,6 +11,7 @@
         android:id="@+id/exoplayerview_activity_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:use_controller="true"/>
+        app:use_controller="true"
+        app:show_timeout="-1"/>
 
 </FrameLayout>

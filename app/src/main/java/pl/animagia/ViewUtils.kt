@@ -1,7 +1,6 @@
 package pl.animagia
 
 import android.view.ViewGroup
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerControlView
 import java.lang.IllegalStateException
 
