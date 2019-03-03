@@ -55,6 +55,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private Context context;
     private String cookie;
 
+    private boolean systemUiAndControlsVisible;
+
     final Handler handler = new Handler();
     final Runnable r = new Runnable()
     {
@@ -80,7 +82,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     };
 
-    @SuppressLint("ClickableViewAccessibility")
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +96,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         episodes = video.getEpisodes();
         currentEpisode = 1;
-        
+
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
@@ -102,7 +104,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(FullscreenPlaybackActivity.this,"toggle", Toast.LENGTH_SHORT).show();
+                if(systemUiAndControlsVisible) {
+                    hide();
+                }
                 return true;
             }
         });
@@ -127,10 +131,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     public void onSystemUiVisibilityChange(int visibility) {
                         if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
                             //navbar visible
+                            systemUiAndControlsVisible = true;
                             mMainView.showController();
                         } else {
                             //navbar not visible
-                            mMainView.hideController();
+                            hide();
                         }
                     }
                 });
@@ -143,41 +148,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         if (hasFocus) {
             hide();
         }
-    }
-
-    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(checkEpisodes(newEpisode)){
-                    HTML.getHtml(video.getVideoUrl().substring(0,video.getVideoUrl().length()-2)+(currentEpisode + newEpisode), getApplicationContext(), new VolleyCallback() {
-                        @SuppressLint("ClickableViewAccessibility")
-                        @Override
-                        public void onSuccess(String result) {
-                            releaseMediaPlayer();
-                            String url =  VideoUrl.getUrl(result);
-                            mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(activity, url, video.getTitle()));
-                            if(!isPrime(video.getTitle())){
-                                if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
-                                    handler.postDelayed(r, 300);
-                                }
-                            }
-
-                            mPlayer.setPlayWhenReady(true);
-                            changeCurrentEpisodes(newEpisode);
-                            TextView title = findViewById(R.id.film_name);
-                            title.setText(video.getTitle() + " odc. " + currentEpisode);
-                        }
-
-                        @Override
-                        public void onFailure(VolleyError volleyError) {
-
-                        }
-                    });
-                }
-
-            }
-        };
     }
 
 
@@ -226,6 +196,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void hide() {
+        systemUiAndControlsVisible = false;
         hideSystemUi();
         mMainView.hideController();
     }
