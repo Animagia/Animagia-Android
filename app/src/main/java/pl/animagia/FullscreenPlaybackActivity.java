@@ -129,6 +129,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mPlayer.setPlayWhenReady(true);
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus ) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hide();
+        }
+    }
+
     private Player.EventListener createPlayPauseListener() {
         return new Player.DefaultEventListener() {
 
@@ -241,14 +249,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void hide() {
         hideSystemUi();
         System.out.println("UKRYJ");
-        mMainView.showController();
+        mMainView.hideController();
         mVisible = false;
     }
 
     private void show() {
         System.out.println("POKAŻ");
         showSystemUi();
-        mMainView.hideController();
+        mMainView.showController();
         mVisible = true;
     }
 
@@ -259,7 +267,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-    }
+}
 
     private void showSystemUi() {
         mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
