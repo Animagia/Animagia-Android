@@ -1,30 +1,13 @@
 package pl.animagia;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import android.widget.Toast;
-import pl.animagia.error.Alerts;
-import pl.animagia.html.HTML;
-import pl.animagia.html.VolleyCallback;
-import pl.animagia.user.Cookies;
-import pl.animagia.video.VideoSourcesKt;
-import pl.animagia.video.VideoUrl;
-
-import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -37,6 +20,10 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import org.jetbrains.annotations.Nullable;
+import pl.animagia.error.Alerts;
+import pl.animagia.user.Cookies;
+import pl.animagia.video.VideoSourcesKt;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -177,9 +164,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         player.prepare(mediaSource);
 
-        PlayerControlView controlView = findViewById(R.id.playback_controls);
-        controlView.setPlayer(player);
-
         moveControlsAboveNavigationBar();
 
         return player;
@@ -187,11 +171,34 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void moveControlsAboveNavigationBar() {
-        PlayerControlView controlView = findViewById(R.id.playback_controls);
+
+        PlayerControlView controlView = getPlayerControlView();
+
+
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
         lp.setMargins(0, 0, 0, getNavigationBarHeight());
         controlView.requestLayout();
+    }
+
+
+    private PlayerControlView getPlayerControlView() {
+        PlayerControlView controlView = null;
+
+        int childCount = mMainView.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            if (mMainView.getChildAt(i) instanceof PlayerControlView) {
+                if (controlView != null) {
+                    throw new IllegalStateException("Media player has too many controllers.");
+                }
+                controlView = (PlayerControlView) mMainView.getChildAt(i);
+            }
+        }
+
+        if (controlView == null) {
+            throw new IllegalStateException("Media player has no controller.");
+        }
+        return controlView;
     }
 
 
