@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import android.widget.Toast;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -40,16 +41,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private final Handler mHideHandler = new Handler();
 
     private PlayerView mMainView;
-    private View mControlsView;
 
     private SimpleExoPlayer mPlayer;
     private int episodes;
     private int currentEpisode;
 
-    private boolean mVisible;
     private Context context;
     private String cookie;
-    PlayerView playerView;
+
     final Handler handler = new Handler();
     final Runnable r = new Runnable()
     {
@@ -71,7 +70,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         {
             if(mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) {
                 hideSystemUi();
-                mVisible = false;
             }
         }
     };
@@ -106,7 +104,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             previous.setOnClickListener(newEpisodeListener(ac, video, -1));
         }
 
-        mVisible = true;
+        mMainView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Toast.makeText(FullscreenPlaybackActivity.this,"toggle", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+        
+        listenToSystemUiChanges();
+
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
         if(!isPrime(video.getTitle())){
             if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
@@ -114,19 +121,25 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         }
 
-        mPlayer.addListener(createPlayPauseListener());
-        mMainView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    toggle();
-
-                }
-
-                return false;
-            }
-        });
         mPlayer.setPlayWhenReady(true);
+    }
+
+    private void listenToSystemUiChanges() {
+        View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener
+                (new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                            //navbar visible
+                            mMainView.showController();
+                        } else {
+                            //navbar not visible
+                            mMainView.hideController();
+                        }
+                    }
+                });
+
     }
 
     @Override
@@ -135,31 +148,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         if (hasFocus) {
             hide();
         }
-    }
-
-    private Player.EventListener createPlayPauseListener() {
-        return new Player.DefaultEventListener() {
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (playWhenReady && playbackState == Player.STATE_READY) {
-                    // media is playing
-//                    hide();
-                    handler.postDelayed(hideUi, 5000);
-                } else if (playWhenReady) {
-                    // might be idle (plays after prepare()),
-                    // buffering (plays when data available)
-                    // or ended (plays when seek away from end)
-                } else {
-                    showSystemUi();
-                    if (hideUi != null) {
-                        handler.removeCallbacks(hideUi);
-                    }
-
-                    // player paused in any state
-                }
-            }
-        };
     }
 
     private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
@@ -179,18 +167,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                                     handler.postDelayed(r, 300);
                                 }
                             }
-
-                            mPlayer.addListener(createPlayPauseListener());
-
-                            mMainView.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    if(event.getAction()==MotionEvent.ACTION_DOWN){
-                                        toggle();
-                                    }
-                                    return false;
-                                }
-                            });
 
                             mPlayer.setPlayWhenReady(true);
                             changeCurrentEpisodes(newEpisode);
@@ -234,30 +210,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return player;
     }
 
-    private void toggle() {
-        if (mVisible) {
-            hide();
-
-        } else {
-            show();
-            if (hideUi !=null)
-                handler.removeCallbacks(hideUi);
-            handler.postDelayed(hideUi, 5000);
-        }
-    }
-
     private void hide() {
         hideSystemUi();
-        System.out.println("UKRYJ");
         mMainView.hideController();
-        mVisible = false;
-    }
-
-    private void show() {
-        System.out.println("POKAŻ");
-        showSystemUi();
-        mMainView.showController();
-        mVisible = true;
     }
 
     private void hideSystemUi() {
@@ -265,12 +220,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-}
-
-    private void showSystemUi() {
-        mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
