@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ViewUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -172,33 +173,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void moveControlsAboveNavigationBar() {
 
-        PlayerControlView controlView = getPlayerControlView();
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
 
 
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
         lp.setMargins(0, 0, 0, getNavigationBarHeight());
         controlView.requestLayout();
-    }
-
-
-    private PlayerControlView getPlayerControlView() {
-        PlayerControlView controlView = null;
-
-        int childCount = mMainView.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            if (mMainView.getChildAt(i) instanceof PlayerControlView) {
-                if (controlView != null) {
-                    throw new IllegalStateException("Media player has too many controllers.");
-                }
-                controlView = (PlayerControlView) mMainView.getChildAt(i);
-            }
-        }
-
-        if (controlView == null) {
-            throw new IllegalStateException("Media player has no controller.");
-        }
-        return controlView;
     }
 
 
