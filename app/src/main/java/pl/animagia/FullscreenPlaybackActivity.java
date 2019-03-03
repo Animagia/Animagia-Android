@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ViewUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -21,10 +23,12 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import org.jetbrains.annotations.Nullable;
 import pl.animagia.error.Alerts;
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoSourcesKt;
+import pl.animagia.video.VideoUrl;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -79,7 +83,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
         final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
-        final AppCompatActivity ac = this;
         cookie = intent.getStringExtra(Cookies.LOGIN);
 
         episodes = video.getEpisodes();
@@ -166,20 +169,44 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         player.prepare(mediaSource);
 
         moveControlsAboveNavigationBar();
+        setUpInterEpisodeNavigation();
 
         return player;
     }
 
-
     private void moveControlsAboveNavigationBar() {
-
         PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-
 
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
         lp.setMargins(0, 0, 0, getNavigationBarHeight());
         controlView.requestLayout();
+    }
+
+    private void setUpInterEpisodeNavigation() {
+
+        if(episodes == 1) {
+            hidePreviousAndNextButtons();
+            return;
+        }
+
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        View next = controlView.findViewById(R.id.next_episode);
+        View previous = controlView.findViewById(R.id.previous_episode);
+
+        final AppCompatActivity ac = this;
+        final VideoData video = getIntent().getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+
+        next.setOnClickListener(newEpisodeListener(ac, video, 1));
+        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
+    }
+
+    private void hidePreviousAndNextButtons() {
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        View next = controlView.findViewById(R.id.next_episode);
+        next.setVisibility(View.INVISIBLE);
+        View previous = controlView.findViewById(R.id.previous_episode);
+        previous.setVisibility(View.INVISIBLE);
     }
 
 
@@ -253,4 +280,41 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void changeCurrentEpisodes(int change) {
         currentEpisode += change;
     }
+
+
+    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkEpisodes(newEpisode)) {
+                    HTML.getHtml(video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) + (currentEpisode + newEpisode), getApplicationContext(), new VolleyCallback() {
+
+                        @Override
+                        public void onSuccess(String result) {
+                            releaseMediaPlayer();
+                            String url = VideoUrl.getUrl(result);
+                            mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(activity, url, video.getTitle()));
+                            if (!isPrime(video.getTitle())) {
+                                if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                                    handler.postDelayed(r, 300);
+                                }
+                            }
+
+                            mPlayer.setPlayWhenReady(true);
+                            changeCurrentEpisodes(newEpisode);
+                            TextView title = findViewById(R.id.film_name);
+                            title.setText(video.getTitle() + " odc. " + currentEpisode);
+                        }
+
+                        @Override
+                        public void onFailure(VolleyError volleyError) {
+
+                        }
+                    });
+                }
+
+            }
+        };
+    }
+
 }

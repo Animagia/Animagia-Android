@@ -15,43 +15,29 @@
         android:paddingTop="4dp"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/previous"
-            android:layout_width="24dp"
-            android:layout_height="32dp"
-            android:layout_weight="1"
-            android:background="@drawable/background"
-            android:gravity="center_vertical|center"
-            android:scaleType="fitCenter"
-            android:text="Poprzedni"
-            android:textColor="@android:color/white" />
+        <ImageButton android:id="@+id/previous_episode"
+            style="@style/ExoMediaButton.Previous"/>
+
+        <ImageButton android:id="@id/exo_rew"
+            style="@style/ExoMediaButton.Rewind"/>
+
+        <ImageButton android:id="@id/exo_shuffle"
+            style="@style/ExoMediaButton.Shuffle"/>
+
+        <ImageButton android:id="@id/exo_repeat_toggle"
+            style="@style/ExoMediaButton"/>
 
         <ImageButton android:id="@id/exo_play"
-            android:src="@drawable/exo_controls_play"
-            android:scaleType="fitCenter"
-            android:background="@null"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_weight="1"/>
+            style="@style/ExoMediaButton.Play"/>
 
         <ImageButton android:id="@id/exo_pause"
-            android:src="@drawable/exo_controls_pause"
-            android:scaleType="fitCenter"
-            android:background="@null"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_weight="1"/>
+            style="@style/ExoMediaButton.Pause"/>
 
-        <TextView
-            android:id="@+id/next"
-            android:layout_width="24dp"
-            android:layout_height="32dp"
-            android:layout_weight="1"
-            android:background="@drawable/background"
-            android:gravity="center_horizontal|center"
-            android:scaleType="fitCenter"
-            android:text="Następny"
-            android:textColor="@android:color/white" />
+        <ImageButton android:id="@id/exo_ffwd"
+            style="@style/ExoMediaButton.FastForward"/>
+
+        <ImageButton android:id="@+id/next_episode"
+            style="@style/ExoMediaButton.Next"/>
 
     </LinearLayout>
 

@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:use_controller="true"
+        app:controller_layout_id="@layout/episode_controller"
         app:show_timeout="-1"/>
 
 </FrameLayout>
