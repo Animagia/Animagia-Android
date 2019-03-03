@@ -5,9 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import android.widget.Toast;
@@ -88,21 +94,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         episodes = video.getEpisodes();
         currentEpisode = 1;
+        
+        setContentView(R.layout.activity_fullscreen_playback);
+        mMainView = findViewById(R.id.exoplayerview_activity_video);
 
-
-        if (episodes == 1){
-            setContentView(R.layout.activity_fullscreen_playback);
-            mMainView = findViewById(R.id.exoplayerview_activity_video);
-        } else {
-            setContentView(R.layout.episodes_fullscreen_playback);
-            mMainView = findViewById(R.id.player);
-            TextView next = findViewById(R.id.next);
-            TextView previous = findViewById(R.id.previous);
-            TextView title = findViewById(R.id.film_name);
-            title.setText(video.getTitle() + " odc. " + currentEpisode);
-            next.setOnClickListener(newEpisodeListener(ac, video, 1));
-            previous.setOnClickListener(newEpisodeListener(ac, video, -1));
-        }
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -186,6 +181,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
+    private int getNavigationBarHeight() {
+        int navigationBarHeight = 0;
+        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+        return navigationBarHeight;
+    }
+
+
     private SimpleExoPlayer createPlayer(MediaSource mediaSource) {
         // 1. Create a default TrackSelector
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -202,13 +207,23 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         player.prepare(mediaSource);
 
-        if(episodes==1){
-            PlayerControlView controlView = findViewById(R.id.playback_controls);
-            controlView.setPlayer(player);
-        }
+        PlayerControlView controlView = findViewById(R.id.playback_controls);
+        controlView.setPlayer(player);
+
+        moveControlsAboveNavigationBar();
 
         return player;
     }
+
+
+    private void moveControlsAboveNavigationBar() {
+        PlayerControlView controlView = findViewById(R.id.playback_controls);
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
+
+        lp.setMargins(0, 0, 0, getNavigationBarHeight());
+        controlView.requestLayout();
+    }
+
 
     private void hide() {
         hideSystemUi();
