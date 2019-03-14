@@ -27,18 +27,13 @@ import pl.animagia.html.VolleyCallback;
 
 public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
-    private static VideoData arr[];
+    private static VideoData arr[]; //FIXME should this really be static?
 
     public VideoThumbnailAdapter(Context context) {
         super(context, R.layout.video_thumbnail, R.id.thumbnail_text, prepareVideos());
-        for(int i = 0; i < arr.length; i++){
-            if (arr[i].getTitle().equals("")){
-                getImage(i);
-            }
-        }
     }
 
-    private static VideoData[] prepareVideos() {
+    static VideoData[] prepareVideos() {
 
 
         GregorianCalendar firstMarchRelease = new GregorianCalendar();
@@ -65,30 +60,51 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
             totalTitles++;
         }
 
+        if(appIsOutdated()) {
+            totalTitles = 0;
+        }
+
         VideoData[] fullArr = new VideoData[]{
                 new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me",
                         "https://static.animagia.pl/film_poster.jpg",
-                        "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1),
+                        "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
+                        "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png"),
                 new VideoData("Amagi Brilliant Park",
                         "https://static.animagia.pl/Amagi4.jpg",
-                        "https://animagia.pl/amagi-brilliant-park-odc-1/", 13),
+                        "https://animagia.pl/amagi-brilliant-park-odc-1/", 13,
+                        "https://animagia.pl/wp-content/uploads/2018/05/kv-for-store-page.png"),
                 new VideoData("Hanasaku Iroha: Home Sweet Home",
                         "https://static.animagia.pl/Hana_poster.jpg",
-                        "https://animagia.pl/", 1),
+                        "https://animagia.pl/", /* FIXME url */ 1,
+                        "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png"),
                 new VideoData("Kyoukai no Kanata: I'll Be Here – przeszłość",
                         "https://static.animagia.pl/KnK_past_poster.jpg",
-                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1),
+                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1,
+                        "https://animagia.pl/wp-content/uploads/2019/03/KnK-past-poster.png"),
                 new VideoData("Kyoukai no Kanata: I'll Be Here – przyszłość",
                         "https://static.animagia.pl/KnK_future_poster.jpg",
-                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1),
+                        "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1,
+                        "https://animagia.pl/wp-content/uploads/2019/03/KnK-future-poster.png"),
                 new VideoData("Tamako Love Story",
                         "https://static.animagia.pl/Tamako_poster.jpg",
-                        "https://animagia.pl/tamako-love-story.", 1),
+                        "https://animagia.pl/tamako-love-story/", 1,
+                        "https://animagia.pl/wp-content/uploads/2019/04/Tamako-poster.png"),
         };
 
         arr = Arrays.copyOfRange(fullArr, 0, totalTitles);
 
         return arr;
+    }
+
+    private static boolean appIsOutdated() {
+        GregorianCalendar appBecomesOutdated = new GregorianCalendar();
+        appBecomesOutdated.setTimeZone(TimeZone.getTimeZone("UTC"));
+        appBecomesOutdated.set(2020, GregorianCalendar.JANUARY,  1);
+
+        GregorianCalendar now = new GregorianCalendar();
+        now.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return now.after(appBecomesOutdated);
     }
 
     @NonNull
@@ -97,13 +113,13 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
         View thumbnail = super.getView(position, convertView, parent);
         ImageView poster = thumbnail.findViewById(R.id.thumbnail_poster);
 
-        if(super.getItem(position).getPosterAsssetUri().equals("")){
+        if(super.getItem(position).getThumbnailAsssetUri().equals("")){
             Glide.with(getContext())
                     .load(new ColorDrawable(Color.GRAY))
                     .into(poster);
         } else {
             Glide.with(getContext())
-                    .load(super.getItem(position).getPosterAsssetUri())
+                    .load(super.getItem(position).getThumbnailAsssetUri())
                     .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                     .into(poster);
         }
@@ -153,28 +169,6 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
         }
 
         return urlLine;
-    }
-
-
-    private void changeImage(int position, String url) {
-        arr[position].setUri(url);
-        notifyDataSetChanged();
-    }
-
-    private void getImage(final int i) {
-        HTML.getHtml(arr[i].getVideoUrl(), getContext(),  new VolleyCallback() {
-            @Override
-            public void onSuccess (String result){
-                String uri = getImageUrl(result);
-                changeImage(i, uri);
-
-            }
-
-            @Override
-            public void onFailure(VolleyError volleyError) {
-                changeImage(i, "file:///android_asset/serrah_galos.jpg");
-            }
-        });
     }
 
 }

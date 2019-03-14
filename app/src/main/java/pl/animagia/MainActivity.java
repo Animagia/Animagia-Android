@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_watch) {
             activateFragment(new CatalogFragment());
         } else if (id == R.id.nav_account) {
-
+            activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
 
         } else if (id == R.id.nav_documents) {

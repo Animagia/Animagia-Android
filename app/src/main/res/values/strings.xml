@@ -32,6 +32,9 @@
     <string name="login_error">Błąd logowania</string>
     <string name="logged_out">Wylogowano</string>
     <string name="wrong_credentials">Nieprawidłowe dane logowania</string>
+    <string name="no_account_needed">Nasza aplikacja nie wymaga zakładania konta.\n
+        Dokonane zakupy będą widoczne tutaj,\notrzymasz też kody aktywacyjne na mail
+    powiązany\nz płatnością, dzięki czemu nic nie przepadnie.</string>
 
 
 </resources>

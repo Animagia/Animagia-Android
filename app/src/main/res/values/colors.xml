@@ -7,4 +7,6 @@
     <color name="black_overlay">#20000000</color>
     <color name="black">#000000</color>
     <color name="grey">#1a1a1a</color>
+
+    <color name="empty_fragment_bg">#eaeaea</color>
 </resources>

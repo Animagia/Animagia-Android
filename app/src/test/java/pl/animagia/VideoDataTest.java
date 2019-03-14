@@ -26,7 +26,7 @@ public class VideoDataTest {
 
     @Test
     public void getPosterAsssetUriTest() {
-        String shakePoster = shake.getPosterAsssetUri();
+        String shakePoster = shake.getThumbnailAsssetUri();
         assertEquals(poster, shakePoster);
     }
 

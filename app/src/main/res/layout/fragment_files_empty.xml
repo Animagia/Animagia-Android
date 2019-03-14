@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/emptyFilesHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tu pojawią się linki\ndo ściągnięcia zakupionych anime."
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/goToShopButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
+
+    <Button
+        android:id="@id/goToShopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Przejdź do sklepu"
+        app:layout_constraintBottom_toTopOf="@+id/emptyFilesImportHint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emptyFilesHint"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@id/emptyFilesImportHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masz konto założone wcześniej na naszej stronie?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/getFilesFromAccountButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/goToShopButton"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="56dp"/>
+
+    <Button
+        android:id="@id/getFilesFromAccountButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Importuj z istniejącego konta"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emptyFilesImportHint"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+
+</android.support.constraint.ConstraintLayout>

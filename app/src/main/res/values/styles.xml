@@ -27,4 +27,6 @@
 
     <style name="secondaryNavItem"></style>
 
+    <style name="lowProfileButton" parent="Widget.AppCompat.Button.Borderless"></style>
+
 </resources>

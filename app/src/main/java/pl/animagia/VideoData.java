@@ -1,6 +1,5 @@
 package pl.animagia;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,27 +10,30 @@ public class VideoData implements Parcelable {
 
 
     private final String title;
-    private String posterAsssetUri;
+    private final String thumbnailAsssetUri;
+    private final String posterAssetUri;
     private final String videoUrl;
     private final int episodes;
 
-    public VideoData(String title, String posterAssetUri, String videoUrl, int episodes) {
+    public VideoData(String title, String thumbnailAssetUri, String videoUrl, int episodes,
+                     String posterAssetUri) {
         this.title = title;
-        this.posterAsssetUri = posterAssetUri;
+        this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;
         this.episodes = episodes;
-    }
-
-    public void setUri(String uri){
-        this.posterAsssetUri = uri;
+        this.posterAssetUri = posterAssetUri;
     }
 
     public String getTitle() {
         return title;
     }
 
+    public String getThumbnailAsssetUri() {
+        return thumbnailAsssetUri;
+    }
+
     public String getPosterAsssetUri() {
-        return posterAsssetUri;
+        return posterAssetUri;
     }
 
     public String getVideoUrl(){
@@ -46,14 +48,14 @@ public class VideoData implements Parcelable {
     public boolean equals(Object obj) {
         if (obj instanceof VideoData) {
             return title.equals(((VideoData) obj).getTitle()) &&
-                    posterAsssetUri.equals(((VideoData) obj).getPosterAsssetUri());
+                    thumbnailAsssetUri.equals(((VideoData) obj).getThumbnailAsssetUri());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return title.hashCode() ^ posterAsssetUri.hashCode();
+        return title.hashCode() ^ thumbnailAsssetUri.hashCode();
     }
 
     @Override
@@ -62,10 +64,11 @@ public class VideoData implements Parcelable {
     }
 
     protected VideoData(Parcel in) {
-        this.posterAsssetUri = in.readString();
+        this.thumbnailAsssetUri = in.readString();
         this.title = in.readString();
         this.videoUrl = in.readString();
         this.episodes = in.readInt();
+        this.posterAssetUri = in.readString();
     }
 
     @Override
@@ -75,10 +78,11 @@ public class VideoData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(posterAsssetUri);
+        dest.writeString(thumbnailAsssetUri);
         dest.writeString(title);
         dest.writeString(videoUrl);
         dest.writeInt(episodes);
+        dest.writeString(posterAssetUri);
     }
 
     public static final Creator<VideoData> CREATOR = new Creator<VideoData>() {

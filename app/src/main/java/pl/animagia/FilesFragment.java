@@ -13,13 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-
 import pl.animagia.error.Alerts;
 import pl.animagia.file.FileUrl;
 import pl.animagia.html.CookieRequest;
@@ -33,7 +31,9 @@ public class FilesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_files, container, false);
+        int layoutResource = isLogged() ? R.layout.fragment_files : R.layout.fragment_files_empty;
+
+        return inflater.inflate(layoutResource, container, false);
     }
 
     @Override
@@ -42,14 +42,6 @@ public class FilesFragment extends Fragment {
        //Cookies.removeCookie(Cookies.LOGIN, getActivity());
         if(isLogged()) {
            getFiles();
-        } else {
-            DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    activateFragment(new LoginFragment());
-                }
-            };
-            Alerts.logInError(getContext(), onClickTryAgain);
         }
     }
 
@@ -92,13 +84,5 @@ public class FilesFragment extends Fragment {
         String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
         stringRequest.setCookies(cookie);
         queue.add(stringRequest);
-    }
-
-    private void activateFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.frame_for_content, fragment);
-        fragmentTransaction.commit();
     }
 }
