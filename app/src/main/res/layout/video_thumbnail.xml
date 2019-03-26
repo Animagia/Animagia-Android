@@ -7,29 +7,104 @@
 
     <ImageView
         android:id="@+id/thumbnail_poster"
-        android:layout_width="0dp"
+        android:layout_width="160dp"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="16:9" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/thumbnail_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="#22000000"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingBottom="2dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp"
+        android:text="A feature film with a somewhat long title"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/thumbnail_poster"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/thumbnail_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="#22000000"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:text="One-sentence description of film."
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/thumbnail_poster"
+        app:layout_constraintTop_toBottomOf="@+id/thumbnail_text" />
+
+    <TextView
+        android:id="@+id/thumbnail_genres"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:background="#22000000"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp"
+        android:text="Genre 1, genre 2"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/thumbnail_poster" />
+
+    <TextView
+        android:id="@+id/thumbnail_duration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
         android:background="#66000000"
         android:textColor="#fff"
-        android:maxLines="1"
         android:ellipsize="end"
-        android:textSize="18sp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:text="A feature film" />
+        android:maxLines="1"
+        android:paddingBottom="1dp"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:paddingTop="1dp"
+        android:text="90 min."
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
+        app:layout_constraintBottom_toTopOf="@+id/thumbnail_preview" />
+
+    <TextView
+        android:id="@+id/thumbnail_preview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="#66000000"
+        android:textColor="#fff"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingBottom="1dp"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:paddingTop="1dp"
+        android:text="10 min. bezpłatnie"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
+        app:layout_constraintBottom_toBottomOf="@+id/thumbnail_poster" />
 
 </android.support.constraint.ConstraintLayout>
