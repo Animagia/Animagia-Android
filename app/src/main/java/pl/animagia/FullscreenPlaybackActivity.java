@@ -23,6 +23,9 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+
+import java.util.ArrayList;
+
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -91,6 +94,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
+
+        OwnTimeBar chapterMiker = findViewById(R.id.exo_progress);
+
+        chapterMiker.addChapterMarker((long)200 * 1000);
+        chapterMiker.addChapterMarker((long)300 * 1000);
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
