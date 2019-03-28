@@ -23,6 +23,9 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+
+import java.util.ArrayList;
+
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -43,6 +46,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private SimpleExoPlayer mPlayer;
     private int episodes;
     private int currentEpisode;
+    private String timeStampUnconverted;
+    private String [] timeStamps;
 
     private Context context;
     private String cookie;
@@ -91,6 +96,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
+        timeStampUnconverted = video.getTimeStamps();
+        timeStamps = timeStampUnconverted.split(";");
+
+        OwnTimeBar chapterMarker = findViewById(R.id.exo_progress);
+        addTimeStamps(chapterMarker, timeStamps);
+
+       //  Toast.makeText(this, timeStamps.length + "", Toast.LENGTH_SHORT).show();
+       //  chapterMarker.addChapterMarker((long)200 * 1000);
+       //  chapterMarker.addChapterMarker((long)300 * 1000);
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -112,6 +126,26 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
         mPlayer.setPlayWhenReady(true);
+    }
+
+
+    private int calculateMsTimeStamp(String timeStampUnconvert){
+
+        int totalTimeInMs;
+
+        totalTimeInMs = 3600 * 1000 * Integer.parseInt(timeStampUnconvert.substring(0,2))
+                + 1000 * 60 * Integer.parseInt(timeStampUnconvert.substring(3,5))
+                + 1000 * Integer.parseInt(timeStampUnconvert.substring(6,8))
+                +  Integer.parseInt(timeStampUnconvert.substring(9));
+
+        return totalTimeInMs;
+    }
+
+    private void addTimeStamps(OwnTimeBar timeBar, String[] timeStamps){
+        for(int i = 0; i < timeStamps.length; i++){
+            timeBar.addChapterMarker(calculateMsTimeStamp(timeStamps[i]));
+        }
+
     }
 
     private void listenToSystemUiChanges() {
