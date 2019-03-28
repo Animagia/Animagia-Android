@@ -3,7 +3,7 @@
     <color name="colorPrimary">#2161bd</color>
     <color name="colorPrimaryDark">#00388c</color>
     <color name="colorPrimaryLight">#628ef0</color>
-    <color name="mywhite">#ffffff</color>
+    <color name="seekbar_marker">#ffffff</color>
     <color name="black_overlay">#20000000</color>
     <color name="black_semi">#50000000</color>
     <color name="black">#000000</color>

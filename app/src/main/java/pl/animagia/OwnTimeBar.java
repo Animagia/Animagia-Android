@@ -34,7 +34,7 @@ public class OwnTimeBar extends DefaultTimeBar {
         seekBounds = new Rect();
         progressBar = new Rect();
         adMarkerPaint = new Paint();
-        adMarkerPaint.setColor(getResources().getColor(R.color.mywhite));
+        adMarkerPaint.setColor(getResources().getColor(R.color.seekbar_marker));
         chapterMarkerTimeStamps = new ArrayList<Long>();
 
         Resources res = context.getResources();
