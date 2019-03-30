@@ -12,6 +12,8 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,17 +34,35 @@ public class AccountFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         int layoutResource = isLogged() ?
-                R.layout.fragment_account_empty : R.layout.fragment_account_empty; //TODO
+                R.layout.fragment_files : R.layout.fragment_account_empty; //TODO
 
-        return inflater.inflate(layoutResource, container, false);
+        View contents = inflater.inflate(layoutResource, container, false);
+
+        FrameLayout frame = (FrameLayout) inflater.inflate(R.layout.fragment_frame, container, false);
+
+        frame.addView(contents);
+
+        return frame;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(isLogged()) {
-            getFiles();//FIXME
+            getFiles();
+        } else {
+            Button loginButton = getView().findViewById(R.id.linkExistingAccountButton);
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    activateLoginFragment();
+                }
+            });
         }
+    }
+
+    private void activateLoginFragment() {
+        ((MainActivity) getActivity()).activateFragment(new LoginFragment());
     }
 
     private boolean isLogged(){
@@ -63,11 +83,7 @@ public class AccountFragment extends Fragment {
         CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
-                TextView textView = getView().findViewById(R.id.files);
-                String text = FileUrl.getText(s);
-                textView.setText(Html.fromHtml(text));
-                textView.setClickable(true);
-                textView.setMovementMethod(new LinkMovementMethod());
+                onAccountPageFetched(s);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -84,5 +100,17 @@ public class AccountFragment extends Fragment {
         String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
         stringRequest.setCookies(cookie);
         queue.add(stringRequest);
+    }
+
+    private void onAccountPageFetched(String s) {
+
+        //FIXME
+        TextView textView = getView().findViewById(R.id.files);
+        String text = FileUrl.getText(s);
+        textView.setText(s.substring(0,10));
+//        textView.setClickable(true);
+//        textView.setMovementMethod(new LinkMovementMethod());
+
+
     }
 }

@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void activateFragment(Fragment fragment) {
+    void activateFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
