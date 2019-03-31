@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,7 +35,7 @@ public class FilesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        int layoutResource = isLogged() ? R.layout.fragment_files : R.layout.fragment_files_empty;
+        int layoutResource = isLogged() ? R.layout.file_list : R.layout.fragment_files_empty;
 
         View contents = inflater.inflate(layoutResource, container, false);
 
@@ -100,14 +101,14 @@ public class FilesFragment extends Fragment {
         }
 
 
-        TextView textView = getView().findViewById(R.id.files);
-        String next = downloadUrls.iterator().next();
+        ListView lv = getView().findViewById(R.id.file_listview);
+        lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateDummyLinks()));
 
-        Spanned linkForTextView = Html.fromHtml("<a href=\"" + extractUrl(next) +"\">"
-                + extractFileName(next) + "</a>");
-
-        textView.setText(linkForTextView);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
+//        Spanned linkForTextView = Html.fromHtml("<a href=\"" + extractUrl(next) +"\">"
+//                + extractFileName(next) + "</a>");
+//
+//        textView.setText(linkForTextView);
+//        textView.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
 
@@ -121,6 +122,15 @@ public class FilesFragment extends Fragment {
         int start = html.indexOf("\">") + "\">".length();
         int end = html.length() - "</a".length();
         return html.substring(start, end);
+    }
+
+
+    private static List<String> generateDummyLinks() {
+        List<String> links = new ArrayList<>();
+        for(int i=0;i<50;i++){
+            links.add("<a href=\"https://animagia.pl\">Animagia</a>");
+        }
+        return links;
     }
 
 }

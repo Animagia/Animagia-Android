@@ -29,7 +29,7 @@ public class AccountFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         int layoutResource = isLogged() ?
-                R.layout.fragment_files : R.layout.fragment_account_empty; //TODO
+                R.layout.fragment_account : R.layout.fragment_account_empty; //TODO
 
         View contents = inflater.inflate(layoutResource, container, false);
 
