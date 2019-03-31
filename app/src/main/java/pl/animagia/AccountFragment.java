@@ -5,10 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +17,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.error.Alerts;
-import pl.animagia.file.FileUrl;
 import pl.animagia.html.CookieRequest;
 import pl.animagia.user.Cookies;
 
@@ -49,7 +44,7 @@ public class AccountFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(isLogged()) {
-            getFiles();
+            getAccountInfo();
         } else {
             Button loginButton = getView().findViewById(R.id.linkExistingAccountButton);
             loginButton.setOnClickListener(new View.OnClickListener() {
@@ -77,8 +72,8 @@ public class AccountFragment extends Fragment {
         return logIn;
     }
 
-    private void getFiles(){ //FIXME
-        String url = "https://animagia.pl/";
+    private void getAccountInfo(){ //FIXME
+        String url = "https://animagia.pl/konto";
         RequestQueue queue = Volley.newRequestQueue(getContext());
         CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
@@ -91,7 +86,7 @@ public class AccountFragment extends Fragment {
                 DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        getFiles();
+                        getAccountInfo();
                     }
                 };
                 Alerts.internetConnectionError(getContext(), onClickTryAgain);
@@ -106,11 +101,38 @@ public class AccountFragment extends Fragment {
 
         //FIXME
         TextView textView = getView().findViewById(R.id.files);
-        String text = FileUrl.getText(s);
-        textView.setText(s.substring(0,10));
+        //String text = FileUrl.getText(s);
+        textView.setText(extractAccountStatus(s) + "\n" + extractUserEmail(s));
 //        textView.setClickable(true);
 //        textView.setMovementMethod(new LinkMovementMethod());
 
 
     }
+
+    private static String extractAccountStatus(String accountPageHtml) {
+        if(accountPageHtml.contains("<strong>Wygasające</strong>")) {
+            return "Wyagasające";
+        } else if(accountPageHtml.contains("<strong>Aktywne.</strong>")) {
+            return "Aktywne";
+        } else if(accountPageHtml.contains("<p>Nieaktywne.</p>")) {
+            return "Nieaktywne";
+        }
+        return "";
+    }
+
+    private static String extractUserEmail(String accountPageHtml) {
+        String s1 = "Zalogowano jako:";
+        String s2 = "<a href=\"https://animagia.pl/wp-login.php?action=logout";
+
+        int start = s1.length() + accountPageHtml.indexOf(s1);
+        int end = accountPageHtml.indexOf(s2);
+
+        try {
+            String emailWithDot = accountPageHtml.substring(start, end).trim();
+            return emailWithDot.substring(0,emailWithDot.length() - 1);
+        } catch (StringIndexOutOfBoundsException e) {
+            return "";
+        }
+    }
+
 }
