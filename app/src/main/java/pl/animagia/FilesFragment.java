@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +102,12 @@ public class FilesFragment extends Fragment {
 
         TextView textView = getView().findViewById(R.id.files);
         String next = downloadUrls.iterator().next();
-        textView.setText(extractUrl(next) + " " + extractFileName(next));
+
+        Spanned linkForTextView = Html.fromHtml("<a href=\"" + extractUrl(next) +"\">"
+                + extractFileName(next) + "</a>");
+
+        textView.setText(linkForTextView);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
 
