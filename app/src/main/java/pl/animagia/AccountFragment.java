@@ -98,15 +98,8 @@ public class AccountFragment extends Fragment {
     }
 
     private void onAccountPageFetched(String s) {
-
-        //FIXME
         TextView textView = getView().findViewById(R.id.files);
-        //String text = FileUrl.getText(s);
         textView.setText(extractAccountStatus(s) + "\n" + extractUserEmail(s));
-//        textView.setClickable(true);
-//        textView.setMovementMethod(new LinkMovementMethod());
-
-
     }
 
     private static String extractAccountStatus(String accountPageHtml) {

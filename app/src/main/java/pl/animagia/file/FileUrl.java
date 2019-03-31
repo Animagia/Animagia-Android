@@ -8,7 +8,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileUrl {
+public class FileUrl { //FIXME is this still used anywhere?
 
     private FileUrl(){
     }
