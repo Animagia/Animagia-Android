@@ -24,8 +24,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
-import java.util.ArrayList;
-
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -39,20 +37,46 @@ import pl.animagia.video.VideoUrl;
  */
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
-    private final Handler mHideHandler = new Handler();
 
     private PlayerView mMainView;
 
     private SimpleExoPlayer mPlayer;
     private int episodes;
     private int currentEpisode;
+    private String currentTitle;
+    private String currentUrl;
     private String timeStampUnconverted;
     private String [] timeStamps;
+    private AppCompatActivity control;
+    private boolean on_off, firstOnStart = true;
 
     private Context context;
     private String cookie;
 
     private boolean systemUiAndControlsVisible;
+
+    private Handler mHideHandler;
+
+    Runnable rExpire = new Runnable()
+    {
+        public void run()
+        {
+            if(mPlayer != null){
+
+                if (on_off == true) {
+                    if ((mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) ||
+                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING) ) {
+
+                    }else{
+                        Toast.makeText(context, "Restart playera", Toast.LENGTH_SHORT).show();
+                        reinitializationPlayer();
+                        }
+                    on_off = false;
+                }
+            }
+        }
+
+    };
 
     final Handler handler = new Handler();
     final Runnable r = new Runnable()
@@ -84,7 +108,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
-
+        control = this;
         Intent intent = getIntent();
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
         final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
@@ -92,6 +116,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         episodes = video.getEpisodes();
         currentEpisode = 1;
+        currentTitle = video.getTitle();
+        currentUrl = video.getVideoUrl();
 
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
@@ -102,10 +128,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         OwnTimeBar chapterMarker = findViewById(R.id.exo_progress);
         addTimeStamps(chapterMarker, timeStamps);
 
-       //  Toast.makeText(this, timeStamps.length + "", Toast.LENGTH_SHORT).show();
-       //  chapterMarker.addChapterMarker((long)200 * 1000);
-       //  chapterMarker.addChapterMarker((long)300 * 1000);
-
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -115,8 +137,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 return true;
             }
         });
-        
+
         listenToSystemUiChanges();
+
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
         if(!isPrime(video.getTitle())){
@@ -128,6 +151,91 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mPlayer.setPlayWhenReady(true);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        View play = controlView.findViewById(R.id.exo_play);
+        play.performClick();
+
+        mHideHandler.postDelayed(rExpire,4000);
+        on_off = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(firstOnStart){
+            runTimer();
+            firstOnStart = false;
+        }
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        View play = controlView.findViewById(R.id.exo_play);
+        play.performClick();
+
+        mHideHandler.postDelayed(rExpire,4000);
+        on_off = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mHideHandler.removeCallbacks(rExpire);
+        rExpire = null;
+    }
+
+    private void runTimer(){
+
+         mHideHandler = new Handler();
+         mHideHandler.postDelayed(rExpire,4000);
+
+     }
+
+
+    private void reinitializationPlayer(){
+
+        HTML.getHtml(currentUrl, getApplicationContext(), new VolleyCallback() {
+
+            @Override
+            public void onSuccess(String result) {
+                releaseMediaPlayer();
+                String url = VideoUrl.getUrl(result);
+                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
+                if (!isPrime(currentTitle)) {
+                    if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                        handler.postDelayed(r, 300);
+                    }
+                }
+
+                mPlayer.setPlayWhenReady(true);
+
+                if (currentEpisode > 1){
+                    TextView title = findViewById(R.id.film_name);
+                    title.setText(currentTitle + " odc. " + currentEpisode);
+                }
+                mHideHandler.postDelayed(rExpire,4000);
+                on_off = true;
+
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                mHideHandler.postDelayed(rExpire,4000);
+                on_off = true;
+            }
+        });
+
+    }
 
     private int calculateMsTimeStamp(String timeStampUnconvert){
 
@@ -253,10 +361,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void hideSystemUi() {
         mMainView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
     private boolean isPrime(String title) {
@@ -298,6 +406,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         releaseMediaPlayer();
+        mHideHandler.removeCallbacks(rExpire);
+        rExpire = null;
         finish();
     }
 
@@ -321,10 +431,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (checkEpisodes(newEpisode)) {
+
                     HTML.getHtml(video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) + (currentEpisode + newEpisode), getApplicationContext(), new VolleyCallback() {
 
                         @Override
                         public void onSuccess(String result) {
+
+                            currentTitle = video.getTitle();
+                            currentUrl = video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) + (currentEpisode + newEpisode);
+
                             releaseMediaPlayer();
                             String url = VideoUrl.getUrl(result);
                             mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(activity, url, video.getTitle()));
@@ -335,16 +450,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             }
 
                             mPlayer.setPlayWhenReady(true);
+
                             changeCurrentEpisodes(newEpisode);
                             TextView title = findViewById(R.id.film_name);
                             title.setText(video.getTitle() + " odc. " + currentEpisode);
+                            mHideHandler.postDelayed(rExpire,4000);
+                            on_off = true;
                         }
 
                         @Override
                         public void onFailure(VolleyError volleyError) {
-
+                            mHideHandler.postDelayed(rExpire,4000);
+                            on_off = true;
                         }
                     });
+
+
                 }
 
             }
