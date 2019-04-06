@@ -77,7 +77,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "00:08:03.115;00:03:03.115"),
                 new VideoData("Hanasaku Iroha: Home Sweet Home",
                         "https://static.animagia.pl/Hana_poster.jpg",
-                        "https://animagia.pl/", /* FIXME url */ 1,
+                        "https://animagia.pl", 1,
                         "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png",
                         "00:11:03.115;00:04:03.115"),
                 new VideoData("Kyoukai no Kanata: I'll Be Here – przeszłość",

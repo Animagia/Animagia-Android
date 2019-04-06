@@ -57,7 +57,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private Handler mHideHandler;
 
-    Runnable rExpire = new Runnable()
+    Runnable playerRestarter = new Runnable()
     {
         public void run()
         {
@@ -69,7 +69,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                     }else{
                         Toast.makeText(context, "Restart playera", Toast.LENGTH_SHORT).show();
-                        reinitializationPlayer();
+                        reinitializePlayer();
                         }
                     on_off = false;
                 }
@@ -79,7 +79,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     };
 
     final Handler handler = new Handler();
-    final Runnable r = new Runnable()
+
+    final Runnable r = new Runnable() //FIXME rename
     {
         public void run()
         {
@@ -159,7 +160,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View play = controlView.findViewById(R.id.exo_play);
         play.performClick();
 
-        mHideHandler.postDelayed(rExpire,4000);
+        mHideHandler.postDelayed(playerRestarter,4000);
         on_off = true;
     }
 
@@ -182,7 +183,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View play = controlView.findViewById(R.id.exo_play);
         play.performClick();
 
-        mHideHandler.postDelayed(rExpire,4000);
+        mHideHandler.postDelayed(playerRestarter,4000);
         on_off = true;
     }
 
@@ -190,19 +191,19 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        mHideHandler.removeCallbacks(rExpire);
-        rExpire = null;
+        mHideHandler.removeCallbacks(playerRestarter);
+        playerRestarter = null;
     }
 
     private void runTimer(){
 
          mHideHandler = new Handler();
-         mHideHandler.postDelayed(rExpire,4000);
+         mHideHandler.postDelayed(playerRestarter,4000);
 
      }
 
 
-    private void reinitializationPlayer(){
+    private void reinitializePlayer(){
 
         HTML.getHtml(currentUrl, getApplicationContext(), new VolleyCallback() {
 
@@ -223,14 +224,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     TextView title = findViewById(R.id.film_name);
                     title.setText(currentTitle + " odc. " + currentEpisode);
                 }
-                mHideHandler.postDelayed(rExpire,4000);
+                mHideHandler.postDelayed(playerRestarter,4000);
                 on_off = true;
 
             }
 
             @Override
             public void onFailure(VolleyError volleyError) {
-                mHideHandler.postDelayed(rExpire,4000);
+                mHideHandler.postDelayed(playerRestarter,4000);
                 on_off = true;
             }
         });
@@ -369,7 +370,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private boolean isPrime(String title) {
         boolean prime = true;
-        if (title.equals("Chuunibyou demo Koi ga Shitai! Take On Me")){
+        if (title.equals("Chuunibyou demo Koi ga Shitai! Take On Me")){  //FIXME
             prime = false;
         }
         return prime;
@@ -406,8 +407,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         releaseMediaPlayer();
-        mHideHandler.removeCallbacks(rExpire);
-        rExpire = null;
+        mHideHandler.removeCallbacks(playerRestarter);
+        playerRestarter = null;
         finish();
     }
 
@@ -454,13 +455,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             changeCurrentEpisodes(newEpisode);
                             TextView title = findViewById(R.id.film_name);
                             title.setText(video.getTitle() + " odc. " + currentEpisode);
-                            mHideHandler.postDelayed(rExpire,4000);
+                            mHideHandler.postDelayed(playerRestarter,4000);
                             on_off = true;
                         }
 
                         @Override
                         public void onFailure(VolleyError volleyError) {
-                            mHideHandler.postDelayed(rExpire,4000);
+                            mHideHandler.postDelayed(playerRestarter,4000);
                             on_off = true;
                         }
                     });
