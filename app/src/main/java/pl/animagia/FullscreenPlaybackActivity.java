@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.VolleyError;
@@ -69,8 +72,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                     }else{
                         Toast.makeText(context, "Restart playera", Toast.LENGTH_SHORT).show();
-                        reinitializePlayer();
-                        }
+                        reinitializePlayer("");
+                    }
                     on_off = false;
                 }
             }
@@ -150,7 +153,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
         mPlayer.setPlayWhenReady(true);
+        initSpinner();
+
     }
+
 
     @Override
     protected void onResume() {
@@ -197,15 +203,104 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void runTimer(){
 
-         mHideHandler = new Handler();
-         mHideHandler.postDelayed(playerRestarter,4000);
+        mHideHandler = new Handler();
+        mHideHandler.postDelayed(playerRestarter,4000);
 
-     }
+    }
 
+    private void initSpinner(){
+        Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
+        String[] quality = getResources().getStringArray(R.array.quality);
+        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
+                this, R.layout.spinner_item, quality
+        );
 
-    private void reinitializePlayer(){
+        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        HTML.getHtml(currentUrl, getApplicationContext(), new VolleyCallback() {
+        spinnerOfQuality.setAdapter(adapterQuality);
+        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            boolean start = true;
+            Spinner spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+            String query;
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                query = String.valueOf(spinnerOfSubtitles.getSelectedItem());
+                switch(i){
+                    case 0:
+                        if(!start){
+                            if(query.equals("pl")){
+                                reinitializePlayer("?altsub=yes?res=hd");
+                            }else{
+                                reinitializePlayer("?altsub=no?res=hd");
+                            }
+                        }
+                        start = false;
+                        break;
+                    case 1:
+                        if(query.equals("pl")){
+                            reinitializePlayer("?altsub=yes?res=sd");
+                        }else{
+                            reinitializePlayer("?altsub=no?res=sd");
+                        }
+                        break;
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        Spinner spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
+                this, R.layout.spinner_item, subtitle
+        );
+
+        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerOfSubtitles.setAdapter(adapterSubtitles);
+
+        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+
+            Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
+            String query;
+            boolean start = true;
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                query = String.valueOf(spinnerOfQuality.getSelectedItem());
+                switch(i){
+                    case 0:
+                        if(!start){
+                            if(query.equals("1080p")){
+                                reinitializePlayer("?altsub=no?res=hd");
+                            }else{
+                                reinitializePlayer("?altsub=no?res=sd");
+                            }
+                        }
+                        start = false;
+                        break;
+                    case 1:
+                        if(query.equals("1080p")){
+                            reinitializePlayer( "?altsub=yes?res=hd");
+                        }else{
+                            reinitializePlayer( "?altsub=yes?res=sd");
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private void reinitializePlayer(String query){
+
+        HTML.getHtml(currentUrl + query, getApplicationContext(), new VolleyCallback() {
 
             @Override
             public void onSuccess(String result) {
@@ -433,7 +528,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (checkEpisodes(newEpisode)) {
 
-                    HTML.getHtml(video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) + (currentEpisode + newEpisode), getApplicationContext(), new VolleyCallback() {
+                    HTML.getHtml(video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) + (currentEpisode + newEpisode) + "?altsub=no?res=hd", getApplicationContext(), new VolleyCallback() {
 
                         @Override
                         public void onSuccess(String result) {
