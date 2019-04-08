@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,10 +35,6 @@ import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
@@ -53,10 +50,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private AppCompatActivity control;
     private boolean on_off, firstOnStart = true;
 
-    private Context context;
+    private Context context; //FIXME remove and use 'this' or 'getApplicationContext'
     private String cookie;
-
-    private boolean systemUiAndControlsVisible;
 
     private Handler mHideHandler;
 
@@ -66,11 +61,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         {
             if(mPlayer != null){
 
-                if (on_off == true) {
+                if (on_off) {
                     if ((mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) ||
-                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING) ) {
+                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
 
-                    }else{
+                    } else {
                         Toast.makeText(context, "Restart playera", Toast.LENGTH_SHORT).show();
                         reinitializePlayer("");
                     }
@@ -106,6 +101,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         }
     };
+    private long lastTimeSystemUiWasBroughtBack;
 
 
     @Override
@@ -135,8 +131,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(systemUiAndControlsVisible) {
-                    hide();
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP &&
+                        readyToHideSystemUi()) {
+                    hideSystemUi();
                 }
                 return true;
             }
@@ -157,6 +154,26 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Checks if navbar has been visible for long enough to allow it to be hidden safely
+     * (hiding navbar too soon can glitch it).
+     */
+    private boolean readyToHideSystemUi() {
+        return SystemClock.elapsedRealtime() - 600 > lastTimeSystemUiWasBroughtBack;
+    }
+
+    private void hideSystemUi() {
+        mMainView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+    }
+
+    private static boolean systemUiVisible(int systemUiVisibility) {
+        return (systemUiVisibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
+    }
 
     @Override
     protected void onResume() {
@@ -358,13 +375,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 (new View.OnSystemUiVisibilityChangeListener() {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
-                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                            //navbar visible
-                            systemUiAndControlsVisible = true;
+                        if (systemUiVisible(visibility)) {
                             mMainView.showController();
+                            lastTimeSystemUiWasBroughtBack = SystemClock.elapsedRealtime();
                         } else {
-                            //navbar not visible
-                            hide();
+                            mMainView.hideController();
                         }
                     }
                 });
@@ -375,7 +390,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus ) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            hide();
+            hideSystemUi();
         }
     }
 
@@ -445,22 +460,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         next.setVisibility(View.INVISIBLE);
         View previous = controlView.findViewById(R.id.previous_episode);
         previous.setVisibility(View.INVISIBLE);
-    }
-
-
-    private void hide() {
-        systemUiAndControlsVisible = false;
-        hideSystemUi();
-        mMainView.hideController();
-    }
-
-    private void hideSystemUi() {
-        mMainView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
     private boolean isPrime(String title) {
