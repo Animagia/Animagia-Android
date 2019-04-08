@@ -66,7 +66,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
         VideoData[] fullArr = new VideoData[]{
                 new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me",
-                        "https://static.animagia.pl/film_poster.jpg",
+                        "https://static.animagia.pl/Chuu_poster.jpg",
                         "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
                         "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png",
                         "01:05:03.115;00:33:03.115"),
@@ -89,7 +89,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "https://static.animagia.pl/Future_poster.jpg",
                         "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/03/future_store_page.png",
-                        "00:02:03.115;00:03:03.115"),
+                        "00:00:34.019;01:25:31.738;01:28:36.465"),
                 new VideoData("Tamako Love Story",
                         "https://static.animagia.pl/Tamako_poster.jpg",
                         "https://animagia.pl/tamako-love-story/", 1,
