@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,12 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ListIterator;
+
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
@@ -39,7 +46,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private PlayerView mMainView;
-
+    private ImageButton forwardPlayerButton, previewPlayerButton ;
     private SimpleExoPlayer mPlayer;
     private int episodes;
     private int currentEpisode;
@@ -128,6 +135,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         OwnTimeBar chapterMarker = findViewById(R.id.exo_progress);
         addTimeStamps(chapterMarker, timeStamps);
 
+        forwardPlayerButton = findViewById(R.id.exo_ffwd);
+        previewPlayerButton = findViewById(R.id.exo_rew);
+
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -151,6 +161,34 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         mPlayer.setPlayWhenReady(true);
         initSpinner();
+
+
+        ArrayList<String> al = new ArrayList<>(Arrays.asList(timeStamps));
+        final ListIterator<String> chapterIterator =  al.listIterator();
+
+        View.OnClickListener listener = new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                switch(view.getId()){
+                    case R.id.exo_ffwd:
+                        if(chapterIterator.hasNext()){
+                            mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.next()));
+                        }
+                        break;
+                    case R.id.exo_rew:
+                        if(chapterIterator.hasPrevious()){
+                            mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.previous()));
+                        }else{
+                            mPlayer.seekTo(0);
+                        }
+                        break;
+                }
+            }
+        };
+
+        forwardPlayerButton.setOnClickListener(listener);
+        previewPlayerButton.setOnClickListener(listener);
 
     }
 
