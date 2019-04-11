@@ -76,30 +76,10 @@
 
     </LinearLayout>
 
-
-    <LinearLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:paddingRight="5dp"
-        android:layout_gravity="right">
-
-    <Spinner
-        android:id="@+id/spinner_quality"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingLeft="10dp" />
-    <Spinner
-        android:id="@+id/spinner_subtitles"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingLeft="10dp"/>
-</LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:padding="5dp">
 
         <TextView
@@ -107,9 +87,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal|center"
+            android:layout_weight="1"
             android:text=""
             android:textColor="@android:color/white"
-            android:layout_weight="1" />
+            />
+
+        <Spinner
+            android:id="@+id/spinner_quality"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center"
+            android:layout_marginLeft="5dp"/>
+        <Spinner
+            android:id="@+id/spinner_subtitles"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center" />
     </LinearLayout>
 	
 </LinearLayout>
