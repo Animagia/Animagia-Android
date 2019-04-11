@@ -12,27 +12,23 @@ public class ShopDialogHelper {
 
     }
 
-    public static void showDialog(final Context ctx, final String productShopUrl) {
+    public static void showDialog(final Context ctx) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 
         builder.setMessage("Żeby kontynuować zakup, otwórz produkt w przeglądarce internetowej.");
 
         builder.setNegativeButton("Wróć", null);
-        builder.setNegativeButton("Otwórz", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Otwórz", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(productShopUrl));
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://animagia.pl"));
                 ctx.startActivity(browserIntent);
 
             }
         });
 
         builder.show();
-    }
-
-    public static void showDialog(final Context ctx) {
-        showDialog(ctx, "https://animagia.pl/sklep");
     }
 
 }

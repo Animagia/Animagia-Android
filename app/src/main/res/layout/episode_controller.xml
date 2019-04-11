@@ -96,7 +96,8 @@
             android:id="@+id/spinner_quality"
             android:layout_width="75dp"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal|center" />
+            android:gravity="center_horizontal|center"
+            android:layout_marginLeft="5dp"/>
         <Spinner
             android:id="@+id/spinner_subtitles"
             android:layout_width="75dp"
