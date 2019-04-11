@@ -46,7 +46,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private PlayerView mMainView;
-    private ImageButton forwardPlayerButton, previewPlayerButton ;
+    private ImageButton forwardPlayerButton, rewindPlayerButton ;
     private SimpleExoPlayer mPlayer;
     private int episodes;
     private int currentEpisode;
@@ -73,7 +73,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
 
                     } else {
-                        Toast.makeText(context, "Restart playera", Toast.LENGTH_SHORT).show();
                         reinitializePlayer("");
                     }
                     on_off = false;
@@ -129,6 +128,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
+        TextView title = findViewById(R.id.film_name);
+        title.setText(currentTitle + " odc. " + currentEpisode);
+
         timeStampUnconverted = video.getTimeStamps();
         timeStamps = timeStampUnconverted.split(";");
 
@@ -136,7 +138,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         addTimeStamps(chapterMarker, timeStamps);
 
         forwardPlayerButton = findViewById(R.id.exo_ffwd);
-        previewPlayerButton = findViewById(R.id.exo_rew);
+        rewindPlayerButton = findViewById(R.id.exo_rew);
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -188,7 +190,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         };
 
         forwardPlayerButton.setOnClickListener(listener);
-        previewPlayerButton.setOnClickListener(listener);
+        rewindPlayerButton.setOnClickListener(listener);
 
     }
 
@@ -370,10 +372,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                 mPlayer.setPlayWhenReady(true);
 
-                if (currentEpisode > 1){
                     TextView title = findViewById(R.id.film_name);
                     title.setText(currentTitle + " odc. " + currentEpisode);
-                }
+
                 mHideHandler.postDelayed(playerRestarter,4000);
                 on_off = true;
 
