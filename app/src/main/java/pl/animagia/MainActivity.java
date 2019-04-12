@@ -50,14 +50,21 @@ public class MainActivity extends AppCompatActivity
         final View headView = navigationView.getHeaderView(0);
 
         TextView textView = headView.findViewById(R.id.userEmail);
+        ImageView imageView = headView.findViewById(R.id.login);
+        Button button = headView.findViewById(R.id.account_view_icon_button);
+
         if (isLogged()) {
+            textView.setVisibility(View.VISIBLE);
+           imageView.setVisibility(View.VISIBLE);
+            button.setVisibility(View.VISIBLE);
             textView.setText(getUsername());
         }
         else {
+            textView.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
+            button.setVisibility(View.INVISIBLE);
             textView.setText(R.string.guest);
         }
-
-        Button button = headView.findViewById(R.id.account_view_icon_button);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
