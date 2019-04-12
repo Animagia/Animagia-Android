@@ -1,6 +1,8 @@
 package pl.animagia;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,9 +13,12 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -30,7 +35,7 @@ import java.util.regex.Pattern;
 
 
 public class FilesFragment extends Fragment {
-
+   private List<String> downloadUrls;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -93,7 +98,7 @@ public class FilesFragment extends Fragment {
     }
 
     private void onAccountPageFetched(String accountPageHtml) {
-        List<String> downloadUrls = new ArrayList<String>();
+        downloadUrls = new ArrayList<>();
         Matcher m = Pattern.compile("href=\"https:\\/\\/(static|animagia-dl).*?video\\/ddl.*?\">.*?</a")
                 .matcher(accountPageHtml);
         while (m.find()) {
@@ -102,14 +107,22 @@ public class FilesFragment extends Fragment {
 
 
         ListView lv = getView().findViewById(R.id.file_listview);
-        lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateDummyLinks()));
+        lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
 
-//        Spanned linkForTextView = Html.fromHtml("<a href=\"" + extractUrl(next) +"\">"
-//                + extractFileName(next) + "</a>");
-//
-//        textView.setText(linkForTextView);
-//        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        AdapterView.OnItemClickListener itemClickListener =
+                new AdapterView.OnItemClickListener(){
+                    public void onItemClick(AdapterView<?> listView,
+                                            View itemView,
+                                            int position,
+                                            long id) {
+                        if(downloadUrls.size() > 0){
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(extractUrl(downloadUrls.get(position))));
+                            startActivity(browserIntent);
+                        }
 
+                    }
+                };
+        lv.setOnItemClickListener(itemClickListener);
     }
 
     private static String extractUrl(String html) {
@@ -131,6 +144,14 @@ public class FilesFragment extends Fragment {
             links.add("<a href=\"https://animagia.pl\">Animagia</a>");
         }
         return links;
+    }
+
+    private List<String> generateAccountListNames() {
+        List<String> accountLinks = new ArrayList<>();
+        for(int j=0; j< downloadUrls.size(); j++){
+            accountLinks.add(extractFileName(downloadUrls.get(j)));
+        }
+        return accountLinks;
     }
 
 }
