@@ -136,9 +136,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         timeStamps = timeStampUnconverted.split(";");
 
         OwnTimeBar chapterMarker = findViewById(R.id.exo_progress);
+
+        if(!timeStamps[0].equals(""))
         addTimeStamps(chapterMarker, timeStamps);
 
         forwardPlayerButton = findViewById(R.id.exo_ffwd);
+        forwardPlayerButton.getDrawable().setAlpha(255);
         rewindPlayerButton = findViewById(R.id.exo_rew);
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
@@ -166,46 +169,73 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         initSpinner();
 
 
-        ArrayList<String> al = new ArrayList<>(Arrays.asList(timeStamps));
-        final ListIterator<String> chapterIterator =  al.listIterator();
+        if(!timeStamps[0].equals("")){
+            final ArrayList<String> al = new ArrayList<>(Arrays.asList(timeStamps));
+            final ListIterator<String> chapterIterator =  al.listIterator();
 
-        View.OnClickListener listener = new View.OnClickListener(){
+            View.OnClickListener listener = new View.OnClickListener(){
 
-            @Override
-            public void onClick(View view) {
-                switch(view.getId()){
-                    case R.id.exo_ffwd:
-                        if(chapterIterator.hasNext()){
-                            mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.next()));
-                            if(!chapterIterator.hasNext())
-                                forwardPlayerButton.getDrawable().setAlpha(80);
-                        }else{
+                @Override
+                public void onClick(View view) {
+                    long time;
+                    switch(view.getId()){
+                        case R.id.exo_ffwd:
 
-                        }
-                        break;
-                    case R.id.exo_rew:
-                        if(chapterIterator.hasPrevious()){
-                            forwardPlayerButton.getDrawable().setAlpha(255);
-                            chapterIterator.previous();
+                            if(al.size() > 0){
+                                if(calculateMsTimeStamp(al.get(timeStamps.length - 1)) < mPlayer.getCurrentPosition()){
+                                    forwardPlayerButton.getDrawable().setAlpha(80);
+                                    break;
+                                }
+                            }
+
+                            while(chapterIterator.hasPrevious()){
+                                chapterIterator.previous();
+                            }
+
+                            if(chapterIterator.hasNext()){
+                                time = calculateMsTimeStamp(chapterIterator.next());
+                                while(chapterIterator.hasNext() && time - 1000 < mPlayer.getCurrentPosition()){
+                                    time = calculateMsTimeStamp(chapterIterator.next());
+                                }
+
+                                mPlayer.seekTo(time);
+                                if(!chapterIterator.hasNext())
+                                    forwardPlayerButton.getDrawable().setAlpha(80);
+                            }
+                            break;
+                        case R.id.exo_rew:
+
+                            if(al.size() > 0){
+                                if(calculateMsTimeStamp(al.get(0)) > mPlayer.getCurrentPosition()){
+                                    forwardPlayerButton.getDrawable().setAlpha(255);
+                                    break;
+                                }
+                            }
+
+                            while(chapterIterator.hasNext()){
+                                chapterIterator.next();
+                            }
+
                             if(chapterIterator.hasPrevious()){
-                                mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.previous()));
+                                forwardPlayerButton.getDrawable().setAlpha(255);
+
+                                time = calculateMsTimeStamp(chapterIterator.previous());
+                                while(chapterIterator.hasPrevious() && time + 1000 > mPlayer.getCurrentPosition()){
+                                    time = calculateMsTimeStamp(chapterIterator.previous());
+                                }
+
+                                mPlayer.seekTo(time);
                             }else{
                                 mPlayer.seekTo(0);
                             }
-
-                        }else{
-                            mPlayer.seekTo(0);
-                        }
-                        break;
+                            break;
+                    }
                 }
-            }
-        };
+            };
 
-        forwardPlayerButton.setOnClickListener(listener);
-        rewindPlayerButton.setOnClickListener(listener);
-
-
-
+            forwardPlayerButton.setOnClickListener(listener);
+            rewindPlayerButton.setOnClickListener(listener);
+        }
     }
 
     /**
