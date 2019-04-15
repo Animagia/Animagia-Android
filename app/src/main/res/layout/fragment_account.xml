@@ -6,11 +6,27 @@
     tools:context=".FilesFragment">
 
     <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/catalog_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp">
     <TextView
         android:id="@+id/files"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        android:text="" />
+        android:text=""
+        android:layout_margin="5dp"/>
 
+    <TextView
+        android:id="@+id/email_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:text=""
+        android:layout_margin="5dp"/>
+    </LinearLayout>
 </FrameLayout>
