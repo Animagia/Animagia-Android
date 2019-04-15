@@ -2,6 +2,7 @@ package pl.animagia;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -176,11 +177,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     case R.id.exo_ffwd:
                         if(chapterIterator.hasNext()){
                             mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.next()));
+                            if(!chapterIterator.hasNext())
+                                forwardPlayerButton.getDrawable().setAlpha(80);
+                        }else{
+
                         }
                         break;
                     case R.id.exo_rew:
                         if(chapterIterator.hasPrevious()){
-                            mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.previous()));
+                            forwardPlayerButton.getDrawable().setAlpha(255);
+                            chapterIterator.previous();
+                            if(chapterIterator.hasPrevious()){
+                                mPlayer.seekTo(calculateMsTimeStamp(chapterIterator.previous()));
+                            }else{
+                                mPlayer.seekTo(0);
+                            }
+
                         }else{
                             mPlayer.seekTo(0);
                         }
@@ -191,6 +203,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         forwardPlayerButton.setOnClickListener(listener);
         rewindPlayerButton.setOnClickListener(listener);
+
+
 
     }
 
