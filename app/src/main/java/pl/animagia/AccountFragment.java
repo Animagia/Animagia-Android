@@ -99,7 +99,10 @@ public class AccountFragment extends Fragment {
 
     private void onAccountPageFetched(String s) {
         TextView textView = getView().findViewById(R.id.files);
-        textView.setText(extractAccountStatus(s) + "\n" + extractUserEmail(s));
+        textView.setText(extractAccountStatus(s));
+
+        TextView textViewEmail = getView().findViewById(R.id.email_text);
+        textViewEmail.setText(extractUserEmail(s));
     }
 
     private static String extractAccountStatus(String accountPageHtml) {

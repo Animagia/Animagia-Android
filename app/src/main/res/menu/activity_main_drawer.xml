@@ -3,7 +3,8 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single"
+        android:id="@+id/first" >
         <item
             android:id="@+id/nav_watch"
             android:icon="@drawable/ic_video_library"
@@ -22,9 +23,8 @@
                 android:title="@string/drawer_item_account"/>
     </group>
 
-    <item android:title="@string/nav_section_company">
-        <menu>
-            <group android:checkableBehavior="single">
+            <group android:checkableBehavior="single"
+                android:id="@+id/second">
             <item
                     android:id="@+id/nav_contact_info"
                     android:icon="@drawable/ic_mail_outline"
@@ -38,7 +38,7 @@
                     android:icon="@drawable/ic_info_outline"
                     android:title="@string/terms" />
             </group>
-        </menu>
-    </item>
+
+
 
 </menu>
