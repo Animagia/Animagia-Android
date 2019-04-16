@@ -13,6 +13,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.TypefaceSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity
         ImageView imageView = headView.findViewById(R.id.login);
         Button button = headView.findViewById(R.id.account_view_icon_button);
 
+
         if (isLogged()) {
             textView.setVisibility(View.VISIBLE);
            imageView.setVisibility(View.VISIBLE);
@@ -81,6 +85,18 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        setMenuItemFont(navigationView.getMenu().getItem(4));
+        setMenuItemFont(navigationView.getMenu().getItem(5));
+        setMenuItemFont(navigationView.getMenu().getItem(6));
+
+    }
+
+
+    private void setMenuItemFont(MenuItem item){
+        TypefaceSpan typefaceSpan = new TypefaceSpan("sans-serif-thin");
+        SpannableString spanString = new SpannableString(item.getTitle());
+        spanString.setSpan(typefaceSpan, 0, item.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        item.setTitle(spanString);
     }
 
 
