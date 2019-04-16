@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setMenuItemFont(MenuItem item){
-        TypefaceSpan typefaceSpan = new TypefaceSpan("sans-serif-thin");
+        TypefaceSpan typefaceSpan = new TypefaceSpan("sans-serif-light");
         SpannableString spanString = new SpannableString(item.getTitle());
         spanString.setSpan(typefaceSpan, 0, item.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         item.setTitle(spanString);
