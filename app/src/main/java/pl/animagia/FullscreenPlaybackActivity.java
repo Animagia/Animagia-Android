@@ -258,19 +258,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private static boolean systemUiVisible(int systemUiVisibility) {
         return (systemUiVisibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-        View play = controlView.findViewById(R.id.exo_play);
-        play.performClick();
-
-        mHideHandler.postDelayed(playerRestarter,4000);
-        on_off = true;
-    }
-
+    
     @Override
     protected void onStart() {
         super.onStart();
@@ -280,18 +268,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             firstOnStart = false;
         }
 
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-        View play = controlView.findViewById(R.id.exo_play);
-        play.performClick();
-
-        mHideHandler.postDelayed(playerRestarter,4000);
-        on_off = true;
     }
 
     @Override
