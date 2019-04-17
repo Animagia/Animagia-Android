@@ -276,10 +276,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         super.onStart();
 
         if(firstOnStart){
-            runTimer();
+            mHideHandler = new Handler();
             firstOnStart = false;
         }
-
     }
 
     @Override
@@ -289,30 +288,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-        View play = controlView.findViewById(R.id.exo_play);
-        play.performClick();
-
-        mHideHandler.postDelayed(playerRestarter,4000);
-        on_off = true;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
 
         mHideHandler.removeCallbacks(playerRestarter);
         playerRestarter = null;
-    }
-
-    private void runTimer(){
-
-        mHideHandler = new Handler();
-        mHideHandler.postDelayed(playerRestarter,4000);
-
     }
 
     private void initSpinner(){
