@@ -283,6 +283,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        mHideHandler.removeCallbacks(playerRestarter);
+    }
+
+    @Override
     protected void onRestart() {
         super.onRestart();
 
@@ -557,6 +563,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         resumeLivePreview();
+        mHideHandler.removeCallbacks(playerRestarter);
     }
 
 
