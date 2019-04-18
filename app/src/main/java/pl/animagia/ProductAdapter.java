@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
@@ -37,6 +38,8 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View thumbnail = super.getView(position, convertView, parent);
         ImageView poster = thumbnail.findViewById(R.id.product_poster);
+        TextView priceView = thumbnail.findViewById(R.id.product_price);
+        TextView genresView = thumbnail.findViewById(R.id.product_genres);
 
         if (super.getItem(position).getPosterAsssetUri().equals("")) {
             Glide.with(getContext())
@@ -47,6 +50,8 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
                     .load(super.getItem(position).getPosterAsssetUri())
                     .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                     .into(poster);
+            priceView.setText(super.getItem(position).getPrice() + "");
+            genresView.setText(super.getItem(position).getGenres() + "");
         }
 
 
