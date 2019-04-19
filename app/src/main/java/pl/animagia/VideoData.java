@@ -19,8 +19,11 @@ public class VideoData implements Parcelable {
     private final double price;
     private final String genres;
 
+
+    private final String subtitles;
+
     public VideoData(String title, String thumbnailAssetUri, String videoUrl, int episodes,
-                     String posterAssetUri, String timeStamps, double price , String genres) {
+                     String posterAssetUri, String timeStamps, double price , String genres, String subtitles) {
         this.title = title;
         this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;
@@ -29,6 +32,7 @@ public class VideoData implements Parcelable {
         this.timeStamps = timeStamps;
         this.genres = genres;
         this.price = price;
+        this.subtitles = subtitles;
 
     }
 
@@ -64,6 +68,10 @@ public class VideoData implements Parcelable {
         return genres;
     }
 
+    public String getSubtitles() {
+        return subtitles;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof VideoData) {
@@ -92,6 +100,7 @@ public class VideoData implements Parcelable {
         this.timeStamps = in.readString();
         this.price = in.readDouble();
         this.genres = in.readString();
+        this.subtitles = in.readString();
     }
 
     @Override
@@ -109,6 +118,7 @@ public class VideoData implements Parcelable {
         dest.writeString(timeStamps);
         dest.writeDouble(price);
         dest.writeString(genres);
+        dest.writeString(subtitles);
     }
 
     public static final Creator<VideoData> CREATOR = new Creator<VideoData>() {
