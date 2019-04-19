@@ -22,6 +22,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/subtitle_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:layout_marginStart="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingBottom="2dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="2dp"
+        android:text="place for subtitle"
+        android:textColor="@color/product_color"
+        android:textSize="6sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/product_poster" />
+
+    <TextView
         android:id="@+id/product_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -32,13 +51,13 @@
         android:paddingBottom="4dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:paddingTop="4dp"
+        android:paddingTop="2dp"
         android:text="A feature film with a somewhat long title"
         android:textColor="@color/product_color"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/product_poster" />
+        app:layout_constraintTop_toBottomOf="@id/subtitle_text" />
 
     <TextView
         android:id="@+id/product_price"
