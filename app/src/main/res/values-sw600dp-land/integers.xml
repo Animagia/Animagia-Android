@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer
-        name="catalog_columns">1</integer>
+        name="catalog_columns">2</integer>
     <integer
-        name="shop_columns">4</integer>
+        name="shop_columns">6</integer>
 </resources>
