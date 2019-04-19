@@ -5,32 +5,24 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
-import pl.animagia.html.HTML;
-import pl.animagia.html.VolleyCallback;
 
 
 public class ProductAdapter extends ArrayAdapter<VideoData> {
 
     public ProductAdapter(Context context) {
-        super(context, R.layout.product_card, R.id.product_text, VideoThumbnailAdapter.prepareVideos());
+        super(context, R.layout.product_card, R.id.product_title, VideoThumbnailAdapter.prepareVideos());
     }
 
 
@@ -42,7 +34,7 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
 
         TextView priceView = thumbnail.findViewById(R.id.product_price);
         TextView genresView = thumbnail.findViewById(R.id.product_genres);
-        TextView subtitleView = thumbnail.findViewById(R.id.subtitle_text);
+        TextView subtitleView = thumbnail.findViewById(R.id.product_subtitle);
 
         if (super.getItem(position).getPosterAsssetUri().equals("")) {
             Glide.with(getContext())
@@ -57,10 +49,10 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
             priceView.setText(super.getItem(position).getPrice() + "");
             genresView.setText(super.getItem(position).getGenres() + "");
 
-            if(super.getItem(position).getSubtitles().equals("")){
+            if(super.getItem(position).getSubtitle().equals("")){
                 subtitleView.setVisibility(View.INVISIBLE);
             }else{
-                subtitleView.setText(super.getItem(position).getSubtitles() + "");
+                subtitleView.setText(super.getItem(position).getSubtitle() + "");
                 subtitleView.setVisibility(View.VISIBLE);
             }
         }

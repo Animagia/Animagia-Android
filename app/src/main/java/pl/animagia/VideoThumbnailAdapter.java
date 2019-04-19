@@ -35,72 +35,49 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
     static VideoData[] prepareVideos() {
 
-
-        GregorianCalendar firstMarchRelease = new GregorianCalendar();
-        firstMarchRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
-        firstMarchRelease.set(2019, GregorianCalendar.MARCH,  12);
-
-        GregorianCalendar secondMarchRelease = new GregorianCalendar();
-        secondMarchRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
-        secondMarchRelease.set(2019, GregorianCalendar.MARCH,  23);
-
-        GregorianCalendar aprilRelease = new GregorianCalendar();
-        aprilRelease.setTimeZone(TimeZone.getTimeZone("UTC"));
-        aprilRelease.set(2019, GregorianCalendar.APRIL,  9);
-
-        GregorianCalendar now = new GregorianCalendar();
-        now.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        int totalTitles = 3;
-        if(now.after(aprilRelease)) {
-            totalTitles += 3;
-        } else if(now.after(secondMarchRelease)) {
-            totalTitles += 2;
-        } else if(now.after(firstMarchRelease)) {
-            totalTitles++;
-        }
+        int totalTitles = 6;
 
         if(appIsOutdated()) {
             totalTitles = 0;
         }
 
         VideoData[] fullArr = new VideoData[]{
-                new VideoData("Chuunibyou demo Koi ga Shitai! Take On Me",
+                new VideoData("Take On Me",
                         "https://static.animagia.pl/Chuu_poster.jpg",
                         "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
                         "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png",
                         "00:33:03.115;01:05:03.115",
-                        29.9,"Romance, Drama", "polish subtitles"),
+                        29.9,"Romance, Drama", "Chuunibyou demo Koi ga Shitai!"),
                 new VideoData("Amagi Brilliant Park",
                         "https://static.animagia.pl/Amagi4.jpg",
                         "https://animagia.pl/amagi-brilliant-park-odc-1/", 13,
                         "https://animagia.pl/wp-content/uploads/2018/05/kv-for-store-page.png",
                         "00:03:03.115;00:08:03.115",
                         19.9,"Romance, Adventure", ""),
-                new VideoData("Hanasaku Iroha: Home Sweet Home",
+                new VideoData("Home Sweet Home",
                         "https://static.animagia.pl/Hana_poster.jpg",
                         "https://animagia.pl", 1,
                         "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png",
                         "00:04:03.115;00:11:03.115",
-                        14.9,"Drama, Tragedy", "polish subtitles"),
-                new VideoData("Kyoukai no Kanata: I'll Be Here – przeszłość",
+                        14.9,"Drama, Tragedy", "Hanasaku Iroha: "),
+                new VideoData("Przeszłość",
                         "https://static.animagia.pl/Past_poster.jpg",
                         "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/03/knk_past_store_page.png",
                         "00:03:03.115;00:04:03.115",
-                        19.9,"Adventure, Drama", "polish subtitles"),
-                new VideoData("Kyoukai no Kanata: I'll Be Here – przyszłość",
+                        19.9,"Adventure, Drama", "Kyoukai no Kanata –"),
+                new VideoData("Przyszłość",
                         "https://static.animagia.pl/Future_poster.jpg",
                         "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/03/future_store_page.png",
                         "00:00:34.019;01:25:31.738;01:28:36.465",
-                        29.9,"Romance, Drama", "polish subtitles"),
+                        29.9,"Romance, Drama", "Kyoukai no Kanata –"),
                 new VideoData("Tamako Love Story",
                         "https://static.animagia.pl/Tamako_poster.jpg",
                         "https://animagia.pl/tamako-love-story/", 1,
-                        "https://animagia.pl/wp-content/uploads/2019/04/Tamako-poster.png",
+                        "https://animagia.pl/wp-content/uploads/2019/04/Tamako_store_page.png",
                         "00:05:03.115;00:08:03.115",
-                        49.9,"Romance, Drama", "polish subtitles"),
+                        49.9,"Romance, Drama", ""),
         };
 
         arr = Arrays.copyOfRange(fullArr, 0, totalTitles);
