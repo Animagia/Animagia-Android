@@ -1,10 +1,13 @@
 package pl.animagia;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -35,6 +38,7 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
         TextView priceView = thumbnail.findViewById(R.id.product_price);
         TextView genresView = thumbnail.findViewById(R.id.product_genres);
         TextView subtitleView = thumbnail.findViewById(R.id.product_subtitle);
+        TextView titleView = thumbnail.findViewById(R.id.product_title);
 
         if (super.getItem(position).getPosterAsssetUri().equals("")) {
             Glide.with(getContext())
@@ -50,7 +54,12 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
             genresView.setText(super.getItem(position).getGenres() + "");
 
             if(super.getItem(position).getSubtitle().equals("")){
-                subtitleView.setVisibility(View.INVISIBLE);
+
+                titleView.setLines(2);
+                titleView.setPadding(4,dipToPx((float)7.5),4,dipToPx((float)1.5));
+                titleView.setGravity(Gravity.CENTER_VERTICAL);
+
+                subtitleView.setVisibility(View.GONE);
             }else{
                 subtitleView.setText(super.getItem(position).getSubtitle() + "");
                 subtitleView.setVisibility(View.VISIBLE);
@@ -58,6 +67,12 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
         }
 
         return thumbnail;
+    }
+
+    private int dipToPx(float dp){
+        Resources r = getContext().getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,r.getDisplayMetrics());
+        return (int) px;
     }
 
     private static String getImageUrl(String html) {
