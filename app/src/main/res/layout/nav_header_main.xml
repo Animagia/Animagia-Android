@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
-            app:srcCompat="@drawable/ic_sword_plain"
+            app:srcCompat="@drawable/ic_domain"
             android:layout_marginTop="24dp" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="16dp"
