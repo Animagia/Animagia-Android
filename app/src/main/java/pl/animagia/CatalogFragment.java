@@ -57,7 +57,7 @@ public class CatalogFragment extends Fragment {
             Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
             intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
             intent.putExtra(VideoData.NAME_OF_URL, videoData.getVideoUrl());
-            intent.putExtra(Cookies.LOGIN,cookie);
+            intent.putExtra(Cookies.LOGIN, cookie);
 
             startActivity(intent);
         } else {
@@ -96,11 +96,13 @@ public class CatalogFragment extends Fragment {
         LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
 
         TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
-        if(view == null){
+        if (view == null) {
 
             TextView textView = new TextView(getContext());
             textView.setId(R.id.geo_text_view);
-            textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            textView.setLayoutParams(
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
             textView.setText(message);
             textView.setGravity(Gravity.CENTER);
             textView.setPadding(0, 10, 0, 10);

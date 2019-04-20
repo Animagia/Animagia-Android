@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/thumbnail_text"
+        android:id="@+id/thumbnail_subtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -28,14 +28,14 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:paddingTop="4dp"
-        android:text="A feature film with a somewhat long title"
+        android:text="Optional lead or sub-title of film"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/thumbnail_poster"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/thumbnail_description"
+        android:id="@+id/thumbnail_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -44,11 +44,11 @@
         android:maxLines="1"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:text="One-sentence description of film."
+        android:text="Title of film"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/thumbnail_poster"
-        app:layout_constraintTop_toBottomOf="@+id/thumbnail_text" />
+        app:layout_constraintTop_toBottomOf="@+id/thumbnail_subtitle" />
 
     <TextView
         android:id="@+id/thumbnail_genres"
@@ -69,7 +69,7 @@
         app:layout_constraintStart_toEndOf="@+id/thumbnail_poster" />
 
     <TextView
-        android:id="@+id/thumbnail_duration"
+        android:id="@+id/thumbnail_preview_length"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="4dp"
@@ -81,13 +81,14 @@
         android:paddingLeft="1dp"
         android:paddingRight="1dp"
         android:paddingTop="1dp"
-        android:text="90 min."
+        android:text="10 min. bezpłatnie"
+        android:visibility="invisible"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
-        app:layout_constraintBottom_toTopOf="@+id/thumbnail_preview" />
+        app:layout_constraintBottom_toTopOf="@+id/thumbnail_duration" />
 
     <TextView
-        android:id="@+id/thumbnail_preview"
+        android:id="@+id/thumbnail_duration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="4dp"
@@ -100,7 +101,7 @@
         android:paddingLeft="1dp"
         android:paddingRight="1dp"
         android:paddingTop="1dp"
-        android:text="10 min. bezpłatnie"
+        android:text="90 min."
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
         app:layout_constraintBottom_toBottomOf="@+id/thumbnail_poster" />
