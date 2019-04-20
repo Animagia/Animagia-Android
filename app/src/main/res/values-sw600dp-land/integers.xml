@@ -3,5 +3,5 @@
     <integer
         name="catalog_columns">2</integer>
     <integer
-        name="shop_columns">6</integer>
+        name="shop_columns">5</integer>
 </resources>

@@ -37,7 +37,6 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
 
         TextView priceView = thumbnail.findViewById(R.id.product_price);
         TextView genresView = thumbnail.findViewById(R.id.product_genres);
-        TextView subtitleView = thumbnail.findViewById(R.id.product_subtitle);
         TextView titleView = thumbnail.findViewById(R.id.product_title);
 
         if (super.getItem(position).getPosterAsssetUri().equals("")) {
@@ -51,28 +50,15 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
                     .into(poster);
 
             priceView.setText(super.getItem(position).getPrice() + "");
-            genresView.setText(super.getItem(position).getGenres() + "");
+            genresView.setText(super.getItem(position).getGenres());
 
-            if(super.getItem(position).getSubtitle().equals("")){
-
-                titleView.setLines(2);
-                titleView.setPadding(4,dipToPx((float)7.5),4,dipToPx((float)1.5));
-                titleView.setGravity(Gravity.CENTER_VERTICAL);
-
-                subtitleView.setVisibility(View.GONE);
-            }else{
-                subtitleView.setText(super.getItem(position).getSubtitle() + "");
-                subtitleView.setVisibility(View.VISIBLE);
+            if (super.getItem(position).getSubtitle().length() > 0) {
+                titleView.setText(super.getItem(position).getSubtitle() + " " +
+                        super.getItem(position).getTitle());
             }
         }
 
         return thumbnail;
-    }
-
-    private int dipToPx(float dp){
-        Resources r = getContext().getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dp,r.getDisplayMetrics());
-        return (int) px;
     }
 
     private static String getImageUrl(String html) {

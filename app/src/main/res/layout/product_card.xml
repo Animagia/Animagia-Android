@@ -22,42 +22,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/product_subtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:paddingBottom="1dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="2dp"
-        android:text="Optional lead or sub-title of film"
-        android:textColor="@color/product_color"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/product_poster" />
-
-    <TextView
         android:id="@+id/product_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:layout_marginStart="2dp"
         android:ellipsize="end"
-        android:maxLines="1"
+        android:lines="2"
+        android:maxLines="2"
         android:paddingBottom="2dp"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:text="A feature film with a somewhat long title"
+        android:paddingTop="2dp"
+        android:text="Full title including subtitle, may be long"
         android:textColor="@color/product_color"
-        android:textSize="15sp"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/product_subtitle" />
+        app:layout_constraintTop_toBottomOf="@id/product_poster"
+        android:gravity="left|center_vertical"/>
 
     <TextView
         android:id="@+id/product_price"
