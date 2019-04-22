@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
 
         if (isLogged()) {
             textView.setVisibility(View.VISIBLE);
-           imageView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
             button.setVisibility(View.VISIBLE);
             textView.setText(getUsername());
         }
