@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/conciseInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/concise_info"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/documentsIntro"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@id/documentsIntro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/documents_into"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/infoLink1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/conciseInfo"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="4dp"/>
+
+   <Button
+        android:id="@id/infoLink1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regulamin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/infoLink2"
+        app:layout_constraintTop_toBottomOf="@id/documentsIntro"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+    <Button
+        android:id="@id/infoLink2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Prywatność i ciasteczka"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/infoLink1"
+        app:layout_constraintBottom_toTopOf="@+id/infoLink3"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+    <Button
+        android:id="@id/infoLink3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Uznania autorstwa"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infoLink2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+
+</android.support.constraint.ConstraintLayout>

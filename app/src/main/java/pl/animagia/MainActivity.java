@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_contact_info) {
             activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
-            activateFragment(new DocumentListFragment());
+            activateFragment(new InfoFragment());
         } else if (id == R.id.nav_downloads) {
             activateFragment(new FilesFragment());
         }

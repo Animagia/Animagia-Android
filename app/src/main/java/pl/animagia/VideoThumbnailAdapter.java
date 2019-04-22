@@ -43,7 +43,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "https://static.animagia.pl/Chuu_poster.jpg",
                         "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
                         "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png",
-                        "00:33:03.115;01:05:03.115",
+                        "00:00:29.500;00:33:03.115;01:05:03.115",
                         "25,00zł", "Przygoda", "Chuunibyou demo Koi ga Shitai!",
                         "93 min.", "Dorastanie jest zbyt mainstreamowe.", 430000),
                 new VideoData("Amagi Brilliant Park",
