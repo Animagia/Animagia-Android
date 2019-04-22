@@ -14,16 +14,17 @@ public class VideoData implements Parcelable {
     private final String posterAssetUri;
     private final String videoUrl;
     private final int episodes;
-    private String timeStamps;
+    private final String timeStamps;
     private final String price;
     private final String genres;
     private final String subtitle;
     private final String duration;
     private final String description;
+    private final int previewMillis;
 
     public VideoData(String title, String thumbnailAssetUri, String videoUrl, int episodes,
                      String posterAssetUri, String timeStamps, String price, String genres,
-                     String subtitle, String duration, String description) {
+                     String subtitle, String duration, String description, int previewMillis) {
         this.title = title;
         this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;
@@ -35,6 +36,7 @@ public class VideoData implements Parcelable {
         this.subtitle = subtitle;
         this.duration = duration;
         this.description = description;
+        this.previewMillis = previewMillis;
     }
 
     public String formatFullTitle() {
@@ -85,6 +87,10 @@ public class VideoData implements Parcelable {
         return description;
     }
 
+    public int getPreviewMillis() {
+        return previewMillis;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof VideoData) {
@@ -116,6 +122,7 @@ public class VideoData implements Parcelable {
         this.subtitle = in.readString();
         this.duration = in.readString();
         this.description = in.readString();
+        this.previewMillis = in.readInt();
     }
 
     @Override
@@ -136,6 +143,7 @@ public class VideoData implements Parcelable {
         dest.writeString(subtitle);
         dest.writeString(duration);
         dest.writeString(description);
+        dest.writeInt(previewMillis);
     }
 
     public static final Creator<VideoData> CREATOR = new Creator<VideoData>() {
@@ -149,4 +157,5 @@ public class VideoData implements Parcelable {
             return new VideoData[size];
         }
     };
+
 }
