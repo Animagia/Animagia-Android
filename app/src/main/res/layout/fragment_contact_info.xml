@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Button
+        android:id="@+id/emailButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Przejdź do sklepu"
+        app:layout_constraintBottom_toTopOf="@+id/signalLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@id/signalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masz filmy lub usługi zakupione\nwcześniej na naszej stronie?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/signalNumber"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/emailButton"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="32dp"/>
+
+    <TextView
+        android:id="@id/signalNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masz filmy lub usługi zakupione\nwcześniej na naszej stronie?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/fbLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/signalLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="4dp"/>
+
+    <TextView
+        android:id="@id/fbLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Masz filmy lub usługi zakupione\nwcześniej na naszej stronie?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/fbButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fbButton"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginTop="32dp"/>
+
+    <Button
+        android:id="@id/fbButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Importuj z istniejącego konta"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fbLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+
+</android.support.constraint.ConstraintLayout>

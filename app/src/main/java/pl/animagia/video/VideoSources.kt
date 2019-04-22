@@ -11,9 +11,9 @@ fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: St
 
     val dataSourceFactory: DataSource.Factory = DataSource.Factory {
         val source = DefaultHttpDataSource(Util.getUserAgent(activity, "animagia"), null)
-        if (videoTitle != "A feature film" && videoTitle != "A TV series") {
-            source.setRequestProperty("Range", "0-1023")
-        }
+
+        source.setRequestProperty("Range", "0-1023")
+
         source
     }
 

@@ -44,37 +44,43 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
                         "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png",
                         "00:33:03.115;01:05:03.115",
-                        29.9, "Romance, Drama", "Chuunibyou demo Koi ga Shitai!", "93 min."),
+                        "25,00zł", "Przygoda", "Chuunibyou demo Koi ga Shitai!",
+                        "93 min.", "Dorastanie jest zbyt mainstreamowe."),
                 new VideoData("Amagi Brilliant Park",
                         "https://static.animagia.pl/Amagi4.jpg",
                         "https://animagia.pl/amagi-brilliant-park-odc-1/", 13,
                         "https://animagia.pl/wp-content/uploads/2018/05/kv-for-store-page.png",
                         "00:03:03.115;00:08:03.115",
-                        19.9, "Romance, Adventure", "", "13 × 24 min."),
+                        "34,90zł", "Przygoda", "",
+                        "13 × 24 min.","Najbardziej magiczne miejse na Ziemi."),
                 new VideoData("Home Sweet Home",
                         "https://static.animagia.pl/Hana_poster.jpg",
                         "https://animagia.pl", 1,
                         "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png",
                         "00:04:03.115;00:11:03.115",
-                        14.9, "Drama, Tragedy", "Hanasaku Iroha: ", "66 min."),
+                        "24,90zł", "Obyczajowy", "Hanasaku Iroha: ",
+                        "66 min.", "Chcę lśnić! Ale czy tu mogę zabłysnąć?"),
                 new VideoData("Przeszłość",
                         "https://static.animagia.pl/Past_poster.jpg",
                         "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/03/knk_past_store_page.png",
                         "00:03:03.115;00:04:03.115",
-                        19.9, "Adventure, Drama", "Kyoukai no Kanata –", "86 min."),
+                        "19,90zł", "Akcja, dramat", "Kyoukai no Kanata –",
+                        "86 min.", "Początek historii Mirai i Akihito."),
                 new VideoData("Przyszłość",
                         "https://static.animagia.pl/Future_poster.jpg",
                         "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/03/future_store_page.png",
                         "00:00:34.019;01:25:31.738;01:28:36.465",
-                        29.9, "Romance, Drama", "Kyoukai no Kanata –", "89 min."),
+                        "19,90zł", "Akcja, dramat", "Kyoukai no Kanata –",
+                        "89 min.", "Zakończenie historii Mirai i Akihito."),
                 new VideoData("Tamako Love Story",
                         "https://static.animagia.pl/Tamako_poster.jpg",
                         "https://animagia.pl/tamako-love-story/", 1,
                         "https://animagia.pl/wp-content/uploads/2019/04/Tamako_store_page.png",
                         "00:05:03.115;00:08:03.115",
-                        49.9, "Romance, Drama", "", "83 min."),
+                        "19,90zł", "Obyczajowy", "",
+                        "83 min.", "Czy to miłość? Tak."),
         };
 
         arr = Arrays.copyOfRange(fullArr, 0, totalTitles);
@@ -114,6 +120,9 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
 
         TextView durationView = thumbnail.findViewById(R.id.thumbnail_duration);
         durationView.setText(super.getItem(position).getDuration());
+
+        TextView descriptionView = thumbnail.findViewById(R.id.thumbnail_description);
+        descriptionView.setText(super.getItem(position).getDescription());
 
         return thumbnail;
     }

@@ -49,7 +49,7 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
                     .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                     .into(poster);
 
-            priceView.setText(super.getItem(position).getPrice() + "");
+            priceView.setText(super.getItem(position).getPrice());
             genresView.setText(super.getItem(position).getGenres());
 
             if (super.getItem(position).getSubtitle().length() > 0) {

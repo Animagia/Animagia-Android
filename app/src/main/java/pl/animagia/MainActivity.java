@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity
 
         setMenuItemFont(navigationView.getMenu().getItem(4));
         setMenuItemFont(navigationView.getMenu().getItem(5));
-        setMenuItemFont(navigationView.getMenu().getItem(6));
 
     }
 
@@ -128,12 +127,10 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_account) {
             activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
-
+            activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
             activateFragment(new DocumentListFragment());
-        } else if (id == R.id.nav_terms_and_conditions) {
-            activateFragment(new TermsFragment());
-        }else if (id == R.id.nav_downloads) {
+        } else if (id == R.id.nav_downloads) {
             activateFragment(new FilesFragment());
         }
 

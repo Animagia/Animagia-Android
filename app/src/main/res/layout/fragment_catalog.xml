@@ -16,6 +16,6 @@
         android:padding="8dp"
         android:scrollbarStyle="outsideOverlay"
         android:stretchMode="columnWidth"
-        android:verticalSpacing="8dp" />
+        android:verticalSpacing="16dp" />
 
 </LinearLayout>

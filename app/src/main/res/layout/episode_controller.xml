@@ -86,23 +86,26 @@
             android:id="@+id/film_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal|center"
+            android:gravity="left|center_vertical"
             android:layout_weight="1"
             android:text=""
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingRight="4dp"
             android:textColor="@android:color/white"
             />
 
         <Spinner
             android:id="@+id/spinner_quality"
-            android:layout_width="75dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal|center"
+            android:gravity="center_horizontal|center_vertical"
             android:layout_marginLeft="5dp"/>
         <Spinner
             android:id="@+id/spinner_subtitles"
-            android:layout_width="75dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal|center" />
+            android:gravity="center_horizontal|center_vertical" />
     </LinearLayout>
 	
 </LinearLayout>

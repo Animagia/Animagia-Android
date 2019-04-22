@@ -23,21 +23,17 @@
                 android:title="@string/drawer_item_account"/>
     </group>
 
-            <group android:checkableBehavior="single"
-                android:id="@+id/second">
-            <item
-                    android:id="@+id/nav_contact_info"
-                    android:icon="@drawable/ic_mail_outline"
-                    android:title="@string/contact_info"/>
-            <item
-                    android:id="@+id/nav_documents"
-                    android:icon="@drawable/ic_info_outline"
-                    android:title="@string/documents"/>
-            <item
-                    android:id="@+id/nav_terms_and_conditions"
-                    android:icon="@drawable/ic_info_outline"
-                    android:title="@string/terms" />
-            </group>
+    <group android:checkableBehavior="single"
+        android:id="@+id/second">
+        <item
+                android:id="@+id/nav_contact_info"
+                android:icon="@drawable/ic_mail_outline"
+                android:title="@string/contact_info"/>
+        <item
+                android:id="@+id/nav_documents"
+                android:icon="@drawable/ic_info_outline"
+                android:title="@string/documents"/>
+    </group>
 
 
 
