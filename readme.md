@@ -1,18 +1,18 @@
-# Dual-licensed contributions
+# Animagia-Android
 
-All contributions by everyone other than the [repository owner](https://github.com/owoc) are released under the 3-Clause BSD License in addition to the repository-wide license.
+This is an app for our anime download and streaming service.
 
-# Credits
+## Credits
 
-## Icons
+### Icons
 
 This app uses icons included with the Android SDK, which are made and distributed by Google under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-## Volley library
+### Volley library
 
 This app uses the [Volley library](https://github.com/google/volley), which was published under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-## Glide library
+### Glide library
 
 This app uses the [Glide library](https://github.com/bumptech/glide), which was published under the following conditions:
 
