@@ -1,7 +1,10 @@
 package pl.animagia;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -50,6 +53,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private int currentEpisode;
     private String currentTitle;
     private String currentUrl;
+    private Spinner spinnerOfQuality;
+    private Spinner spinnerOfSubtitles;
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
@@ -160,18 +165,37 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
+        initSpinner();
         if(isPremiumFilm(video.getTitle())){
 
             previewMilliseconds = video.getPreviewMillis();
 
             if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                spinnerOfQuality.setEnabled(false);
+                spinnerOfSubtitles.setEnabled(false);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                builder.setMessage("Nie ma możliwości zmian jakości i napisów w preview");
+                builder.setTitle("Komunikat");
+                builder.setNegativeButton("Wróć", null);
+                builder.show();
+
                 handler.postDelayed(rewinder, REWINDER_INTERVAL);
+            }
+        }else{
+            if(cookie.equals(Cookies.COOKIE_NOT_FOUND) && currentEpisode == 1) {
+                spinnerOfQuality.setEnabled(false);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                builder.setMessage("Nie ma możliwości zmian jakości w odc 1 w preview");
+                builder.setTitle("Komunikat");
+                builder.setNegativeButton("Wróć", null);
+                builder.show();
             }
         }
 
         mPlayer.setPlayWhenReady(true);
-        initSpinner();
-
 
         if(!timeStamps[0].equals("")){
             final ArrayList<String> al = new ArrayList<>(Arrays.asList(timeStamps));
@@ -305,7 +329,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private void initSpinner(){
-        Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
+        spinnerOfQuality = findViewById(R.id.spinner_quality);
         String[] quality = getResources().getStringArray(R.array.quality);
         ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
                 this, R.layout.spinner_item, quality
@@ -318,6 +342,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             boolean start = true;
             Spinner spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
             String query;
+
+
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -348,7 +374,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         });
 
-        Spinner spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
         String[] subtitle = getResources().getStringArray(R.array.subtitles);
         ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
                 this, R.layout.spinner_item, subtitle
@@ -613,7 +639,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                         @Override
                         public void onSuccess(String result) {
-
                             currentTitle = video.formatFullTitle();
                             currentUrl = video.getVideoUrl()
                                     .substring(0, video.getVideoUrl().length() - 2) +
@@ -625,6 +650,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                                     .prepareFromAsset(activity, url, video.getTitle()));
                             if (!isPremiumFilm(video.getTitle())) {
                                 if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                                    spinnerOfSubtitles.setEnabled(false);
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                                    builder.setMessage("Nie ma możliwości zmian jakości i napisów w odc 1+ w preview");
+                                    builder.setTitle("Komunikat");
+                                    builder.setNegativeButton("Wróć", null);
+                                    builder.show();
                                     handler.postDelayed(rewinder, REWINDER_INTERVAL);
                                 }
                             }
