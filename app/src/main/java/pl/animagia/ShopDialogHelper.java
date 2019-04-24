@@ -15,18 +15,19 @@ public class ShopDialogHelper {
     public static void showDialog(final Context ctx) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 
-        builder.setMessage("Żeby kontynuować zakup, otwórz produkt w przeglądarce internetowej.");
+        builder.setMessage(R.string.product_in_browser);
 
-        builder.setNegativeButton("Wróć", null);
-        builder.setPositiveButton("Otwórz", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        builder.setNegativeButton(R.string.return_from_dialog, null);
+        builder.setPositiveButton(R.string.open_something_from_dialog,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("https://animagia.pl/sklep"));
+                        ctx.startActivity(browserIntent);
 
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://animagia.pl"));
-                ctx.startActivity(browserIntent);
-
-            }
-        });
+                    }
+                });
 
         builder.show();
     }

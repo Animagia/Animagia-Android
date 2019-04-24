@@ -7,7 +7,7 @@
         android:id="@+id/emptyAccountHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_account_needed"
+        android:text="@string/no_account_needed_short"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/goToShopFromAccountButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -16,6 +16,7 @@
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
+        android:visibility="gone"
         android:id="@id/goToShopFromAccountButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

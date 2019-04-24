@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
-import android.widget.Toast;
 import pl.animagia.R;
 
 public class Alerts {
@@ -31,19 +30,10 @@ public class Alerts {
     }
 
     public static void primeVideoError(final Context context){
-        String message = "Jakiś napis";
-        DialogInterface.OnClickListener toastButton = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(context, "Jakiś toast", Toast.LENGTH_SHORT).show();
-            }
-        };
         new AlertDialog.Builder(context)
                 .setCancelable(true)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle("Jakiś blad")
-                .setMessage(message)
-                .setNeutralButton("jakis przycisk", toastButton)
+                .setMessage(R.string.free_streaming_message)
+                .setNegativeButton(R.string.return_from_dialog, null)
                 .show();
     }
 
