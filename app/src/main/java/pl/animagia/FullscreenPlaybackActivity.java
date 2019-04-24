@@ -336,18 +336,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                final Toast t = Toast.makeText(context, "Nie ma możliwości zmian jakości w preview", Toast.LENGTH_SHORT);
-                t.setGravity(Gravity.TOP,0,50);
-                t.show();
 
-                Handler handlerToast = new Handler();
-                handlerToast.postDelayed(new Runnable(){
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-                    @Override
-                    public void run() {
-                        t.cancel();
-                    }
-                },1300);
+                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
+                    builder.setTitle("Komunikat.");
+                    builder.setNegativeButton("Wróć", null);
+
+
+                    builder.show();
+                }
+
 
                 return true;
             }
@@ -405,18 +405,17 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                @Override
                public boolean onTouch(View view, MotionEvent motionEvent) {
 
-                   final Toast t = Toast.makeText(context, "Nie ma możliwości zmian napisów w preview", Toast.LENGTH_SHORT);
-                   t.setGravity(Gravity.TOP,0,50);
-                   t.show();
+                   if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                       AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-                   Handler handlerToast = new Handler();
-                   handlerToast.postDelayed(new Runnable(){
+                       builder.setMessage("Nie ma możliwości zmian napisów w preview.");
+                       builder.setTitle("Komunikat.");
+                       builder.setNegativeButton("Wróć", null);
 
-                       @Override
-                       public void run() {
-                           t.cancel();
-                       }
-                   },1300);
+
+                       builder.show();
+                   }
+
 
                    return true;
                }
