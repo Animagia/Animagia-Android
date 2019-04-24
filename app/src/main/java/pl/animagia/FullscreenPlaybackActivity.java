@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
@@ -165,33 +168,24 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
-        initSpinner();
+
         if(isPremiumFilm(video.getTitle())){
 
             previewMilliseconds = video.getPreviewMillis();
 
             if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
-                spinnerOfQuality.setEnabled(false);
-                spinnerOfSubtitles.setEnabled(false);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                builder.setMessage("Nie ma możliwości zmian jakości i napisów w preview");
-                builder.setTitle("Komunikat");
-                builder.setNegativeButton("Wróć", null);
-                builder.show();
+                initSpinnerOnTouch(false);
 
                 handler.postDelayed(rewinder, REWINDER_INTERVAL);
+            }else{
+                initSpinner();
             }
         }else{
             if(cookie.equals(Cookies.COOKIE_NOT_FOUND) && currentEpisode == 1) {
-                spinnerOfQuality.setEnabled(false);
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                builder.setMessage("Nie ma możliwości zmian jakości w odc 1 w preview");
-                builder.setTitle("Komunikat");
-                builder.setNegativeButton("Wróć", null);
-                builder.show();
+                initSpinnerOnTouch(true);
+            }else{
+                initSpinner();
             }
         }
 
@@ -326,6 +320,108 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         mHideHandler.removeCallbacks(playerRestarter);
         playerRestarter = null;
+    }
+
+    private void initSpinnerOnTouch(boolean subtitleOnSelected){
+        spinnerOfQuality = findViewById(R.id.spinner_quality);
+        String[] quality = getResources().getStringArray(R.array.quality);
+        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
+                this, R.layout.spinner_item, quality
+        );
+
+        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerOfQuality.setAdapter(adapterQuality);
+        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                final Toast t = Toast.makeText(context, "Nie ma możliwości zmian jakości w preview", Toast.LENGTH_SHORT);
+                t.setGravity(Gravity.TOP,0,50);
+                t.show();
+
+                Handler handlerToast = new Handler();
+                handlerToast.postDelayed(new Runnable(){
+
+                    @Override
+                    public void run() {
+                        t.cancel();
+                    }
+                },1300);
+
+                return true;
+            }
+        });
+
+        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
+                this, R.layout.spinner_item, subtitle
+        );
+
+        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+        spinnerOfSubtitles.setAdapter(adapterSubtitles);
+
+       if(subtitleOnSelected){
+           spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+
+               Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
+               String query;
+               boolean start = true;
+               @Override
+               public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                   query = String.valueOf(spinnerOfQuality.getSelectedItem());
+                   switch(i){
+                       case 0:
+                           if(!start){
+                               if(query.equals("1080p")){
+                                   reinitializePlayer("?altsub=no&sd=no");
+                               }else{
+                                   reinitializePlayer("?altsub=no&sd=yes");
+                               }
+                           }
+                           start = false;
+                           break;
+                       case 1:
+                           if(query.equals("1080p")){
+                               reinitializePlayer( "?altsub=yes&sd=no");
+                           }else{
+                               reinitializePlayer( "?altsub=yes&sd=yes");
+                           }
+                           break;
+                   }
+               }
+
+               @Override
+               public void onNothingSelected(AdapterView<?> adapterView) {
+
+               }
+           });
+       }else{
+           spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener(){
+
+               @Override
+               public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                   final Toast t = Toast.makeText(context, "Nie ma możliwości zmian napisów w preview", Toast.LENGTH_SHORT);
+                   t.setGravity(Gravity.TOP,0,50);
+                   t.show();
+
+                   Handler handlerToast = new Handler();
+                   handlerToast.postDelayed(new Runnable(){
+
+                       @Override
+                       public void run() {
+                           t.cancel();
+                       }
+                   },1300);
+
+                   return true;
+               }
+           });
+       }
     }
 
     private void initSpinner(){
@@ -650,13 +746,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                                     .prepareFromAsset(activity, url, video.getTitle()));
                             if (!isPremiumFilm(video.getTitle())) {
                                 if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
-                                    spinnerOfSubtitles.setEnabled(false);
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                                    builder.setMessage("Nie ma możliwości zmian jakości i napisów w odc 1+ w preview");
-                                    builder.setTitle("Komunikat");
-                                    builder.setNegativeButton("Wróć", null);
-                                    builder.show();
+                                    initSpinnerOnTouch(false);
                                     handler.postDelayed(rewinder, REWINDER_INTERVAL);
                                 }
                             }
