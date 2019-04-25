@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -57,6 +58,23 @@ public class FilesFragment extends Fragment {
        //Cookies.removeCookie(Cookies.LOGIN, getActivity());
         if(isLogged()) {
            getFiles();
+        } else {
+            Button loginButton = getView().findViewById(R.id.getFilesFromAccountButton);
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).activateFragment(new LoginFragment());
+                }
+            });
+
+            Button shopButton = getView().findViewById(R.id.goToShopButton);
+            shopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).activateFragment(new ShopFragment());
+                }
+            });
+
         }
     }
 
@@ -74,27 +92,35 @@ public class FilesFragment extends Fragment {
 
     private void getFiles(){
         String url = "https://animagia.pl/konto";
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                onAccountPageFetched(s);
+        if(getActivity() != null){
+            RequestQueue queue = Volley.newRequestQueue(getContext());
+            CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String s) {
+                    if(getActivity() != null)
+                    onAccountPageFetched(s);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getFiles();
+                        }
+                    };
+                    if(getActivity() != null)
+                    Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                }
+            });
+            if(getActivity() != null){
+                String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+                stringRequest.setCookies(cookie);
+                queue.add(stringRequest);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getFiles();
-                    }
-                };
-                Alerts.internetConnectionError(getContext(), onClickTryAgain);
-            }
-        });
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
-        stringRequest.setCookies(cookie);
-        queue.add(stringRequest);
+
+        }
+
     }
 
     private void onAccountPageFetched(String accountPageHtml) {
@@ -104,10 +130,12 @@ public class FilesFragment extends Fragment {
         while (m.find()) {
             downloadUrls.add(m.group());
         }
+        ListView lv = null;
+        if(getActivity() != null){
+            lv = getView().findViewById(R.id.file_listview);
+            lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
+        }
 
-
-        ListView lv = getView().findViewById(R.id.file_listview);
-        lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
 
         AdapterView.OnItemClickListener itemClickListener =
                 new AdapterView.OnItemClickListener(){
@@ -122,7 +150,10 @@ public class FilesFragment extends Fragment {
 
                     }
                 };
-        lv.setOnItemClickListener(itemClickListener);
+        if(getActivity() != null && lv != null){
+            lv.setOnItemClickListener(itemClickListener);
+        }
+
     }
 
     private static String extractUrl(String html) {
