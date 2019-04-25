@@ -65,10 +65,11 @@ public class ContactInfoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(Intent.ACTION_SENDTO);
+                i.setType("message/rfc822");
+                i.setData(Uri.parse("mailto:"));
                 i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"animagia@animagia.pl"});
                 i.putExtra(Intent.EXTRA_SUBJECT, "Temat wiadomości mail");
                 i.putExtra(Intent.EXTRA_TEXT   , "Treść wiadomości mail");
-                i.setDataAndType(Uri.parse("mailto:"),"message/rfc822" );
                 try {
                     startActivity(Intent.createChooser(i, "Wybierz aplikację..."));
                 } catch (android.content.ActivityNotFoundException ex) {
