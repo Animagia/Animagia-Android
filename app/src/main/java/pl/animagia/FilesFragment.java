@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -57,6 +58,23 @@ public class FilesFragment extends Fragment {
        //Cookies.removeCookie(Cookies.LOGIN, getActivity());
         if(isLogged()) {
            getFiles();
+        } else {
+            Button loginButton = getView().findViewById(R.id.getFilesFromAccountButton);
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).activateFragment(new LoginFragment());
+                }
+            });
+
+            Button shopButton = getView().findViewById(R.id.goToShopButton);
+            shopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).activateFragment(new ShopFragment());
+                }
+            });
+
         }
     }
 

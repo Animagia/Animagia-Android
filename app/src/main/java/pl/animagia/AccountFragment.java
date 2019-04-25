@@ -53,6 +53,15 @@ public class AccountFragment extends Fragment {
                     activateLoginFragment();
                 }
             });
+
+            Button shopButton = getView().findViewById(R.id.goToShopFromAccountButton);
+            shopButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) getActivity()).activateFragment(new ShopFragment());
+                }
+            });
+
         }
     }
 
