@@ -44,7 +44,9 @@ public class AccountFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(isLogged()) {
-            getAccountInfo();
+            if(getActivity() != null){
+                getAccountInfo();
+            }
         } else {
             Button loginButton = getView().findViewById(R.id.linkExistingAccountButton);
             loginButton.setOnClickListener(new View.OnClickListener() {
@@ -83,27 +85,38 @@ public class AccountFragment extends Fragment {
 
     private void getAccountInfo(){ //FIXME
         String url = "https://animagia.pl/konto";
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                onAccountPageFetched(s);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getAccountInfo();
+        if(getActivity() != null){
+            RequestQueue queue = Volley.newRequestQueue(getContext());
+            CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String s) {
+                    if(getActivity() != null){
+                        onAccountPageFetched(s);
                     }
-                };
-                Alerts.internetConnectionError(getContext(), onClickTryAgain);
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getAccountInfo();
+                        }
+                    };
+                    if(getActivity() != null){
+                        Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                    }
+
+                }
+            });
+            if(getActivity() != null){
+                String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+                stringRequest.setCookies(cookie);
+                queue.add(stringRequest);
             }
-        });
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
-        stringRequest.setCookies(cookie);
-        queue.add(stringRequest);
+        }
+
     }
 
     private void onAccountPageFetched(String s) {

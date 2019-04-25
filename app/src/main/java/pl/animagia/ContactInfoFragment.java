@@ -65,11 +65,10 @@ public class ContactInfoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(Intent.ACTION_SENDTO);
-                i.setType("message/rfc822");
                 i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"animagia@animagia.pl"});
                 i.putExtra(Intent.EXTRA_SUBJECT, "Temat wiadomości mail");
                 i.putExtra(Intent.EXTRA_TEXT   , "Treść wiadomości mail");
-                i.setData(Uri.parse("mailto:"));
+                i.setDataAndType(Uri.parse("mailto:"),"message/rfc822" );
                 try {
                     startActivity(Intent.createChooser(i, "Wybierz aplikację..."));
                 } catch (android.content.ActivityNotFoundException ex) {
@@ -84,9 +83,14 @@ public class ContactInfoFragment extends Fragment {
         signal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Skopiowany..", signalNumber.getText());
-                clipboard.setPrimaryClip(clip);
+                try{
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("Skopiowany..", signalNumber.getText());
+                    clipboard.setPrimaryClip(clip);
+                }catch(NullPointerException e){
+
+                }
+
             }
         });
     }

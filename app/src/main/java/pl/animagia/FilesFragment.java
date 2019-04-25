@@ -92,27 +92,35 @@ public class FilesFragment extends Fragment {
 
     private void getFiles(){
         String url = "https://animagia.pl/konto";
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String s) {
-                onAccountPageFetched(s);
+        if(getActivity() != null){
+            RequestQueue queue = Volley.newRequestQueue(getContext());
+            CookieRequest stringRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String s) {
+                    if(getActivity() != null)
+                    onAccountPageFetched(s);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getFiles();
+                        }
+                    };
+                    if(getActivity() != null)
+                    Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                }
+            });
+            if(getActivity() != null){
+                String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+                stringRequest.setCookies(cookie);
+                queue.add(stringRequest);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getFiles();
-                    }
-                };
-                Alerts.internetConnectionError(getContext(), onClickTryAgain);
-            }
-        });
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
-        stringRequest.setCookies(cookie);
-        queue.add(stringRequest);
+
+        }
+
     }
 
     private void onAccountPageFetched(String accountPageHtml) {
@@ -122,10 +130,12 @@ public class FilesFragment extends Fragment {
         while (m.find()) {
             downloadUrls.add(m.group());
         }
+        ListView lv = null;
+        if(getActivity() != null){
+            lv = getView().findViewById(R.id.file_listview);
+            lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
+        }
 
-
-        ListView lv = getView().findViewById(R.id.file_listview);
-        lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
 
         AdapterView.OnItemClickListener itemClickListener =
                 new AdapterView.OnItemClickListener(){
@@ -140,7 +150,10 @@ public class FilesFragment extends Fragment {
 
                     }
                 };
-        lv.setOnItemClickListener(itemClickListener);
+        if(getActivity() != null && lv != null){
+            lv.setOnItemClickListener(itemClickListener);
+        }
+
     }
 
     private static String extractUrl(String html) {
