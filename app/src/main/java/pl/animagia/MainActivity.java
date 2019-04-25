@@ -121,16 +121,28 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_shop) {
+            getSupportActionBar().setTitle("  Sklep");
+            //getSupportActionBar().setIcon(R.drawable.ic_shopping_basket);
             activateFragment(new ShopFragment());
         } else if (id == R.id.nav_watch) {
+            getSupportActionBar().setTitle("  Oglądaj");
+            //getSupportActionBar().setIcon(R.drawable.ic_video_library);
             activateFragment(new CatalogFragment());
         } else if (id == R.id.nav_account) {
+            getSupportActionBar().setTitle("  Konto");
+            //getSupportActionBar().setIcon(R.drawable.ic_account_box);
             activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
+            getSupportActionBar().setTitle("  Kontakt");
+            //getSupportActionBar().setIcon(R.drawable.ic_mail_outline);
             activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
+            getSupportActionBar().setTitle("  Informacje");
+            //getSupportActionBar().setIcon(R.drawable.ic_info_outline);
             activateFragment(new InfoFragment());
         } else if (id == R.id.nav_downloads) {
+            getSupportActionBar().setTitle("  Pliki");
+            //getSupportActionBar().setIcon(R.drawable.ic_file_download);
             activateFragment(new FilesFragment());
         }
 
