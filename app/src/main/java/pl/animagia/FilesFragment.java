@@ -1,5 +1,6 @@
 package pl.animagia;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -98,7 +99,28 @@ public class FilesFragment extends Fragment {
                 @Override
                 public void onResponse(String s) {
                     if(getActivity() != null)
-                    onAccountPageFetched(s);
+
+                    if(s.contains("<form name=\"loginform\" id=\"loginform\" action=\"https://animagia.pl/wp-login.php\" method=\"post\">")){
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                        builder.setMessage("Wymagane jest ponowne zalogowanie");
+                        builder.setTitle("Ważny komunikat");
+                        builder.setPositiveButton("Zaloguj",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Cookies.removeCookie(Cookies.LOGIN, getActivity());
+                                        ((MainActivity) getActivity()).getSupportActionBar().setTitle("  Oglądaj");
+                                        ((MainActivity) getActivity()).activateFragment(new LoginFragment());
+                                    }
+                                });
+
+                        builder.show();
+
+                    }else{
+                        onAccountPageFetched(s);
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
