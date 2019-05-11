@@ -73,7 +73,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "https://animagia.pl/wp-content/uploads/2019/03/future_store_page.png",
                         "00:00:34.019;01:25:31.738;01:28:36.465",
                         "19,90zł", "Akcja, dramat", "Kyoukai no Kanata –",
-                        "89 min.", "Mirai i Akihito walczą o lepszą przyszłość, ale moc, którą władają, ma swoją cenę.", 768000),
+                        "89 min.", "Mirai i Akihito walczą o lepszą przyszłość, ale ich moce mają swoją cenę.", 768000),
                 new VideoData("Tamako Love Story",
                         "https://static.animagia.pl/Tamako_poster.jpg",
                         "https://animagia.pl/tamako-love-story/", 1,

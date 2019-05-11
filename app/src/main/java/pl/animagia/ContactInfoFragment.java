@@ -85,6 +85,7 @@ public class ContactInfoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try{
+                    Toast.makeText(getActivity(), "Numer skopiowany", Toast.LENGTH_SHORT).show();
                     ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                     ClipData clip = ClipData.newPlainText("Skopiowany..", signalNumber.getText());
                     clipboard.setPrimaryClip(clip);

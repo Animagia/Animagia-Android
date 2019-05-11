@@ -104,8 +104,8 @@ public class FilesFragment extends Fragment {
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                        builder.setMessage("Wymagane jest ponowne zalogowanie");
-                        builder.setTitle("Ważny komunikat");
+                        builder.setMessage("Zaloguj się ponownie.");
+                        builder.setTitle("Sesja wygasła");
                         builder.setPositiveButton("Zaloguj",
                                 new DialogInterface.OnClickListener() {
                                     @Override

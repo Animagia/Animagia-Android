@@ -51,8 +51,8 @@
         android:layout_marginBottom="2dp"
         app:layout_constraintStart_toEndOf="@id/signalNumber"
         app:layout_constraintTop_toTopOf="@id/signalNumber"
-        app:srcCompat="@drawable/ic_account_circle_black_24dp"
-        android:background="#0fff0f"/>
+        app:srcCompat="@drawable/ic_content_copy"
+        android:alpha="0.8" />
 
     <TextView
         android:id="@id/fbLabel"

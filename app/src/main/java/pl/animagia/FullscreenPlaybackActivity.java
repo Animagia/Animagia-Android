@@ -2,14 +2,11 @@ package pl.animagia;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -118,6 +114,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     };
     private long lastTimeSystemUiWasBroughtBack;
+    private boolean subtitleChangesAllowed = false;
+    private boolean qualityChangesAllowed = false;
 
 
     @Override
@@ -166,27 +164,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         listenToSystemUiChanges();
 
-
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
-        if(isPremiumFilm(video.getTitle())){
+        createSpinners();
+
+        if (isPremiumFilm(video.getTitle())) {
 
             previewMilliseconds = video.getPreviewMillis();
 
-            if(cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
-
-                initSpinnerOnTouch(false);
-
+            if (userIsAGuest()) {
                 handler.postDelayed(rewinder, REWINDER_INTERVAL);
-            }else{
-                initSpinner();
+            } else {
+                qualityChangesAllowed = true;
+                subtitleChangesAllowed = true;
             }
-        }else{
-            if(cookie.equals(Cookies.COOKIE_NOT_FOUND) && currentEpisode == 1) {
-                initSpinnerOnTouch(true);
-            }else{
-                initSpinner();
-            }
+        } else {
+            qualityChangesAllowed = true;
         }
 
         mPlayer.setPlayWhenReady(true);
@@ -260,6 +253,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     }
 
+    private boolean userIsAGuest() {
+        return cookie.equals(Cookies.COOKIE_NOT_FOUND);
+    }
+
 
     private String formatTitle() {
         return episodes > 1 ? currentTitle + " odc. " + currentEpisode : currentTitle;
@@ -322,7 +319,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         playerRestarter = null;
     }
 
-    private void initSpinnerOnTouch(boolean subtitleOnSelected){
+
+    private void createSpinners() {
         spinnerOfQuality = findViewById(R.id.spinner_quality);
         String[] quality = getResources().getStringArray(R.array.quality);
         ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
@@ -332,15 +330,67 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinnerOfQuality.setAdapter(adapterQuality);
-        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener(){
+
+
+        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
+                this, R.layout.spinner_item, subtitle
+        );
+
+        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerOfSubtitles.setAdapter(adapterSubtitles);
+
+
+        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            String currentQualitySetting;
+            boolean start = true;
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                currentQualitySetting = String.valueOf(spinnerOfQuality.getSelectedItem());
+                switch (i) {
+                    case 0:
+                        if (!start) {
+                            if (currentQualitySetting.equals("1080p")) {
+                                reinitializePlayer("?altsub=no&sd=no");
+                            } else {
+                                reinitializePlayer("?altsub=no&sd=yes");
+                            }
+                        }
+                        start = false;
+                        break;
+                    case 1:
+                        if (currentQualitySetting.equals("1080p")) {
+                            reinitializePlayer("?altsub=yes&sd=no");
+                        } else {
+                            reinitializePlayer("?altsub=yes&sd=yes");
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if(subtitleChangesAllowed) {
+                    return false;
+                }
+
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
+                    builder.setMessage("Nie ma możliwości zmian napisów w preview.");
                     builder.setTitle("Komunikat.");
                     builder.setNegativeButton("Wróć", null);
 
@@ -353,167 +403,66 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         });
 
-        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-        String[] subtitle = getResources().getStringArray(R.array.subtitles);
-        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
-                this, R.layout.spinner_item, subtitle
-        );
 
-        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-
-        spinnerOfSubtitles.setAdapter(adapterSubtitles);
-
-       if(subtitleOnSelected){
-           spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-
-               Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
-               String query;
-               boolean start = true;
-               @Override
-               public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                   query = String.valueOf(spinnerOfQuality.getSelectedItem());
-                   switch(i){
-                       case 0:
-                           if(!start){
-                               if(query.equals("1080p")){
-                                   reinitializePlayer("?altsub=no&sd=no");
-                               }else{
-                                   reinitializePlayer("?altsub=no&sd=yes");
-                               }
-                           }
-                           start = false;
-                           break;
-                       case 1:
-                           if(query.equals("1080p")){
-                               reinitializePlayer( "?altsub=yes&sd=no");
-                           }else{
-                               reinitializePlayer( "?altsub=yes&sd=yes");
-                           }
-                           break;
-                   }
-               }
-
-               @Override
-               public void onNothingSelected(AdapterView<?> adapterView) {
-
-               }
-           });
-       }else{
-           spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener(){
-
-               @Override
-               public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                   if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                       AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                       builder.setMessage("Nie ma możliwości zmian napisów w preview.");
-                       builder.setTitle("Komunikat.");
-                       builder.setNegativeButton("Wróć", null);
-
-
-                       builder.show();
-                   }
-
-
-                   return true;
-               }
-           });
-       }
-    }
-
-    private void initSpinner(){
-        spinnerOfQuality = findViewById(R.id.spinner_quality);
-        String[] quality = getResources().getStringArray(R.array.quality);
-        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
-                this, R.layout.spinner_item, quality
-        );
-
-        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinnerOfQuality.setAdapter(adapterQuality);
-        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             boolean start = true;
-            Spinner spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-            String query;
-
-
+            String currentSubtitleSetting;
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                query = String.valueOf(spinnerOfSubtitles.getSelectedItem());
-                switch(i){
+                currentSubtitleSetting = String.valueOf(spinnerOfSubtitles.getSelectedItem());
+                switch (i) {
                     case 0:
-                        if(!start){
-                            if(query.equals("pl")){
+                        if (!start) {
+                            if (currentSubtitleSetting.equals("pl")) {
                                 reinitializePlayer("?altsub=yes&sd=no");
-                            }else{
+                            } else {
                                 reinitializePlayer("?altsub=no&sd=no");
                             }
                         }
                         start = false;
                         break;
                     case 1:
-                        if(query.equals("pl")){
+                        if (currentSubtitleSetting.equals("pl")) {
                             reinitializePlayer("?altsub=yes&sd=yes");
-                        }else{
+                        } else {
                             reinitializePlayer("?altsub=no&sd=yes");
                         }
                         break;
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
         });
 
-        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-        String[] subtitle = getResources().getStringArray(R.array.subtitles);
-        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
-                this, R.layout.spinner_item, subtitle
-        );
+        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener() {
 
-        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinnerOfSubtitles.setAdapter(adapterSubtitles);
-
-        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-
-            Spinner spinnerOfQuality = findViewById(R.id.spinner_quality);
-            String query;
-            boolean start = true;
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                query = String.valueOf(spinnerOfQuality.getSelectedItem());
-                switch(i){
-                    case 0:
-                        if(!start){
-                            if(query.equals("1080p")){
-                                reinitializePlayer("?altsub=no&sd=no");
-                            }else{
-                                reinitializePlayer("?altsub=no&sd=yes");
-                            }
-                        }
-                        start = false;
-                        break;
-                    case 1:
-                        if(query.equals("1080p")){
-                            reinitializePlayer( "?altsub=yes&sd=no");
-                        }else{
-                            reinitializePlayer( "?altsub=yes&sd=yes");
-                        }
-                        break;
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                if (qualityChangesAllowed) {
+                    return false;
                 }
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
+                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
+                    builder.setTitle("Komunikat.");
+                    builder.setNegativeButton("Wróć", null);
+
+
+                    builder.show();
+                }
+
+                return true;
             }
         });
     }
+
 
     private void reinitializePlayer(String query){
 
@@ -524,8 +473,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 releaseMediaPlayer();
                 String url = VideoUrl.getUrl(result);
                 mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
-                if (!isPremiumFilm(currentTitle)) {
-                    if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
+                if (isPremiumFilm(currentTitle)) {
+                    if (userIsAGuest()) {
                         handler.postDelayed(rewinder, REWINDER_INTERVAL);
                     }
                 }
@@ -743,12 +692,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             String url = VideoUrl.getUrl(result);
                             mPlayer = createPlayer(VideoSourcesKt
                                     .prepareFromAsset(activity, url, video.getTitle()));
-                            if (!isPremiumFilm(video.getTitle())) {
-                                if (cookie.equals(Cookies.COOKIE_NOT_FOUND)) {
-                                    initSpinnerOnTouch(false);
-                                    handler.postDelayed(rewinder, REWINDER_INTERVAL);
-                                }
-                            }
 
                             mPlayer.setPlayWhenReady(true);
 
