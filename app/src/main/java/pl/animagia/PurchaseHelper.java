@@ -6,10 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 
-public class ShopDialogHelper {
+public class PurchaseHelper {
 
-    private ShopDialogHelper() {
 
+    private PurchaseHelper() {
+
+    }
+
+    private static JSONObject getBaseRequest() {
+        return new JSONObject()
+                .put("apiVersion", 2)
+                .put("apiVersionMinor", 0);
     }
 
     public static void showDialog(final Context ctx) {
