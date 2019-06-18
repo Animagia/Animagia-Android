@@ -19,6 +19,55 @@ public class PurchaseHelper {
                 .put("apiVersionMinor", 0);
     }
 
+
+    private static JSONObject getTokenizationSpecification() {
+        JSONObject tokenizationSpecification = new JSONObject();
+        tokenizationSpecification.put("type", "PAYMENT_GATEWAY");
+        tokenizationSpecification.put(
+                "parameters",
+                new JSONObject()
+                        .put("gateway", "example")
+                        .put("gatewayMerchantId", "exampleMerchantId"));
+
+        return tokenizationSpecification;
+    }
+
+
+    private static JSONArray getAllowedCardNetworks() {
+        return new JSONArray()
+                .put("MASTERCARD")
+                .put("VISA");
+    }
+
+
+    private static JSONArray getAllowedCardAuthMethods() {
+        return new JSONArray()
+                .put("PAN_ONLY")
+                .put("CRYPTOGRAM_3DS");
+    }
+
+
+    private static JSONObject getBaseCardPaymentMethod() {
+        JSONObject cardPaymentMethod = new JSONObject();
+        cardPaymentMethod.put("type", "CARD");
+        cardPaymentMethod.put(
+                "parameters",
+                new JSONObject()
+                        .put("allowedAuthMethods", getAllowedCardAuthMethods())
+                        .put("allowedCardNetworks", getAllowedCardNetworks()));
+
+        return cardPaymentMethod;
+    }
+
+
+    private static JSONObject getCardPaymentMethod() {
+        JSONObject cardPaymentMethod = getBaseCardPaymentMethod();
+        cardPaymentMethod.put("tokenizationSpecification", getTokenizationSpecification());
+
+        return cardPaymentMethod;
+    }
+
+
     public static void showDialog(final Context ctx) {
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 

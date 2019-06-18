@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity
 
     private static final String SELECTED_ITEM = "selected item";
 
+    private PaymentsClient paymentsClient;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +89,9 @@ public class MainActivity extends AppCompatActivity
 
         setMenuItemFont(navigationView.getMenu().getItem(4));
         setMenuItemFont(navigationView.getMenu().getItem(5));
+
+        paymentsClient = Wallet.getPaymentsClient(this, new Wallet.WalletOptions.Builder()
+                .setEnvironment(WalletConstants.ENVIRONMENT_TEST).build());
 
     }
 
