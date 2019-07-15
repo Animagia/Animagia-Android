@@ -51,10 +51,9 @@
         Żeby obejrzeć całość, kup cyfrową kopię lub załóż konto premium.</string>
 
     <string name="return_from_dialog">Powrót</string>
-    <string name="open_something_from_dialog">Otwórz</string>
+    <string name="continue_from_dialog">Dalej</string>
 
-    <string name="product_in_browser">"Żeby poznać szczegóły lub kontynuować zakup,
-        otwórz nasz sklep w przeglądarce internetowej."</string>
+    <string name="start_iap">"Kontynuuj zakup z wykorzystaniem płatności Google Play."</string>
 
     <string-array name="quality">
         <item>1080p</item>
