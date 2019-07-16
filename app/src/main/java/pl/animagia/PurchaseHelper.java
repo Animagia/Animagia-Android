@@ -4,11 +4,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import com.android.billingclient.api.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PurchaseHelper {
-
-    private BillingClient billingClient;
 
 
     private PurchaseHelper() {
@@ -16,15 +15,54 @@ public class PurchaseHelper {
     }
 
 
-    private static void startPurchase(MainActivity ma) {
+    private static void startPurchase(final MainActivity ma) {
 
-        ma.billingClient = BillingClient.newBuilder(ma).setListener(new DummyListener()).build();
+        BillingClient.Builder builder = BillingClient.newBuilder(ma);
+        builder.enablePendingPurchases();
+        builder.setListener(new DummyListener(ma));
+
+        ma.billingClient = builder.build();
 
         ma.billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     // The BillingClient is ready. You can query purchases here.
+
+                    List<String> skuList = new ArrayList<>();
+                    skuList.add("knk_past");
+                    skuList.add("knk_future");
+                    SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+                    params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
+                    ma.billingClient.querySkuDetailsAsync(params.build(),
+                            new SkuDetailsResponseListener() {
+                                @Override
+                                public void onSkuDetailsResponse(BillingResult billingResult,
+                                                                 List<SkuDetails> skuDetailsList) {
+
+                                    if (billingResult.getResponseCode() ==
+                                            BillingClient.BillingResponseCode.OK &&
+                                            skuDetailsList != null) {
+                                        for (SkuDetails skuDetails : skuDetailsList) {
+                                            String sku = skuDetails.getSku();
+                                            String price = skuDetails.getPrice();
+                                            if ("knk_past".equals(sku)) {
+                                                com.android.billingclient.api.BillingFlowParams
+                                                        flowParams =
+                                                        BillingFlowParams.newBuilder()
+                                                                .setSkuDetails(skuDetails)
+                                                                .build();
+                                                BillingResult flowResult =
+                                                        ma.billingClient
+                                                                .launchBillingFlow(ma, flowParams);
+
+                                            }
+                                        }
+                                    }
+
+
+                                }
+                            });
                 }
             }
 
@@ -34,6 +72,7 @@ public class PurchaseHelper {
                 // Google Play by calling the startConnection() method.
             }
         });
+
 
     }
 
@@ -57,6 +96,12 @@ public class PurchaseHelper {
     }
 
     private static class DummyListener implements PurchasesUpdatedListener {
+        private final MainActivity activity;
+
+        public DummyListener(MainActivity ma) {
+            this.activity = ma;
+        }
+
         @Override
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
             //FIXME
