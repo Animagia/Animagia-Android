@@ -30,8 +30,9 @@ public class PurchaseHelper {
                     // The BillingClient is ready. You can query purchases here.
 
                     List<String> skuList = new ArrayList<>();
-                    skuList.add("knk_past");
-                    skuList.add("knk_future");
+                    skuList.add("android.test.canceled");
+                    skuList.add("android.test.purchased");
+                    skuList.add("android.test.item_unavailable");
                     SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
                     params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
                     ma.billingClient.querySkuDetailsAsync(params.build(),
