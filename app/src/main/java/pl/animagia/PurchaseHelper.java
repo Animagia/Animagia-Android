@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.Toast;
 import com.android.billingclient.api.*;
+import pl.animagia.token.PurchaseConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,4 +110,18 @@ public class PurchaseHelper {
             Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
         }
     }
+
+
+    public static String createDownloadToken(Purchase p) {
+        return PurchaseConverter.generateDownloadToken(p);
+    }
+
+
+    public static String createStreamingToken(Purchase p) {
+        return PurchaseConverter.generateStreamingToken(p);
+    }
+
+
+
+
 }
