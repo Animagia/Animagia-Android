@@ -2,6 +2,7 @@ package pl.animagia;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.widget.Toast;
 import com.android.billingclient.api.*;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class PurchaseHelper {
                                         for (SkuDetails skuDetails : skuDetailsList) {
                                             String sku = skuDetails.getSku();
                                             String price = skuDetails.getPrice();
-                                            if ("knk_past".equals(sku)) {
+                                            if ("android.test.purchased".equals(sku)) {
                                                 com.android.billingclient.api.BillingFlowParams
                                                         flowParams =
                                                         BillingFlowParams.newBuilder()
@@ -97,15 +98,15 @@ public class PurchaseHelper {
     }
 
     private static class DummyListener implements PurchasesUpdatedListener {
-        private final MainActivity activity;
+        private final MainActivity ma;
 
         public DummyListener(MainActivity ma) {
-            this.activity = ma;
+            this.ma = ma;
         }
 
         @Override
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
-            //FIXME
+            Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
         }
     }
 }
