@@ -91,7 +91,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
     private static boolean appIsOutdated() {
         GregorianCalendar appBecomesOutdated = new GregorianCalendar();
         appBecomesOutdated.setTimeZone(TimeZone.getTimeZone("UTC"));
-        appBecomesOutdated.set(2020, GregorianCalendar.JANUARY, 1);
+        appBecomesOutdated.set(2020, GregorianCalendar.JUNE, 1);
 
         GregorianCalendar now = new GregorianCalendar();
         now.setTimeZone(TimeZone.getTimeZone("UTC"));

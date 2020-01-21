@@ -466,7 +466,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void reinitializePlayer(String query){
 
-        HTML.getHtml(currentUrl + query, getApplicationContext(), new VolleyCallback() {
+        if(currentTitle.contains("Hanasaku")) {
+            query = query.replace("altsub", "dub");
+        }
+
+        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
 
             @Override
             public void onSuccess(String result) {
@@ -679,7 +683,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
                                     (currentEpisode + newEpisode) + "?altsub=no&sd=no";
 
-                    HTML.getHtml(url, getApplicationContext(), new VolleyCallback() {
+                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
 
                         @Override
                         public void onSuccess(String result) {
