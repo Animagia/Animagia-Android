@@ -1,10 +1,13 @@
 package pl.animagia;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.widget.Toast;
 import com.android.billingclient.api.*;
-import pl.animagia.token.PurchaseConverter;
+import com.android.volley.VolleyError;
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
+import pl.animagia.token.TokenAssembly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,8 @@ public class PurchaseHelper {
                     skuList.add("android.test.canceled");
                     skuList.add("android.test.purchased");
                     skuList.add("android.test.item_unavailable");
+                    skuList.add("knk_past");
+                    skuList.add("hanairo");
                     SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
                     params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
                     ma.billingClient.querySkuDetailsAsync(params.build(),
@@ -49,15 +54,16 @@ public class PurchaseHelper {
                                         for (SkuDetails skuDetails : skuDetailsList) {
                                             String sku = skuDetails.getSku();
                                             String price = skuDetails.getPrice();
-                                            if ("android.test.purchased".equals(sku)) {
+                                            if ("android.test.canceled".equals(sku)) {
                                                 com.android.billingclient.api.BillingFlowParams
                                                         flowParams =
                                                         BillingFlowParams.newBuilder()
                                                                 .setSkuDetails(skuDetails)
                                                                 .build();
-                                                BillingResult flowResult =
-                                                        ma.billingClient
-                                                                .launchBillingFlow(ma, flowParams);
+
+                                                ma.billingClient
+                                                        .launchBillingFlow(ma, flowParams);
+
 
                                             }
                                         }
@@ -107,21 +113,52 @@ public class PurchaseHelper {
 
         @Override
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
-            Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
+
+
+            String combo = new TokenAssembly().assembleCombinedToken("Hello", "Hello");
+
+            getDdlLink(ma, combo);
+
+
+            //Purchase p = list.get(0);
+
+            //TokenStorage.storePurchase(ma, PurchasableAnime.KNK_PAST, p);
+
+            //Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
+
         }
     }
 
 
-    public static String createDownloadToken(Purchase p) {
-        return PurchaseConverter.generateDownloadToken(p);
+    private static void getDdlLink(Context ctx, String combinedToken) {
+
+        String url = TokenAssembly.URL_BASE + combinedToken;
+        HTML.getHtml(url, ctx, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                String downloadAnchor = FilesFragment.getDownloadAnchors(result).get(0);
+
+                String fileName = FilesFragment.extractFileName(downloadAnchor);
+                String downloadUrl = FilesFragment.extractUrl(downloadAnchor);
+
+                return;
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                return; //FIXME
+            }
+        });
     }
 
 
-    public static String createStreamingToken(Purchase p) {
-        return PurchaseConverter.generateStreamingToken(p);
+    public enum PurchasableAnime {
+        KNK_PAST,
+        KNK_FUTURE,
+        CHU2,
+        AMAGI,
+        TAMAKO,
+        HANAIRO
     }
-
-
-
 
 }

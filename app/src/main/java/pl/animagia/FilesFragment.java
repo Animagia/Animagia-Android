@@ -8,9 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +15,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -37,7 +32,7 @@ import java.util.regex.Pattern;
 
 
 public class FilesFragment extends Fragment {
-   private List<String> downloadUrls;
+   private List<String> downloadAnchors;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -146,12 +141,8 @@ public class FilesFragment extends Fragment {
     }
 
     private void onAccountPageFetched(String accountPageHtml) {
-        downloadUrls = new ArrayList<>();
-        Matcher m = Pattern.compile("href=\"https:\\/\\/(static|animagia-dl).*?video\\/ddl.*?\">.*?</a")
-                .matcher(accountPageHtml);
-        while (m.find()) {
-            downloadUrls.add(m.group());
-        }
+        this.downloadAnchors = getDownloadAnchors(accountPageHtml);
+
         ListView lv = null;
         if(getActivity() != null){
             lv = getView().findViewById(R.id.file_listview);
@@ -165,8 +156,9 @@ public class FilesFragment extends Fragment {
                                             View itemView,
                                             int position,
                                             long id) {
-                        if(downloadUrls.size() > 0){
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(extractUrl(downloadUrls.get(position))));
+                        if(downloadAnchors.size() > 0){
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(extractUrl(
+                                    downloadAnchors.get(position))));
                             startActivity(browserIntent);
                         }
 
@@ -178,31 +170,32 @@ public class FilesFragment extends Fragment {
 
     }
 
-    private static String extractUrl(String html) {
-        int start = "href=\"".length();
-        int end = html.indexOf("\">");
-        return html.substring(start, end);
-    }
-
-    private static String extractFileName(String html) {
-        int start = html.indexOf("\">") + "\">".length();
-        int end = html.length() - "</a".length();
-        return html.substring(start, end);
-    }
-
-
-    private static List<String> generateDummyLinks() {
-        List<String> links = new ArrayList<>();
-        for(int i=0;i<50;i++){
-            links.add("<a href=\"https://animagia.pl\">Animagia</a>");
+    public static List<String> getDownloadAnchors(String accountPageHtml) {
+        List<String> downloadUrls = new ArrayList<>();
+        Matcher m = Pattern.compile("href=\"https:\\/\\/(static|animagia-dl).*?video\\/ddl.*?\">.*?</a")
+                .matcher(accountPageHtml);
+        while (m.find()) {
+            downloadUrls.add(m.group());
         }
-        return links;
+        return downloadUrls;
+    }
+
+    public static String extractUrl(String anchorHtml) {
+        int start = "href=\"".length();
+        int end = anchorHtml.indexOf("\">");
+        return anchorHtml.substring(start, end);
+    }
+
+    public static String extractFileName(String anchorHtml) {
+        int start = anchorHtml.indexOf("\">") + "\">".length();
+        int end = anchorHtml.length() - "</a".length();
+        return anchorHtml.substring(start, end);
     }
 
     private List<String> generateAccountListNames() {
         List<String> accountLinks = new ArrayList<>();
-        for(int j=0; j< downloadUrls.size(); j++){
-            accountLinks.add(extractFileName(downloadUrls.get(j)));
+        for(int j = 0; j< downloadAnchors.size(); j++){
+            accountLinks.add(extractFileName(downloadAnchors.get(j)));
         }
         return accountLinks;
     }
