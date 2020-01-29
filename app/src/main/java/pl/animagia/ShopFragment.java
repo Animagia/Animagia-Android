@@ -36,6 +36,10 @@ public class ShopFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+
+                TextView txt = v.findViewById(R.id.product_title);
+                PurchaseHelper.PurchasableAnime p = identifyByTitle(txt.getText().toString());
+
                 PurchaseHelper.showDialog((MainActivity) getActivity());
             }
         });
@@ -59,5 +63,24 @@ public class ShopFragment extends Fragment {
             linearLayout.addView(textView, 0);
         }
     }
+
+
+    private static PurchaseHelper.PurchasableAnime identifyByTitle(String title) {
+        if(title.contains("Przesz")) {
+            return PurchaseHelper.PurchasableAnime.KNK_PAST;
+        } else if(title.contains("Przysz")) {
+            return PurchaseHelper.PurchasableAnime.KNK_FUTURE;
+        } else if(title.contains("Tamako")) {
+            return PurchaseHelper.PurchasableAnime.TAMAKO;
+        } else if(title.contains("Chu")) {
+            return PurchaseHelper.PurchasableAnime.CHU2;
+        } else if(title.contains("Hanasaku")) {
+            return PurchaseHelper.PurchasableAnime.HANAIRO;
+        } else if(title.contains("Amagi")) {
+            return PurchaseHelper.PurchasableAnime.AMAGI;
+        }
+        throw new RuntimeException("Purchasable anime not found.");
+    }
+
 
 }

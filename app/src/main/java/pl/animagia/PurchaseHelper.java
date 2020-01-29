@@ -115,7 +115,7 @@ public class PurchaseHelper {
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
 
 
-            String combo = new TokenAssembly().assembleCombinedToken("Hello", "Hello");
+            String combo = new TokenAssembly().assembleCombinedToken("purchaseToken", "orderId");
 
             getDdlLink(ma, combo);
 
