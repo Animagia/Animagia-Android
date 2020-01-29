@@ -37,12 +37,25 @@ public class ShopFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
 
-                TextView txt = v.findViewById(R.id.product_title);
-                PurchaseHelper.PurchasableAnime p = identifyByTitle(txt.getText().toString());
-
-                PurchaseHelper.showDialog((MainActivity) getActivity());
+                openProduct(v);
             }
         });
+    }
+
+    private void openProduct(View v) {
+
+
+        TextView txt = v.findViewById(R.id.product_title);
+        PurchaseHelper.PurchasableAnime p = identifyByTitle(txt.getText().toString());
+
+        SingleProductFragment frag = SingleProductFragment.newInstance(p);
+
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                //.addSharedElement(holder.image, "sharedImage")
+                .replace(R.id.frame_for_content, frag)
+                .addToBackStack(null)
+                .commit();
     }
 
 
