@@ -50,6 +50,8 @@ public class ShopFragment extends Fragment {
 
         SingleProductFragment frag = SingleProductFragment.newInstance(p);
 
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 //.addSharedElement(holder.image, "sharedImage")

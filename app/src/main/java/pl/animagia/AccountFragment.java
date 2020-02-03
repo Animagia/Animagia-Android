@@ -107,7 +107,7 @@ public class AccountFragment extends Fragment {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                              Cookies.removeCookie(Cookies.LOGIN, getActivity());
-                                            ((MainActivity) getActivity()).getSupportActionBar().setTitle("  Oglądaj");
+                                            ((MainActivity) getActivity()).getSupportActionBar().setTitle("Oglądaj");
                                             ((MainActivity) getActivity()).activateFragment(new LoginFragment());
                                         }
                                     });

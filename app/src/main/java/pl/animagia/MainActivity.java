@@ -12,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -31,6 +32,9 @@ public class MainActivity extends AppCompatActivity
 
     BillingClient billingClient;
 
+    private DrawerArrowDrawable hamburgerMenu = null;
+    private ActionBarDrawerToggle drawerToggle;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,11 +44,11 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        drawerToggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        drawer.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
 
         int index = savedInstanceState == null ? R.id.nav_watch :
                 savedInstanceState.getInt(SELECTED_ITEM, R.id.nav_watch);
@@ -124,34 +128,44 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_shop) {
-            getSupportActionBar().setTitle("  Sklep");
+            getSupportActionBar().setTitle("Sklep");
             //getSupportActionBar().setIcon(R.drawable.ic_shopping_basket);
             activateFragment(new ShopFragment());
         } else if (id == R.id.nav_watch) {
-            getSupportActionBar().setTitle("  Oglądaj");
+            getSupportActionBar().setTitle("Oglądaj");
             //getSupportActionBar().setIcon(R.drawable.ic_video_library);
             activateFragment(new CatalogFragment());
         } else if (id == R.id.nav_account) {
-            getSupportActionBar().setTitle("  Konto");
+            getSupportActionBar().setTitle("Konto");
             //getSupportActionBar().setIcon(R.drawable.ic_account_box);
             activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
-            getSupportActionBar().setTitle("  Kontakt");
+            getSupportActionBar().setTitle("Kontakt");
             //getSupportActionBar().setIcon(R.drawable.ic_mail_outline);
             activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
-            getSupportActionBar().setTitle("  Informacje");
+            getSupportActionBar().setTitle("Informacje");
             //getSupportActionBar().setIcon(R.drawable.ic_info_outline);
             activateFragment(new InfoFragment());
         } else if (id == R.id.nav_downloads) {
-            getSupportActionBar().setTitle("  Pliki");
+            getSupportActionBar().setTitle("Pliki");
             //getSupportActionBar().setIcon(R.drawable.ic_file_download);
             activateFragment(new FilesFragment());
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        restoreHamburgerIcon();
+
         return true;
+    }
+
+
+    private void restoreHamburgerIcon() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        drawerToggle.setDrawerIndicatorEnabled(true);
+        drawerToggle.syncState();
     }
 
 
