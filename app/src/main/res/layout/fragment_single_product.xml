@@ -26,12 +26,12 @@
         android:scaleType="centerCrop"
         app:layout_constraintDimensionRatio="70:99"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/product_title"
         app:layout_constraintTop_toBottomOf="@id/product_preview"
         android:src="@drawable/background" />
 
     <TextView
-        android:id="@+id/product_title"
+        android:id="@id/product_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
@@ -59,7 +59,7 @@
         android:textAlignment="center"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@id/product_poster"
+        app:layout_constraintTop_toBottomOf="@id/product_poster"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
@@ -67,8 +67,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Kup 13,37 PLN"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="@id/film_sale_terms"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
