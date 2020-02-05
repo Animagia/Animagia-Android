@@ -60,7 +60,7 @@ public class SingleProductFragment extends Fragment {
                 .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                 .into(preview);
 
-        ImageView poster = view.findViewById(R.id.product_poster);
+        ImageView poster = view.findViewById(R.id.product_poster_image);
         Glide.with(getContext())
                 .load(vd.getPosterAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))

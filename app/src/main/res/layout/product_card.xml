@@ -76,7 +76,8 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@id/product_price"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/product_price" />
+        app:layout_constraintEnd_toStartOf="@id/product_price"
+        android:visibility="invisible" />
 
 
 

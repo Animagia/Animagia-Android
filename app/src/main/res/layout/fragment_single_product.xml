@@ -18,19 +18,29 @@
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/background" />
 
-    <ImageView
+    <android.support.v7.widget.CardView
         android:id="@+id/product_poster"
-        android:layout_width="124dp"
-        android:layout_height="0dp"
-        android:adjustViewBounds="false"
-        android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="70:99"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/product_title"
         app:layout_constraintTop_toBottomOf="@id/product_preview"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="6dp"
-        android:src="@drawable/background" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/background"
+        app:cardCornerRadius="3dp" >
+
+
+       <ImageView
+            android:id="@+id/product_poster_image"
+            android:layout_width="112dp"
+            android:layout_height="158dp"
+            android:adjustViewBounds="false"
+            android:scaleType="centerCrop"
+            android:src="@drawable/background" />
+
+    </android.support.v7.widget.CardView>
 
     <TextView
         android:id="@id/product_title"
@@ -48,13 +58,25 @@
         android:text="Full title including subtitle, may be long"
         android:textColor="@color/strong_text"
         android:textSize="16sp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="6dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="26dp"
+        android:layout_marginRight="12dp"
         app:layout_constraintLeft_toRightOf="@id/product_poster"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_preview"
         android:gravity="left|top"/>
+
+    <TextView
+        android:id="@+id/product_misc_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/product_poster"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/product_poster"
+        android:layout_marginLeft="12dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginRight="12dp"
+        android:text="Polskie napisy" />
 
     <TextView
         android:id="@+id/film_sale_terms"
@@ -65,6 +87,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_poster"
+        android:layout_marginTop="16dp"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
@@ -77,7 +100,6 @@
         app:layout_constraintTop_toTopOf="@id/film_sale_terms"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        style="@style/lowProfileButton"
         android:layout_marginTop="4dp"/>
 
 
