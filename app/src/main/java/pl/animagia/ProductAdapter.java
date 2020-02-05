@@ -52,10 +52,7 @@ public class ProductAdapter extends ArrayAdapter<VideoData> {
             priceView.setText(super.getItem(position).getPrice());
             genresView.setText(super.getItem(position).getGenres());
 
-            if (super.getItem(position).getSubtitle().length() > 0) {
-                titleView.setText(super.getItem(position).getSubtitle() + " " +
-                        super.getItem(position).getTitle());
-            }
+            titleView.setText(super.getItem(position).formatFullTitle());
         }
 
         return thumbnail;

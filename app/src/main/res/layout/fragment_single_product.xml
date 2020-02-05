@@ -20,7 +20,7 @@
 
     <ImageView
         android:id="@+id/product_poster"
-        android:layout_width="100dp"
+        android:layout_width="124dp"
         android:layout_height="0dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
@@ -28,6 +28,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/product_title"
         app:layout_constraintTop_toBottomOf="@id/product_preview"
+        android:layout_marginLeft="6dp"
+        android:layout_marginTop="6dp"
         android:src="@drawable/background" />
 
     <TextView
@@ -45,11 +47,14 @@
         android:paddingTop="2dp"
         android:text="Full title including subtitle, may be long"
         android:textColor="@color/strong_text"
-        android:textSize="14sp"
+        android:textSize="16sp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="6dp"
         app:layout_constraintLeft_toRightOf="@id/product_poster"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_preview"
-        android:gravity="left|center_vertical"/>
+        android:gravity="left|top"/>
 
     <TextView
         android:id="@+id/film_sale_terms"

@@ -8,13 +8,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 
 public class SingleProductFragment extends Fragment {
 
-    public static SingleProductFragment newInstance(PurchaseHelper.PurchasableAnime anime) {
+    enum ArgumentKeys {
+        videoData
+    }
+
+    public static SingleProductFragment newInstance(VideoData vd) {
 
         Bundle args = new Bundle();
+        args.putParcelable(ArgumentKeys.videoData.name(), vd);
 
         SingleProductFragment fragment = new SingleProductFragment();
         fragment.setArguments(args);
@@ -40,6 +48,24 @@ public class SingleProductFragment extends Fragment {
                 Toast.makeText(getActivity(), "hello", Toast.LENGTH_SHORT).show();
             }
         });
+
+        VideoData vd = getArguments().getParcelable(ArgumentKeys.videoData.name());
+
+        TextView title = view.findViewById(R.id.product_title);
+        title.setText(vd.formatFullTitle());
+
+        ImageView preview = view.findViewById(R.id.product_preview);
+        Glide.with(getContext())
+                .load(vd.getThumbnailAsssetUri())
+                .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                .into(preview);
+
+        ImageView poster = view.findViewById(R.id.product_poster);
+        Glide.with(getContext())
+                .load(vd.getPosterAsssetUri())
+                .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                .into(poster);
+
 
     }
 }

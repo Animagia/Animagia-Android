@@ -58,7 +58,7 @@ public class VideoThumbnailAdapter extends ArrayAdapter<VideoData> {
                         "https://animagia.pl", 1,
                         "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png",
                         "00:04:03.115;00:11:03.115",
-                        "24,90zł", "Obyczajowy", "Hanasaku Iroha: ",
+                        "24,90zł", "Obyczajowy", "Hanasaku Iroha:",
                         "66 min.", "Chcę lśnić! Ale czy tu mogę zabłysnąć?", 913000),
                 new VideoData("Przeszłość",
                         "https://static.animagia.pl/Past_poster.jpg",

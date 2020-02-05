@@ -37,18 +37,17 @@ public class ShopFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
 
-                openProduct(v);
+                openProduct(adapter.getItem(position));
             }
         });
     }
 
-    private void openProduct(View v) {
+    private void openProduct(VideoData vd) {
+        String title = vd.getSubtitle() + " " +
+                vd.getTitle();
+        PurchaseHelper.PurchasableAnime p = identifyByTitle(title);
 
-
-        TextView txt = v.findViewById(R.id.product_title);
-        PurchaseHelper.PurchasableAnime p = identifyByTitle(txt.getText().toString());
-
-        SingleProductFragment frag = SingleProductFragment.newInstance(p);
+        SingleProductFragment frag = SingleProductFragment.newInstance(vd);
 
         ((MainActivity) getActivity()).changeHomeButtonToArrow();
 
