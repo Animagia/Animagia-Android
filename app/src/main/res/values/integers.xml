@@ -4,4 +4,7 @@
         name="catalog_columns">1</integer>
     <integer
         name="shop_columns">2</integer>
+
+    <string name="single_product_thumbnail_ratio">16:9</string>
+
 </resources>

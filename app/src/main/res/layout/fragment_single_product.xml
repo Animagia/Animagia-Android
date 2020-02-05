@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
+
+<android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
 
     <ImageView
         android:id="@+id/product_preview"
@@ -12,7 +18,7 @@
         android:layout_height="0dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintDimensionRatio="@string/single_product_thumbnail_ratio"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -97,10 +103,12 @@
         android:text="Kup 13,37 PLN"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@id/film_sale_terms"
+        app:layout_constraintTop_toBottomOf="@id/film_sale_terms"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         android:layout_marginTop="4dp"/>
 
 
 </android.support.constraint.ConstraintLayout>
+
+</ScrollView>
