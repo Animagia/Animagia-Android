@@ -50,7 +50,7 @@ public class ShopFragment extends Fragment {
 
         SingleProductFragment frag = SingleProductFragment.newInstance(p);
 
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((MainActivity) getActivity()).changeHomeButtonToArrow();
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()

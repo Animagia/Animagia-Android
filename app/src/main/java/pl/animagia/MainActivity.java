@@ -1,53 +1,54 @@
 package pl.animagia;
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TypefaceSpan;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.*;
 
 import com.android.billingclient.api.BillingClient;
 import pl.animagia.user.Cookies;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PopupMenu.OnMenuItemClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        PopupMenu.OnMenuItemClickListener,
+        FragmentManager.OnBackStackChangedListener {
 
     private static final String SELECTED_ITEM = "selected item";
 
     BillingClient billingClient;
 
-    private DrawerArrowDrawable hamburgerMenu = null;
+    private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
+    private DrawerArrowDrawable hamburgerDrawable;
+    private Toolbar actionBarView;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        actionBarView = findViewById(R.id.toolbar);
+        setSupportActionBar(actionBarView);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open,
+                this, drawerLayout, actionBarView, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
-        drawer.addDrawerListener(drawerToggle);
+        drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
         int index = savedInstanceState == null ? R.id.nav_watch :
@@ -94,6 +95,22 @@ public class MainActivity extends AppCompatActivity
 
         setMenuItemFont(navigationView.getMenu().getItem(4));
         setMenuItemFont(navigationView.getMenu().getItem(5));
+
+
+        int childCount = actionBarView.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View v = actionBarView.getChildAt(i);
+            if(v instanceof AppCompatImageButton) {
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onDrawerHomeButtonClicked();
+                    }
+                });
+            }
+        }
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
     }
 
@@ -156,16 +173,48 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
-        restoreHamburgerIcon();
+        changeHomeButtonToHamburger();
 
         return true;
     }
 
 
-    private void restoreHamburgerIcon() {
+    private void onDrawerHomeButtonClicked() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if(0 == count) {
+            drawerLayout.openDrawer(Gravity.LEFT);
+        } else {
+            onBackPressed();
+        }
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if(0 == count) {
+            changeHomeButtonToHamburger();
+        }
+    }
+
+
+    void changeHomeButtonToArrow() {
+        drawerToggle.setDrawerIndicatorEnabled(false);
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayHomeAsUpEnabled(true);
+        bar.setHomeButtonEnabled(true);
+        bar.setDisplayShowHomeEnabled(true);
+
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+
+    private void changeHomeButtonToHamburger() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(false);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
         drawerToggle.setDrawerIndicatorEnabled(true);
-        drawerToggle.syncState();
+
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
 
