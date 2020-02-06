@@ -68,4 +68,10 @@ public class SingleProductFragment extends Fragment {
 
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("");
+    }
 }

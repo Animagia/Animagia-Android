@@ -31,8 +31,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FilesFragment extends Fragment {
-   private List<String> downloadAnchors;
+public class FilesFragment extends TopLevelFragment {
+
+    private List<String> downloadAnchors;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +53,6 @@ public class FilesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-       //Cookies.removeCookie(Cookies.LOGIN, getActivity());
         if(isLogged()) {
            getFiles();
         } else {
@@ -73,6 +74,14 @@ public class FilesFragment extends Fragment {
 
         }
     }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_shop);
+    }
+
 
     private boolean isLogged(){
         boolean logIn = false;

@@ -27,7 +27,7 @@ import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoUrl;
 
-public class CatalogFragment extends Fragment {
+public class CatalogFragment extends TopLevelFragment {
 
     @Nullable
     @Override
@@ -72,6 +72,13 @@ public class CatalogFragment extends Fragment {
             button.setVisibility(View.INVISIBLE);
             textView.setText(R.string.guest);
         }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_watch);
     }
 
 

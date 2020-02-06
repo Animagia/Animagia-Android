@@ -10,15 +10,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TypefaceSpan;
-import android.view.*;
+import android.view.Gravity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.*;
-
 import com.android.billingclient.api.BillingClient;
 import pl.animagia.user.Cookies;
 
@@ -27,13 +27,10 @@ public class MainActivity extends AppCompatActivity
         PopupMenu.OnMenuItemClickListener,
         FragmentManager.OnBackStackChangedListener {
 
-    private static final String SELECTED_ITEM = "selected item";
-
     BillingClient billingClient;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private DrawerArrowDrawable hamburgerDrawable;
     private Toolbar actionBarView;
 
     @Override
@@ -51,10 +48,6 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        int index = savedInstanceState == null ? R.id.nav_watch :
-                savedInstanceState.getInt(SELECTED_ITEM, R.id.nav_watch);
-        simulateClickOnDrawerItem(index);
-
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -63,7 +56,6 @@ public class MainActivity extends AppCompatActivity
         TextView textView = headView.findViewById(R.id.userEmail);
         ImageView imageView = headView.findViewById(R.id.login);
         Button button = headView.findViewById(R.id.account_view_icon_button);
-
 
         if (isLogged()) {
             textView.setVisibility(View.VISIBLE);
@@ -112,6 +104,31 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
+        if(!rebuildFromFragments(savedInstanceState)) {
+            activateFragment(new CatalogFragment());
+        }
+
+    }
+
+
+    private boolean rebuildFromFragments(final Bundle savedInstanceState) {
+        if(savedInstanceState == null) {
+            return false;
+        }
+        for (Fragment f : getSupportFragmentManager().getFragments()) {
+            if(f instanceof SingleProductFragment) {
+                ShopFragment shop = new ShopFragment();
+                activateFragment(shop);
+                VideoData vd = f.getArguments()
+                        .getParcelable(SingleProductFragment.ArgumentKeys.videoData.name());
+                shop.openProduct(vd); //FIXME
+                return true;
+            } else if(f instanceof TopLevelFragment) {
+                activateFragment(f);
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -123,16 +140,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void simulateClickOnDrawerItem(int itemId) {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.getMenu().findItem(itemId).setChecked(true);
-        onNavigationItemSelected(navigationView.getMenu().findItem(itemId));
-    }
-
-
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -146,27 +156,21 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_shop) {
             getSupportActionBar().setTitle("Sklep");
-            //getSupportActionBar().setIcon(R.drawable.ic_shopping_basket);
             activateFragment(new ShopFragment());
         } else if (id == R.id.nav_watch) {
             getSupportActionBar().setTitle("Oglądaj");
-            //getSupportActionBar().setIcon(R.drawable.ic_video_library);
             activateFragment(new CatalogFragment());
         } else if (id == R.id.nav_account) {
             getSupportActionBar().setTitle("Konto");
-            //getSupportActionBar().setIcon(R.drawable.ic_account_box);
             activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
             getSupportActionBar().setTitle("Kontakt");
-            //getSupportActionBar().setIcon(R.drawable.ic_mail_outline);
             activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
             getSupportActionBar().setTitle("Informacje");
-            //getSupportActionBar().setIcon(R.drawable.ic_info_outline);
             activateFragment(new InfoFragment());
         } else if (id == R.id.nav_downloads) {
             getSupportActionBar().setTitle("Pliki");
-            //getSupportActionBar().setIcon(R.drawable.ic_file_download);
             activateFragment(new FilesFragment());
         }
 
@@ -224,38 +228,6 @@ public class MainActivity extends AppCompatActivity
 
         fragmentTransaction.replace(R.id.frame_for_content, fragment);
         fragmentTransaction.commit();
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        Menu menu = navigationView.getMenu();
-
-        int idOfCheckedItem = getIdOfCheckedItem(menu);
-
-        if(idOfCheckedItem != -1) {
-            outState.putInt(SELECTED_ITEM, idOfCheckedItem);
-        }
-
-    }
-
-
-    private static int getIdOfCheckedItem(Menu menu) {
-        for(int index = 0; index<menu.size(); index++) {
-            MenuItem item = menu.getItem(index);
-            if(item.isChecked()) {
-                return item.getItemId();
-            } else if(item.hasSubMenu()) {
-                int idFromSubMenu = getIdOfCheckedItem(item.getSubMenu());
-                if(idFromSubMenu != -1) {
-                    return idFromSubMenu;
-                }
-            }
-        }
-        return -1;
     }
 
     private boolean isLogged(){

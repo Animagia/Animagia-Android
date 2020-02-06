@@ -29,7 +29,7 @@ import pl.animagia.html.CookieRequest;
 import pl.animagia.user.Cookies;
 
 
-public class ContactInfoFragment extends Fragment {
+public class ContactInfoFragment extends TopLevelFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -95,6 +95,12 @@ public class ContactInfoFragment extends Fragment {
 
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_contact_info);
     }
 
 

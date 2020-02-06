@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-public class ShopFragment extends Fragment {
+public class ShopFragment extends TopLevelFragment {
 
 
     @Nullable
@@ -42,7 +42,15 @@ public class ShopFragment extends Fragment {
         });
     }
 
-    private void openProduct(VideoData vd) {
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_shop);
+    }
+
+
+    void openProduct(VideoData vd) {
         String title = vd.getSubtitle() + " " +
                 vd.getTitle();
         PurchaseHelper.PurchasableAnime p = identifyByTitle(title);

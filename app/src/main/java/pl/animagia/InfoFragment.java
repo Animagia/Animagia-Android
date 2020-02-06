@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-public class InfoFragment extends Fragment {
+public class InfoFragment extends TopLevelFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,6 +57,12 @@ public class InfoFragment extends Fragment {
                 runBrowserIntent("https://animagia.pl/credits");
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_misc_info);
     }
 
     private void runBrowserIntent(String uri){

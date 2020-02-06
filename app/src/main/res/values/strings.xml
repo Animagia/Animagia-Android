@@ -8,6 +8,8 @@
     <string name="drawer_item_shop">Sklep</string>
     <string name="drawer_item_account">Konto</string>
     <string name="drawer_item_downloads">Pliki</string>
+    <string name="drawer_item_contact_info">Kontakt</string>
+    <string name="drawer_item_misc_info">Informacje</string>
 
     <string name="title_activity_fullscreen_playback">Wideo</string>
     <string name="nav_section_company">Wydawnictwo</string>

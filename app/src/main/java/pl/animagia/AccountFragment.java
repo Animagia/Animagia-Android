@@ -24,8 +24,8 @@ import pl.animagia.html.CookieRequest;
 import pl.animagia.user.Cookies;
 
 
-//TODO extract superclass for fragments that require login
-public class AccountFragment extends Fragment {
+//TODO extract and share methods that read login cookies
+public class AccountFragment extends TopLevelFragment {
 
     @Nullable
     @Override
@@ -68,6 +68,12 @@ public class AccountFragment extends Fragment {
             });
 
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_account);
     }
 
     private void activateLoginFragment() {
