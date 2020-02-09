@@ -51,13 +51,10 @@ public class ShopFragment extends TopLevelFragment {
 
 
     void openProduct(VideoData vd) {
-        String title = vd.getSubtitle() + " " +
-                vd.getTitle();
-        PurchaseHelper.PurchasableAnime p = identifyByTitle(title);
-
         SingleProductFragment frag = SingleProductFragment.newInstance(vd);
 
-        ((MainActivity) getActivity()).changeHomeButtonToArrow();
+        MainActivity ma = (MainActivity) getActivity();
+        ma.changeHomeButtonToArrow();
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()

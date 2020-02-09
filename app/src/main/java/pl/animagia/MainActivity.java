@@ -31,14 +31,16 @@ public class MainActivity extends AppCompatActivity
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private Toolbar actionBarView;
+
+    private SingleProductFragment preservedFragment;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        actionBarView = findViewById(R.id.toolbar);
+        Toolbar actionBarView = findViewById(R.id.toolbar);
         setSupportActionBar(actionBarView);
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -117,11 +119,9 @@ public class MainActivity extends AppCompatActivity
         }
         for (Fragment f : getSupportFragmentManager().getFragments()) {
             if(f instanceof SingleProductFragment) {
+                preservedFragment = (SingleProductFragment) f;
                 ShopFragment shop = new ShopFragment();
                 activateFragment(shop);
-                VideoData vd = f.getArguments()
-                        .getParcelable(SingleProductFragment.ArgumentKeys.videoData.name());
-                shop.openProduct(vd); //FIXME
                 return true;
             } else if(f instanceof TopLevelFragment) {
                 activateFragment(f);
@@ -131,6 +131,23 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+
+        if (preservedFragment != null) {
+            changeHomeButtonToArrow();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            //apparently no need to re-add to back stack after orientation change
+            fragmentTransaction.replace(R.id.frame_for_content, preservedFragment)
+                    .commit();
+            preservedFragment = null;
+        }
+
+    }
 
     private void setMenuItemFont(MenuItem item){
         TypefaceSpan typefaceSpan = new TypefaceSpan("sans-serif-light");
@@ -229,6 +246,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.frame_for_content, fragment);
         fragmentTransaction.commit();
     }
+
 
     private boolean isLogged(){
         boolean logIn = false;
