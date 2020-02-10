@@ -127,7 +127,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         control = this;
         Intent intent = getIntent();
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
-        final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
         cookie = intent.getStringExtra(Cookies.LOGIN);
 
         HTML.getHtmlCookie(video.getVideoUrl(), this, cookie, new VolleyCallback() {

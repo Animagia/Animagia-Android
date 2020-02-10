@@ -84,44 +84,14 @@ public class CatalogFragment extends TopLevelFragment {
 
     private void launchPlayback(final VideoData videoData) {
         final String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
-        if (videoData.getVideoUrl().endsWith(".mkv") || videoData.getVideoUrl().endsWith(".webm")) {
-            Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-            intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-            intent.putExtra(VideoData.NAME_OF_URL, videoData.getVideoUrl());
-            intent.putExtra(Cookies.LOGIN, cookie);
 
-            startActivity(intent);
-        } else {
+        Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
+        intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
+        intent.putExtra(Cookies.LOGIN, cookie);
 
-            HTML.getHtmlCookie(videoData.getVideoUrl(), getContext(), cookie, new VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    String url = VideoUrl.getUrl(result);
-                    Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-                    intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-                    intent.putExtra(VideoData.NAME_OF_URL, url);
-                    intent.putExtra(Cookies.LOGIN, cookie);
-
-                    startActivity(intent);
-
-                }
-
-                @Override
-                public void onFailure(VolleyError volleyError) {
-                    DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            launchPlayback(videoData);
-                        }
-                    };
-
-                    if (volleyError instanceof NoConnectionError) {
-                        Alerts.internetConnectionError(getContext(), onClickTryAgain);
-                    }
-                }
-            });
-        }
+        startActivity(intent);
     }
+
 
     public void setText(String message) {
         LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
