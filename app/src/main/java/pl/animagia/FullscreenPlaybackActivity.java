@@ -2,6 +2,7 @@ package pl.animagia;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
@@ -66,53 +68,53 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private Context context; //FIXME remove and use 'this' or 'getApplicationContext'
     private String cookie;
 
-    private Handler mHideHandler;
+ //   private Handler mHideHandler;
 
-    Runnable playerRestarter = new Runnable()
-    {
-        public void run()
-        {
-            if(mPlayer != null){
-
-                if (on_off) {
-                    if ((mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) ||
-                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
-
-                    } else {
-                        reinitializePlayer("");
-                    }
-                    on_off = false;
-                }
-            }
-        }
-
-    };
-
-    final Handler handler = new Handler();
-
-    final Runnable rewinder = new Runnable()
-    {
-        public void run()
-        {
-            long sek = mPlayer.getCurrentPosition();
-            if(sek >= previewMilliseconds){
-                mPlayer.seekTo(previewMilliseconds - 1000);
-                Alerts.primeVideoError(context);
-                onPause();
-            }
-            handler.postDelayed(this, REWINDER_INTERVAL);
-        }
-    };
-
-    final Runnable hideUi = new Runnable()
-    {
-        public void run()
-        {
-            if(mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) {
-                hideSystemUi();
-            }
-        }
-    };
+//    Runnable playerRestarter = new Runnable()
+//    {
+//        public void run()
+//        {
+//            if(mPlayer != null){
+//
+//                if (on_off) {
+//                    if ((mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) ||
+//                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
+//
+//                    } else {
+//                        reinitializePlayer("");
+//                    }
+//                    on_off = false;
+//                }
+//            }
+//        }
+//
+//    };
+//
+//    final Handler handler = new Handler();
+//
+//    final Runnable rewinder = new Runnable()
+//    {
+//        public void run()
+//        {
+//            long sek = mPlayer.getCurrentPosition();
+//            if(sek >= previewMilliseconds){
+//                mPlayer.seekTo(previewMilliseconds - 1000);
+//                Alerts.primeVideoError(context);
+//                onPause();
+//            }
+//            handler.postDelayed(this, REWINDER_INTERVAL);
+//        }
+//    };
+//
+//    final Runnable hideUi = new Runnable()
+//    {
+//        public void run()
+//        {
+//            if(mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) {
+//                hideSystemUi();
+//            }
+//        }
+//    };
     private long lastTimeSystemUiWasBroughtBack;
     private boolean subtitleChangesAllowed = false;
     private boolean qualityChangesAllowed = false;
@@ -128,6 +130,56 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         final String url = intent.getStringExtra(VideoData.NAME_OF_URL);
         cookie = intent.getStringExtra(Cookies.LOGIN);
 
+        HTML.getHtmlCookie(video.getVideoUrl(), this, cookie, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                String url1 = VideoUrl.getUrl(result);
+                prepareForPlayback(video, url1);
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        throw new RuntimeException(); //FIXME
+                    }
+                };
+
+                if (volleyError instanceof NoConnectionError) {
+                    Alerts.internetConnectionError(FullscreenPlaybackActivity.this,
+                            onClickTryAgain);
+                }
+            }
+        });
+
+
+//        HTML.getHtmlCookie("https://animagia.pl/", this, cookie, new VolleyCallback() {
+//            @Override
+//            public void onSuccess(String result) {
+//                prepareForPlayback(video, url);
+//            }
+//
+//            @Override
+//            public void onFailure(VolleyError volleyError) {
+//                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        prepareForPlayback(video, url);
+//                    }
+//                };
+//
+//                if (volleyError instanceof NoConnectionError) {
+//                    Alerts.internetConnectionError(FullscreenPlaybackActivity.this,
+//                            onClickTryAgain);
+//                }
+//            }
+//        });
+
+
+    }
+
+    private void prepareForPlayback(VideoData video, String url) {
         episodes = video.getEpisodes();
         currentEpisode = 1;
         currentTitle = video.formatFullTitle();
@@ -166,14 +218,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
-        createSpinners();
+       // createSpinners();
 
         if (isPremiumFilm(video.getTitle())) {
 
             previewMilliseconds = video.getPreviewMillis();
 
             if (userIsAGuest()) {
-                handler.postDelayed(rewinder, REWINDER_INTERVAL);
+               // handler.postDelayed(rewinder, REWINDER_INTERVAL);
             } else {
                 qualityChangesAllowed = true;
                 subtitleChangesAllowed = true;
@@ -283,224 +335,224 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return (systemUiVisibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+//        View play = controlView.findViewById(R.id.exo_play);
+//        play.performClick();
+//
+//        mHideHandler.postDelayed(playerRestarter,4000);
+//        on_off = true;
+//    }
 
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-        View play = controlView.findViewById(R.id.exo_play);
-        play.performClick();
-
-        mHideHandler.postDelayed(playerRestarter,4000);
-        on_off = true;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if(firstOnStart){
-            mHideHandler = new Handler();
-            firstOnStart = false;
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mHideHandler.removeCallbacks(playerRestarter);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        mHideHandler.removeCallbacks(playerRestarter);
-        playerRestarter = null;
-    }
-
-
-    private void createSpinners() {
-        spinnerOfQuality = findViewById(R.id.spinner_quality);
-        String[] quality = getResources().getStringArray(R.array.quality);
-        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
-                this, R.layout.spinner_item, quality
-        );
-
-        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinnerOfQuality.setAdapter(adapterQuality);
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//
+//        if(firstOnStart){
+//            mHideHandler = new Handler();
+//            firstOnStart = false;
+//        }
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        mHideHandler.removeCallbacks(playerRestarter);
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
+//        mHideHandler.removeCallbacks(playerRestarter);
+//        playerRestarter = null;
+//    }
 
 
-        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-        String[] subtitle = getResources().getStringArray(R.array.subtitles);
-        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
-                this, R.layout.spinner_item, subtitle
-        );
+//    private void createSpinners() {
+//        spinnerOfQuality = findViewById(R.id.spinner_quality);
+//        String[] quality = getResources().getStringArray(R.array.quality);
+//        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
+//                this, R.layout.spinner_item, quality
+//        );
+//
+//        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        spinnerOfQuality.setAdapter(adapterQuality);
+//
+//
+//        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+//        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+//        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
+//                this, R.layout.spinner_item, subtitle
+//        );
+//
+//        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        spinnerOfSubtitles.setAdapter(adapterSubtitles);
+//
+//
+//        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            String currentQualitySetting;
+//            boolean start = true;
+//
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                currentQualitySetting = String.valueOf(spinnerOfQuality.getSelectedItem());
+//                switch (i) {
+//                    case 0:
+//                        if (!start) {
+//                            if (currentQualitySetting.equals("1080p")) {
+//                                reinitializePlayer("?altsub=no&sd=no");
+//                            } else {
+//                                reinitializePlayer("?altsub=no&sd=yes");
+//                            }
+//                        }
+//                        start = false;
+//                        break;
+//                    case 1:
+//                        if (currentQualitySetting.equals("1080p")) {
+//                            reinitializePlayer("?altsub=yes&sd=no");
+//                        } else {
+//                            reinitializePlayer("?altsub=yes&sd=yes");
+//                        }
+//                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//
+//        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//
+//                if(subtitleChangesAllowed) {
+//                    return false;
+//                }
+//
+//                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//
+//                    builder.setMessage("Nie ma możliwości zmian napisów w preview.");
+//                    builder.setTitle("Komunikat.");
+//                    builder.setNegativeButton("Wróć", null);
+//
+//
+//                    builder.show();
+//                }
+//
+//
+//                return true;
+//            }
+//        });
+//
+//
+//        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            boolean start = true;
+//            String currentSubtitleSetting;
+//
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                currentSubtitleSetting = String.valueOf(spinnerOfSubtitles.getSelectedItem());
+//                switch (i) {
+//                    case 0:
+//                        if (!start) {
+//                            if (currentSubtitleSetting.equals("pl")) {
+//                                reinitializePlayer("?altsub=yes&sd=no");
+//                            } else {
+//                                reinitializePlayer("?altsub=no&sd=no");
+//                            }
+//                        }
+//                        start = false;
+//                        break;
+//                    case 1:
+//                        if (currentSubtitleSetting.equals("pl")) {
+//                            reinitializePlayer("?altsub=yes&sd=yes");
+//                        } else {
+//                            reinitializePlayer("?altsub=no&sd=yes");
+//                        }
+//                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//
+//        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//
+//                if (qualityChangesAllowed) {
+//                    return false;
+//                }
+//
+//                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//
+//                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
+//                    builder.setTitle("Komunikat.");
+//                    builder.setNegativeButton("Wróć", null);
+//
+//
+//                    builder.show();
+//                }
+//
+//                return true;
+//            }
+//        });
+//    }
 
-        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        spinnerOfSubtitles.setAdapter(adapterSubtitles);
-
-
-        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            String currentQualitySetting;
-            boolean start = true;
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currentQualitySetting = String.valueOf(spinnerOfQuality.getSelectedItem());
-                switch (i) {
-                    case 0:
-                        if (!start) {
-                            if (currentQualitySetting.equals("1080p")) {
-                                reinitializePlayer("?altsub=no&sd=no");
-                            } else {
-                                reinitializePlayer("?altsub=no&sd=yes");
-                            }
-                        }
-                        start = false;
-                        break;
-                    case 1:
-                        if (currentQualitySetting.equals("1080p")) {
-                            reinitializePlayer("?altsub=yes&sd=no");
-                        } else {
-                            reinitializePlayer("?altsub=yes&sd=yes");
-                        }
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if(subtitleChangesAllowed) {
-                    return false;
-                }
-
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                    builder.setMessage("Nie ma możliwości zmian napisów w preview.");
-                    builder.setTitle("Komunikat.");
-                    builder.setNegativeButton("Wróć", null);
-
-
-                    builder.show();
-                }
-
-
-                return true;
-            }
-        });
-
-
-        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            boolean start = true;
-            String currentSubtitleSetting;
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                currentSubtitleSetting = String.valueOf(spinnerOfSubtitles.getSelectedItem());
-                switch (i) {
-                    case 0:
-                        if (!start) {
-                            if (currentSubtitleSetting.equals("pl")) {
-                                reinitializePlayer("?altsub=yes&sd=no");
-                            } else {
-                                reinitializePlayer("?altsub=no&sd=no");
-                            }
-                        }
-                        start = false;
-                        break;
-                    case 1:
-                        if (currentSubtitleSetting.equals("pl")) {
-                            reinitializePlayer("?altsub=yes&sd=yes");
-                        } else {
-                            reinitializePlayer("?altsub=no&sd=yes");
-                        }
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-
-                if (qualityChangesAllowed) {
-                    return false;
-                }
-
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
-                    builder.setTitle("Komunikat.");
-                    builder.setNegativeButton("Wróć", null);
-
-
-                    builder.show();
-                }
-
-                return true;
-            }
-        });
-    }
-
-
-    private void reinitializePlayer(String query){
-
-        if(currentTitle.contains("Hanasaku")) {
-            query = query.replace("altsub", "dub");
-        }
-
-        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
-
-            @Override
-            public void onSuccess(String result) {
-                releaseMediaPlayer();
-                String url = VideoUrl.getUrl(result);
-                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
-                if (isPremiumFilm(currentTitle)) {
-                    if (userIsAGuest()) {
-                        handler.postDelayed(rewinder, REWINDER_INTERVAL);
-                    }
-                }
-
-                mPlayer.setPlayWhenReady(true);
-
-                    TextView title = findViewById(R.id.film_name);
-                    title.setText(formatTitle());
-
-                mHideHandler.postDelayed(playerRestarter,4000);
-                on_off = true;
-
-            }
-
-            @Override
-            public void onFailure(VolleyError volleyError) {
-                mHideHandler.postDelayed(playerRestarter,4000);
-                on_off = true;
-            }
-        });
-
-    }
+//    private void reinitializePlayer(String query){
+//
+//        if(currentTitle.contains("Hanasaku")) {
+//            query = query.replace("altsub", "dub");
+//        }
+//
+//        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
+//
+//            @Override
+//            public void onSuccess(String result) {
+//                releaseMediaPlayer();
+//                String url = VideoUrl.getUrl(result);
+//                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
+//                if (isPremiumFilm(currentTitle)) {
+//                    if (userIsAGuest()) {
+//                        handler.postDelayed(rewinder, REWINDER_INTERVAL);
+//                    }
+//                }
+//
+//                mPlayer.setPlayWhenReady(true);
+//
+//                    TextView title = findViewById(R.id.film_name);
+//                    title.setText(formatTitle());
+//
+//                mHideHandler.postDelayed(playerRestarter,4000);
+//                on_off = true;
+//
+//            }
+//
+//            @Override
+//            public void onFailure(VolleyError volleyError) {
+//                mHideHandler.postDelayed(playerRestarter,4000);
+//                on_off = true;
+//            }
+//        });
+//
+//    }
 
     private int calculateMsTimeStamp(String timeStampUnconvert){
 
@@ -538,13 +590,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus ) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUi();
-        }
-    }
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus ) {
+//        super.onWindowFocusChanged(hasFocus);
+//        if (hasFocus) {
+//            hideSystemUi();
+//        }
+//    }
 
 
     private int getNavigationBarHeight() {
@@ -601,9 +653,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         final AppCompatActivity ac = this;
         final VideoData video = getIntent().getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
-
-        next.setOnClickListener(newEpisodeListener(ac, video, 1));
-        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
+//
+//        next.setOnClickListener(newEpisodeListener(ac, video, 1));
+//        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
     }
 
     private void hidePreviousAndNextButtons() {
@@ -621,12 +673,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public void onPause(){
-        super.onPause();
-        resumeLivePreview();
-        mHideHandler.removeCallbacks(playerRestarter);
-    }
+//    @Override
+//    public void onPause(){
+//        super.onPause();
+//        resumeLivePreview();
+//        mHideHandler.removeCallbacks(playerRestarter);
+//    }
 
 
     private void resumeLivePreview() {
@@ -637,12 +689,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void releaseMediaPlayer() {
-        if (rewinder != null) {
-            handler.removeCallbacks(rewinder);
-        }
-        if (hideUi != null) {
-            handler.removeCallbacks(hideUi);
-        }
+//        if (rewinder != null) {
+//            handler.removeCallbacks(rewinder);
+//        }
+//        if (hideUi != null) {
+//            handler.removeCallbacks(hideUi);
+//        }
         if (mPlayer!= null) {
             mPlayer.stop();
             mPlayer.release();
@@ -650,13 +702,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        releaseMediaPlayer();
-        mHideHandler.removeCallbacks(playerRestarter);
-        playerRestarter = null;
-        finish();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        releaseMediaPlayer();
+//        mHideHandler.removeCallbacks(playerRestarter);
+//        playerRestarter = null;
+//        finish();
+//    }
 
     private boolean checkEpisodes(int newEpisode){
         boolean isOk = false;
@@ -673,50 +725,50 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkEpisodes(newEpisode)) {
-
-                    String url =
-                            video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
-                                    (currentEpisode + newEpisode) + "?altsub=no&sd=no";
-
-                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
-
-                        @Override
-                        public void onSuccess(String result) {
-                            currentTitle = video.formatFullTitle();
-                            currentUrl = video.getVideoUrl()
-                                    .substring(0, video.getVideoUrl().length() - 2) +
-                                    (currentEpisode + newEpisode);
-
-                            releaseMediaPlayer();
-                            String url = VideoUrl.getUrl(result);
-                            mPlayer = createPlayer(VideoSourcesKt
-                                    .prepareFromAsset(activity, url, video.getTitle()));
-
-                            mPlayer.setPlayWhenReady(true);
-
-                            changeCurrentEpisodes(newEpisode);
-                            TextView title = findViewById(R.id.film_name);
-                            title.setText(video.getTitle() + " odc. " + currentEpisode);
-                            mHideHandler.postDelayed(playerRestarter, 4000);
-                            on_off = true;
-                        }
-
-                        @Override
-                        public void onFailure(VolleyError volleyError) {
-                            mHideHandler.postDelayed(playerRestarter, 4000);
-                            on_off = true;
-                        }
-                    });
-
-                }
-
-            }
-        };
-    }
+//    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
+//        return new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (checkEpisodes(newEpisode)) {
+//
+//                    String url =
+//                            video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
+//                                    (currentEpisode + newEpisode) + "?altsub=no&sd=no";
+//
+//                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
+//
+//                        @Override
+//                        public void onSuccess(String result) {
+//                            currentTitle = video.formatFullTitle();
+//                            currentUrl = video.getVideoUrl()
+//                                    .substring(0, video.getVideoUrl().length() - 2) +
+//                                    (currentEpisode + newEpisode);
+//
+//                            releaseMediaPlayer();
+//                            String url = VideoUrl.getUrl(result);
+//                            mPlayer = createPlayer(VideoSourcesKt
+//                                    .prepareFromAsset(activity, url, video.getTitle()));
+//
+//                            mPlayer.setPlayWhenReady(true);
+//
+//                            changeCurrentEpisodes(newEpisode);
+//                            TextView title = findViewById(R.id.film_name);
+//                            title.setText(video.getTitle() + " odc. " + currentEpisode);
+//                            mHideHandler.postDelayed(playerRestarter, 4000);
+//                            on_off = true;
+//                        }
+//
+//                        @Override
+//                        public void onFailure(VolleyError volleyError) {
+//                            mHideHandler.postDelayed(playerRestarter, 4000);
+//                            on_off = true;
+//                        }
+//                    });
+//
+//                }
+//
+//            }
+//        };
+//    }
 
 }
