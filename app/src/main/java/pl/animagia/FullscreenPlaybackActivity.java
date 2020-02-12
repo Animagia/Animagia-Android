@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,14 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.android.volley.VolleyError;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.*;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -60,7 +59,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private Context context; //FIXME remove and use 'this' or 'getApplicationContext'
     private String cookie;
 
- //   private Handler mHideHandler;
+    private Handler mHideHandler = new Handler();
 
 //    Runnable playerRestarter = new Runnable()
 //    {
@@ -120,6 +119,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         Intent intent = getIntent();
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
         cookie = intent.getStringExtra(Cookies.LOGIN);
+
+        setContentView(R.layout.activity_fullscreen_playback);
+        mMainView = findViewById(R.id.exoplayerview_activity_video);
 
         startPlaybackFlow(video);
 
@@ -197,9 +199,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         currentTitle = video.formatFullTitle();
         currentUrl = video.getVideoUrl();
 
-        setContentView(R.layout.activity_fullscreen_playback);
-        mMainView = findViewById(R.id.exoplayerview_activity_video);
-
         TextView title = findViewById(R.id.film_name);
         title.setText(formatTitle());
 
@@ -245,6 +244,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         } else {
             qualityChangesAllowed = true;
         }
+
+        mPlayer.addListener(new Player.DefaultEventListener() {
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playWhenReady && playbackState == Player.STATE_READY) {
+                    mHideHandler.removeCallbacksAndMessages(null);
+                    mHideHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMainView.hideController();
+                            hideSystemUi();
+                        }
+                    }, 2000);
+                }
+            }
+        });
 
         mPlayer.setPlayWhenReady(true);
 
@@ -602,13 +617,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus ) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus) {
-//            hideSystemUi();
-//        }
-//    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus ) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUi();
+        }
+    }
 
 
     private int getNavigationBarHeight() {
@@ -685,15 +700,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return true;
     }
 
-//    @Override
-//    public void onPause(){
-//        super.onPause();
-//        resumeLivePreview();
-//        mHideHandler.removeCallbacks(playerRestarter);
-//    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        haltPlayback();
+        mHideHandler.removeCallbacksAndMessages(null);
+        //mHideHandler.removeCallbacks(playerRestarter);
+    }
 
 
-    private void resumeLivePreview() {
+    private void haltPlayback() {
         if (mPlayer != null) {
             mPlayer.setPlayWhenReady(false);
         }
