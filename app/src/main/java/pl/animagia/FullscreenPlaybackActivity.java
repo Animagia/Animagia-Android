@@ -1,26 +1,20 @@
 package pl.animagia;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -31,17 +25,15 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ListIterator;
-
-import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.ListIterator;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
@@ -129,28 +121,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
         cookie = intent.getStringExtra(Cookies.LOGIN);
 
-        HTML.getHtmlCookie(video.getVideoUrl(), this, cookie, new VolleyCallback() {
-            @Override
-            public void onSuccess(String result) {
-                String url1 = VideoUrl.getUrl(result);
-                prepareForPlayback(video, url1);
-            }
-
-            @Override
-            public void onFailure(VolleyError volleyError) {
-                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        throw new RuntimeException(); //FIXME
-                    }
-                };
-
-                if (volleyError instanceof NoConnectionError) {
-                    Alerts.internetConnectionError(FullscreenPlaybackActivity.this,
-                            onClickTryAgain);
-                }
-            }
-        });
+        startPlaybackFlow(video);
 
 
 //        HTML.getHtmlCookie("https://animagia.pl/", this, cookie, new VolleyCallback() {
@@ -177,6 +148,48 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     }
+
+
+    private void startPlaybackFlow(final VideoData vd) {
+        HTML.getHtmlCookie(vd.getVideoUrl(), this, cookie, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                String url1 = VideoUrl.getUrl(result);
+                prepareForPlayback(vd, url1);
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startPlaybackFlow(vd);
+                    }
+                };
+                AlertDialog dialog = new AlertDialog.Builder(FullscreenPlaybackActivity.this)
+                        .setIconAttribute(android.R.attr.alertDialogIcon)
+                        .setTitle("Błąd połączenia")
+                        .setPositiveButton(R.string.try_again, onClickTryAgain)
+                        .setNegativeButton("Wróć do katalogu",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                })
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                finish();
+                            }
+                        })
+                        .create();
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.show();
+            }
+        });
+    }
+
 
     private void prepareForPlayback(VideoData video, String url) {
         episodes = video.getEpisodes();
