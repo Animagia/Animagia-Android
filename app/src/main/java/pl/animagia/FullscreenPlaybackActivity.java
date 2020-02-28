@@ -3,6 +3,7 @@ package pl.animagia;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -11,14 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.*;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -30,11 +27,14 @@ import pl.animagia.user.Cookies;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ListIterator;
+import java.util.*;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
+
+    static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
+    static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
+    static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
+    static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
 
 
     public static final int REWINDER_INTERVAL = 500;
@@ -45,8 +45,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private int currentEpisode;
     private String currentTitle;
     private String currentUrl;
-    private Spinner spinnerOfQuality;
-    private Spinner spinnerOfSubtitles;
+    private View spinnerOfSubtitles;
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
@@ -229,7 +228,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
 
-       // createSpinners();
+        createSpinners();
 
         if (isPremiumFilm(video.getTitle())) {
 
@@ -399,187 +398,119 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 //    }
 
 
-//    private void createSpinners() {
-//        spinnerOfQuality = findViewById(R.id.spinner_quality);
-//        String[] quality = getResources().getStringArray(R.array.quality);
-//        ArrayAdapter<String> adapterQuality = new ArrayAdapter<>(
-//                this, R.layout.spinner_item, quality
-//        );
-//
-//        adapterQuality.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//
-//        spinnerOfQuality.setAdapter(adapterQuality);
-//
-//
-//        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-//        String[] subtitle = getResources().getStringArray(R.array.subtitles);
-//        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
-//                this, R.layout.spinner_item, subtitle
-//        );
-//
-//        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//
-//        spinnerOfSubtitles.setAdapter(adapterSubtitles);
-//
-//
-//        spinnerOfSubtitles.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//
-//            String currentQualitySetting;
-//            boolean start = true;
-//
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                currentQualitySetting = String.valueOf(spinnerOfQuality.getSelectedItem());
-//                switch (i) {
-//                    case 0:
-//                        if (!start) {
-//                            if (currentQualitySetting.equals("1080p")) {
-//                                reinitializePlayer("?altsub=no&sd=no");
-//                            } else {
-//                                reinitializePlayer("?altsub=no&sd=yes");
-//                            }
-//                        }
-//                        start = false;
-//                        break;
-//                    case 1:
-//                        if (currentQualitySetting.equals("1080p")) {
-//                            reinitializePlayer("?altsub=yes&sd=no");
-//                        } else {
-//                            reinitializePlayer("?altsub=yes&sd=yes");
-//                        }
-//                        break;
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//
-//        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
-//
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//
-//                if(subtitleChangesAllowed) {
-//                    return false;
-//                }
-//
-//                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//
-//                    builder.setMessage("Nie ma możliwości zmian napisów w preview.");
-//                    builder.setTitle("Komunikat.");
-//                    builder.setNegativeButton("Wróć", null);
-//
-//
-//                    builder.show();
-//                }
-//
-//
-//                return true;
-//            }
-//        });
-//
-//
-//        spinnerOfQuality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            boolean start = true;
-//            String currentSubtitleSetting;
-//
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                currentSubtitleSetting = String.valueOf(spinnerOfSubtitles.getSelectedItem());
-//                switch (i) {
-//                    case 0:
-//                        if (!start) {
-//                            if (currentSubtitleSetting.equals("pl")) {
-//                                reinitializePlayer("?altsub=yes&sd=no");
-//                            } else {
-//                                reinitializePlayer("?altsub=no&sd=no");
-//                            }
-//                        }
-//                        start = false;
-//                        break;
-//                    case 1:
-//                        if (currentSubtitleSetting.equals("pl")) {
-//                            reinitializePlayer("?altsub=yes&sd=yes");
-//                        } else {
-//                            reinitializePlayer("?altsub=no&sd=yes");
-//                        }
-//                        break;
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//
-//        spinnerOfQuality.setOnTouchListener(new View.OnTouchListener() {
-//
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//
-//                if (qualityChangesAllowed) {
-//                    return false;
-//                }
-//
-//                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//
-//                    builder.setMessage("Nie ma możliwości zmian jakości w preview.");
-//                    builder.setTitle("Komunikat.");
-//                    builder.setNegativeButton("Wróć", null);
-//
-//
-//                    builder.show();
-//                }
-//
-//                return true;
-//            }
-//        });
-//    }
+    private void createSpinners() {
+        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+        ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
+                this, R.layout.spinner_item, subtitle
+        );
+
+        adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
+                    return true;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                builder.setTitle("Wybierz wersję językową");
+                String[] items = {"Napisy „mniej spolszczone”, Napisy „bardziej spolszczone”"};
+                builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onTranslationChosen(which);
+                    }
+                });
+
+                builder.show();
+
+                return true;
+            }
+        });
+    }
+
+    private void onTranslationChosen(int which) {
+
+        Map<String,String> params = new HashMap<>();
+
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        switch(which) {
+            case 1:
+                params.put("altsub", "yes");
+                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
+                if(currentTitle.contains("Iroha")) {
+                    editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
+                }
+                break;
+            case 2:
+                params.put("dub", "yes");
+                editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, true);
+                break;
+            default:
+                params.put("altsub", "no");
+                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
+                if(currentTitle.contains("Iroha")) {
+                    editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
+                }
+        }
+
+        editor.commit();
+
+        reinitializePlayer(buildQueryString(params));
+    }
 
 
-//    private void reinitializePlayer(String query){
-//
-//        if(currentTitle.contains("Hanasaku")) {
-//            query = query.replace("altsub", "dub");
-//        }
-//
-//        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
-//
-//            @Override
-//            public void onSuccess(String result) {
-//                releaseMediaPlayer();
-//                String url = VideoUrl.getUrl(result);
-//                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
+    private String buildQueryString(Map<String, String> params) {
+        String query = "?";
+
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            query += param.getKey() + "=" + param.getValue() + "&";
+        }
+
+        return query.substring(0,query.length()-1);
+    }
+
+
+    private void reinitializePlayer(String query){
+
+        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
+
+            @Override
+            public void onSuccess(String result) {
+                releaseMediaPlayer();
+                String url = VideoUrl.getUrl(result);
+                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
 //                if (isPremiumFilm(currentTitle)) {
 //                    if (userIsAGuest()) {
 //                        handler.postDelayed(rewinder, REWINDER_INTERVAL);
 //                    }
 //                }
-//
-//                mPlayer.setPlayWhenReady(true);
-//
-//                    TextView title = findViewById(R.id.film_name);
-//                    title.setText(formatTitle());
-//
-//                mHideHandler.postDelayed(playerRestarter,4000);
-//                on_off = true;
-//
-//            }
-//
-//            @Override
-//            public void onFailure(VolleyError volleyError) {
-//                mHideHandler.postDelayed(playerRestarter,4000);
-//                on_off = true;
-//            }
-//        });
-//
-//    }
+
+                mPlayer.setPlayWhenReady(true);
+
+                    TextView title = findViewById(R.id.film_name);
+                    title.setText(formatTitle());
+
+                //mHideHandler.postDelayed(playerRestarter,4000);
+                on_off = true;
+
+            }
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+                //mHideHandler.postDelayed(playerRestarter,4000);
+                on_off = true;
+            }
+        });
+
+    }
 
     private int calculateMsTimeStamp(String timeStampUnconvert){
 
