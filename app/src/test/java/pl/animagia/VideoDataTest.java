@@ -38,7 +38,7 @@ public class VideoDataTest {
 
     @Test
     public void getEpisodesTest() {
-        int shakeNumberOfEpisodes = shake.getEpisodes();
+        int shakeNumberOfEpisodes = shake.getEpisodeCount();
         assertEquals(numberOfEpisodes,shakeNumberOfEpisodes);
     }
 }

@@ -20,7 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.android.billingclient.api.BillingClient;
-import pl.animagia.user.Cookies;
+import pl.animagia.user.CookieStorage;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -250,9 +250,9 @@ public class MainActivity extends AppCompatActivity
 
     private boolean isLogged(){
         boolean logIn = false;
-        String cookie = Cookies.getCookie(Cookies.LOGIN, this);
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, this);
         System.out.println(cookie);
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
         }
 
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.logout) {
-            Cookies.removeCookie(Cookies.LOGIN, this);
+            CookieStorage.clearLoginCredentials(this);
             Toast.makeText(this, R.string.logged_out, Toast.LENGTH_SHORT).show();
             finish();
             overridePendingTransition(0, 0);
@@ -279,8 +279,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String getUsername() {
-        String cookie = Cookies.getCookie(Cookies.LOGIN, this);
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, this);
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             int first_index = cookie.indexOf('=');
             int last_index = cookie.indexOf('%');
             return cookie.substring(first_index + 1, last_index);

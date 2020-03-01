@@ -18,7 +18,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.CookieRequest;
-import pl.animagia.user.Cookies;
+import pl.animagia.user.AccountStatus;
+import pl.animagia.user.CookieStorage;
+
+import java.util.List;
 
 
 //TODO extract and share methods that read login cookies
@@ -80,16 +83,16 @@ public class AccountFragment extends TopLevelFragment {
     private boolean isLogged(){
         boolean logIn = false;
 
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
         System.out.println(cookie);
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
         }
 
         return logIn;
     }
 
-    private void getAccountInfo(){ //FIXME
+    private void getAccountInfo(){
         String url = "https://animagia.pl/konto";
         if(getActivity() != null){
             RequestQueue queue = Volley.newRequestQueue(getContext());
@@ -109,7 +112,8 @@ public class AccountFragment extends TopLevelFragment {
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                             Cookies.removeCookie(Cookies.LOGIN, getActivity());
+                                             CookieStorage
+                                                     .clearLoginCredentials(getActivity());
                                             ((MainActivity) getActivity()).getSupportActionBar().setTitle("Oglądaj");
                                             ((MainActivity) getActivity()).activateFragment(new LoginFragment());
                                         }
@@ -139,7 +143,7 @@ public class AccountFragment extends TopLevelFragment {
                 }
             });
             if(getActivity() != null){
-                String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+                String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
                 stringRequest.setCookies(cookie);
                 queue.add(stringRequest);
             }
@@ -147,24 +151,33 @@ public class AccountFragment extends TopLevelFragment {
 
     }
 
-    private void onAccountPageFetched(String s) {
+    private void onAccountPageFetched(String accountPageHtml) {
+        AccountStatus accountStatus = extractAccountStatus(accountPageHtml);
+        CookieStorage.saveAccountStatus(getActivity(), accountStatus);
+
+        List<String> downloadAnchors = FilesFragment.getDownloadAnchors(accountPageHtml);
+        List<String> fileNames = FilesFragment.getDownloadableFileNames(downloadAnchors);
+        CookieStorage.saveNamesOfPurchasedFiles(getActivity(), fileNames);
+
         TextView textView = getView().findViewById(R.id.files);
-        textView.setText(extractAccountStatus(s));
+        textView.setText(accountStatus.getFriendlyName());
 
         TextView textViewEmail = getView().findViewById(R.id.email_text);
-        textViewEmail.setText(extractUserEmail(s));
+        textViewEmail.setText(extractUserEmail(accountPageHtml));
     }
 
-    private static String extractAccountStatus(String accountPageHtml) {
-        if(accountPageHtml.contains("<strong>Wygasające</strong>")) {
-            return "Wyagasające";
-        } else if(accountPageHtml.contains("<strong>Aktywne.</strong>")) {
-            return "Aktywne";
-        } else if(accountPageHtml.contains("<p>Nieaktywne.</p>")) {
-            return "Nieaktywne";
+
+    static AccountStatus extractAccountStatus(String accountPageHtml) {
+        if (accountPageHtml.contains("<strong>Wygasające</strong>")) {
+            return AccountStatus.EXPIRING;
+        } else if (accountPageHtml.contains("<strong>Aktywne.</strong>")) {
+            return AccountStatus.ACTIVE;
+        } else if (accountPageHtml.contains("<p>Nieaktywne.</p>")) {
+            return AccountStatus.INACTIVE;
         }
-        return "";
+        return AccountStatus.UNKNOWN;
     }
+
 
     private static String extractUserEmail(String accountPageHtml) {
         String s1 = "Zalogowano jako:";

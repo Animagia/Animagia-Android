@@ -1,12 +1,10 @@
 package pl.animagia;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.volley.NoConnectionError;
-import com.android.volley.VolleyError;
-
-import pl.animagia.error.Alerts;
-import pl.animagia.html.HTML;
-import pl.animagia.html.VolleyCallback;
-import pl.animagia.user.Cookies;
-import pl.animagia.video.VideoUrl;
+import pl.animagia.user.CookieStorage;
 
 public class CatalogFragment extends TopLevelFragment {
 
@@ -83,11 +74,11 @@ public class CatalogFragment extends TopLevelFragment {
 
 
     private void launchPlayback(final VideoData videoData) {
-        final String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+        final String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
 
         Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
         intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
-        intent.putExtra(Cookies.LOGIN, cookie);
+        intent.putExtra(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
 
         startActivity(intent);
     }
@@ -115,9 +106,9 @@ public class CatalogFragment extends TopLevelFragment {
 
     private boolean isLogged(){
         boolean logIn = false;
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
         System.out.println(cookie);
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
         }
 
@@ -125,8 +116,8 @@ public class CatalogFragment extends TopLevelFragment {
     }
 
     private String getUsername() {
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             int first_index = cookie.indexOf('=');
             int last_index = cookie.indexOf('%');
             return cookie.substring(first_index + 1, last_index);

@@ -21,9 +21,11 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
-import pl.animagia.user.Cookies;
+import pl.animagia.user.AccountStatus;
+import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
@@ -31,21 +33,21 @@ import java.util.*;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
-    static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
-    static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
-    static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
-    static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
+    private static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
+    private static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
+    private static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
+    private static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
 
 
-    public static final int REWINDER_INTERVAL = 500;
+    private static final int REWINDER_INTERVAL = 800;
+    private static final int RESTARTER_INTERVAL = 4000;
     private PlayerView mMainView;
-    private ImageButton forwardPlayerButton, rewindPlayerButton ;
+    private ImageButton forwardPlayerButton, rewindPlayerButton;
     private SimpleExoPlayer mPlayer;
-    private int episodes;
+    private int episodeCount;
     private int currentEpisode;
     private String currentTitle;
     private String currentUrl;
-    private View spinnerOfSubtitles;
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
@@ -53,48 +55,52 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private String [] timeStamps;
 
     private AppCompatActivity control;
-    private boolean on_off, firstOnStart = true;
 
-    private Context context; //FIXME remove and use 'this' or 'getApplicationContext'
     private String cookie;
 
-    private Handler mHideHandler = new Handler();
+    private Handler hideHandler = new Handler();
 
-//    Runnable playerRestarter = new Runnable()
-//    {
-//        public void run()
-//        {
-//            if(mPlayer != null){
-//
-//                if (on_off) {
-//                    if ((mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) ||
-//                            (mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
-//
-//                    } else {
-//                        reinitializePlayer("");
-//                    }
-//                    on_off = false;
-//                }
-//            }
-//        }
-//
-//    };
+    private Handler restartHandler = new Handler();
+
+    private Handler rewindHandler = new Handler();
+
+    private final Runnable playerRestarter = new Runnable()
+    {
+        public void run()
+        {
+            if (mPlayer == null) {
+                return;
+            }
+
+            if ((mPlayer.getPlayWhenReady() &&
+                    mPlayer.getPlaybackState() == Player.STATE_READY) ||
+                    (mPlayer.getPlayWhenReady() &&
+                            mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
+                restartHandler.removeCallbacks(playerRestarter);
+            } else {
+                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
+                        Toast.LENGTH_SHORT).show();
+                reinitializePlayer("");
+            }
+        }
+
+    };
 //
 //    final Handler handler = new Handler();
 //
-//    final Runnable rewinder = new Runnable()
-//    {
-//        public void run()
-//        {
-//            long sek = mPlayer.getCurrentPosition();
-//            if(sek >= previewMilliseconds){
-//                mPlayer.seekTo(previewMilliseconds - 1000);
-//                Alerts.primeVideoError(context);
-//                onPause();
-//            }
-//            handler.postDelayed(this, REWINDER_INTERVAL);
-//        }
-//    };
+    private final Runnable rewinder = new Runnable()
+    {
+        public void run()
+        {
+            long sek = mPlayer.getCurrentPosition();
+            if(sek >= previewMilliseconds){
+                mPlayer.seekTo(previewMilliseconds - 1000);
+                Alerts.primeVideoError(FullscreenPlaybackActivity.this);
+                onPause();
+            }
+            rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
+        }
+    };
 //
 //    final Runnable hideUi = new Runnable()
 //    {
@@ -107,17 +113,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 //    };
     private long lastTimeSystemUiWasBroughtBack;
     private boolean subtitleChangesAllowed = false;
-    private boolean qualityChangesAllowed = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
         control = this;
         Intent intent = getIntent();
         final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
-        cookie = intent.getStringExtra(Cookies.LOGIN);
+        cookie = intent.getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
@@ -193,13 +197,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void prepareForPlayback(VideoData video, String url) {
-        episodes = video.getEpisodes();
+        episodeCount = video.getEpisodeCount();
         currentEpisode = 1;
         currentTitle = video.formatFullTitle();
         currentUrl = video.getVideoUrl();
 
-        TextView title = findViewById(R.id.film_name);
-        title.setText(formatTitle());
+        updateDisplayedTitle();
 
         timeStampUnconverted = video.getTimeStamps();
         timeStamps = timeStampUnconverted.split(";");
@@ -230,26 +233,23 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         createSpinners();
 
-        if (isPremiumFilm(video.getTitle())) {
+        if (isTheatricalFilm(video.getTitle())) {
 
             previewMilliseconds = video.getPreviewMillis();
 
-            if (userIsAGuest()) {
-               // handler.postDelayed(rewinder, REWINDER_INTERVAL);
+            if (userBoughtAccessToFilm()) {
+               subtitleChangesAllowed = true;
             } else {
-                qualityChangesAllowed = true;
-                subtitleChangesAllowed = true;
+                // handler.postDelayed(rewinder, REWINDER_INTERVAL);
             }
-        } else {
-            qualityChangesAllowed = true;
         }
 
         mPlayer.addListener(new Player.DefaultEventListener() {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady && playbackState == Player.STATE_READY) {
-                    mHideHandler.removeCallbacksAndMessages(null);
-                    mHideHandler.postDelayed(new Runnable() {
+                    hideHandler.removeCallbacksAndMessages(null);
+                    hideHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mMainView.hideController();
@@ -331,13 +331,32 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     }
 
+    private void updateDisplayedTitle() {
+        TextView title = findViewById(R.id.film_name);
+        title.setText(formatTitle());
+    }
+
+    private boolean userBoughtAccessToFilm() {
+        if(userIsAGuest()) {
+            return false;
+        }
+
+        String currentPremiumStatus = CookieStorage.getAccountStatus(this);
+        if (AccountStatus.ACTIVE.getFriendlyName().equals(currentPremiumStatus) ||
+                AccountStatus.EXPIRING.getFriendlyName().equals(currentPremiumStatus)) {
+            return true;
+        }
+
+        return CookieStorage.getNamesOfPurchasedFiles(this).toString().contains(currentTitle);
+    }
+
     private boolean userIsAGuest() {
-        return cookie.equals(Cookies.COOKIE_NOT_FOUND);
+        return cookie.equals(CookieStorage.COOKIE_NOT_FOUND);
     }
 
 
     private String formatTitle() {
-        return episodes > 1 ? currentTitle + " odc. " + currentEpisode : currentTitle;
+        return episodeCount > 1 ? currentTitle + " odc. " + currentEpisode : currentTitle;
     }
 
     /**
@@ -361,17 +380,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return (systemUiVisibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
-//        View play = controlView.findViewById(R.id.exo_play);
-//        play.performClick();
-//
-//        mHideHandler.postDelayed(playerRestarter,4000);
-//        on_off = true;
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        View play = controlView.findViewById(R.id.exo_play);
+        play.performClick();
+
+        restartHandler.postDelayed(playerRestarter, RESTARTER_INTERVAL);
+
+        rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
+    }
 
 //    @Override
 //    protected void onStart() {
@@ -399,7 +419,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void createSpinners() {
-        spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
+        View spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
         String[] subtitle = getResources().getStringArray(R.array.subtitles);
         ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
                 this, R.layout.spinner_item, subtitle
@@ -416,7 +436,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     return true;
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                AlertDialog.Builder builder =
+                        new AlertDialog.Builder(FullscreenPlaybackActivity.this);
 
                 builder.setTitle("Wybierz wersję językową");
                 String[] items = {"Napisy „mniej spolszczone”, Napisy „bardziej spolszczone”"};
@@ -445,7 +466,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             case 1:
                 params.put("altsub", "yes");
                 editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
-                if(currentTitle.contains("Iroha")) {
+                if(dubAvailable()) {
                     editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
                 }
                 break;
@@ -456,14 +477,19 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             default:
                 params.put("altsub", "no");
                 editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
-                if(currentTitle.contains("Iroha")) {
+                if(dubAvailable()) {
                     editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
                 }
         }
 
-        editor.commit();
+        editor.apply();
 
         reinitializePlayer(buildQueryString(params));
+    }
+
+
+    private boolean dubAvailable() {
+        return currentTitle.contains("Iroha");
     }
 
 
@@ -478,6 +504,24 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
+    private Map<String, String> loadTranslationPreference() {
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+
+        Map<String, String> params = new HashMap<>();
+
+        if (dubAvailable() && prefs.getBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false)) {
+            params.put("dub", "yes");
+        } else if (PREFERRED_SUBTITLE_NO_HONORIFICS ==
+                prefs.getInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_HONORIFICS)) {
+            params.put("altsub", "yes");
+        } else {
+            params.put("altsub", "no");
+        }
+
+        return params;
+    }
+
+
     private void reinitializePlayer(String query){
 
         HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
@@ -487,26 +531,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 releaseMediaPlayer();
                 String url = VideoUrl.getUrl(result);
                 mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
-//                if (isPremiumFilm(currentTitle)) {
-//                    if (userIsAGuest()) {
-//                        handler.postDelayed(rewinder, REWINDER_INTERVAL);
-//                    }
-//                }
 
                 mPlayer.setPlayWhenReady(true);
 
-                    TextView title = findViewById(R.id.film_name);
-                    title.setText(formatTitle());
-
-                //mHideHandler.postDelayed(playerRestarter,4000);
-                on_off = true;
+                updateDisplayedTitle();
 
             }
 
             @Override
             public void onFailure(VolleyError volleyError) {
-                //mHideHandler.postDelayed(playerRestarter,4000);
-                on_off = true;
+                restartHandler.postDelayed(playerRestarter,4000);
             }
         });
 
@@ -600,7 +634,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void setUpInterEpisodeNavigation() {
 
-        if(episodes == 1) {
+        if(episodeCount == 1) {
             hidePreviousAndNextButtons();
             return;
         }
@@ -612,8 +646,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         final AppCompatActivity ac = this;
         final VideoData video = getIntent().getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
 //
-//        next.setOnClickListener(newEpisodeListener(ac, video, 1));
-//        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
+        next.setOnClickListener(newEpisodeListener(ac, video, 1));
+        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
     }
 
     private void hidePreviousAndNextButtons() {
@@ -624,19 +658,19 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         previous.setVisibility(View.INVISIBLE);
     }
 
-    private boolean isPremiumFilm(String title) {
+    private boolean isTheatricalFilm(String title) {
         if (title.contains("Amagi")){
             return false;
         }
         return true;
     }
 
+
     @Override
     public void onPause(){
         super.onPause();
+        clearHandlers();
         haltPlayback();
-        mHideHandler.removeCallbacksAndMessages(null);
-        //mHideHandler.removeCallbacks(playerRestarter);
     }
 
 
@@ -648,12 +682,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void releaseMediaPlayer() {
-//        if (rewinder != null) {
-//            handler.removeCallbacks(rewinder);
-//        }
-//        if (hideUi != null) {
-//            handler.removeCallbacks(hideUi);
-//        }
+        clearHandlers();
         if (mPlayer!= null) {
             mPlayer.stop();
             mPlayer.release();
@@ -661,73 +690,67 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        releaseMediaPlayer();
-//        mHideHandler.removeCallbacks(playerRestarter);
-//        playerRestarter = null;
-//        finish();
-//    }
 
-    private boolean checkEpisodes(int newEpisode){
-        boolean isOk = false;
-
-        if (currentEpisode + newEpisode <= episodes && currentEpisode + newEpisode >= 1) {
-            isOk = true;
-        }
-
-        return isOk;
+    private void clearHandlers() {
+        rewindHandler.removeCallbacksAndMessages(null);
+        restartHandler.removeCallbacksAndMessages(null);
+        hideHandler.removeCallbacksAndMessages(null);
     }
 
-    private void changeCurrentEpisodes(int change) {
+
+    private boolean canShiftByThisManyEpisodes(int episodeShift) {
+        return (currentEpisode + episodeShift <= episodeCount &&
+                currentEpisode + episodeShift >= 1);
+    }
+
+    private void changeCurrentEpisode(int change) {
         currentEpisode += change;
     }
 
 
-//    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity, final VideoData video, final int newEpisode) {
-//        return new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (checkEpisodes(newEpisode)) {
-//
-//                    String url =
-//                            video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
-//                                    (currentEpisode + newEpisode) + "?altsub=no&sd=no";
-//
-//                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
-//
-//                        @Override
-//                        public void onSuccess(String result) {
-//                            currentTitle = video.formatFullTitle();
-//                            currentUrl = video.getVideoUrl()
-//                                    .substring(0, video.getVideoUrl().length() - 2) +
-//                                    (currentEpisode + newEpisode);
-//
-//                            releaseMediaPlayer();
-//                            String url = VideoUrl.getUrl(result);
-//                            mPlayer = createPlayer(VideoSourcesKt
-//                                    .prepareFromAsset(activity, url, video.getTitle()));
-//
-//                            mPlayer.setPlayWhenReady(true);
-//
-//                            changeCurrentEpisodes(newEpisode);
-//                            TextView title = findViewById(R.id.film_name);
-//                            title.setText(video.getTitle() + " odc. " + currentEpisode);
-//                            mHideHandler.postDelayed(playerRestarter, 4000);
-//                            on_off = true;
-//                        }
-//
-//                        @Override
-//                        public void onFailure(VolleyError volleyError) {
-//                            mHideHandler.postDelayed(playerRestarter, 4000);
-//                            on_off = true;
-//                        }
-//                    });
-//
-//                }
-//
-//            }
-//        };
-//    }
+    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity,
+                                                    final VideoData video, final int episodeShift) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (canShiftByThisManyEpisodes(episodeShift)) {
+
+                    String query = buildQueryString(loadTranslationPreference());
+                    String url =
+                            video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
+                                    (currentEpisode + episodeShift) + query;
+
+                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
+
+                        @Override
+                        public void onSuccess(String result) {
+                            currentTitle = video.formatFullTitle();
+                            currentUrl = video.getVideoUrl()
+                                    .substring(0, video.getVideoUrl().length() - 2) +
+                                    (currentEpisode + episodeShift);
+
+                            releaseMediaPlayer();
+                            String url = VideoUrl.getUrl(result);
+                            mPlayer = createPlayer(VideoSourcesKt
+                                    .prepareFromAsset(activity, url, video.getTitle()));
+
+                            mPlayer.setPlayWhenReady(true);
+
+                            changeCurrentEpisode(episodeShift);
+                            updateDisplayedTitle();
+                            hideHandler.postDelayed(playerRestarter, 4000);
+                        }
+
+                        @Override
+                        public void onFailure(VolleyError volleyError) {
+                            hideHandler.postDelayed(playerRestarter, 4000);
+                        }
+                    });
+
+                }
+
+            }
+        };
+    }
 
 }

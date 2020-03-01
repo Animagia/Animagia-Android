@@ -22,7 +22,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.CookieRequest;
-import pl.animagia.user.Cookies;
+import pl.animagia.user.AccountStatus;
+import pl.animagia.user.CookieStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +86,9 @@ public class FilesFragment extends TopLevelFragment {
     private boolean isLogged(){
         boolean logIn = false;
 
-        String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
         System.out.println(cookie);
-        if (!cookie.equals(Cookies.COOKIE_NOT_FOUND)){
+        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
         }
 
@@ -113,7 +114,7 @@ public class FilesFragment extends TopLevelFragment {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        Cookies.removeCookie(Cookies.LOGIN, getActivity());
+                                        CookieStorage.clearLoginCredentials(getActivity());
                                         ((MainActivity) getActivity()).getSupportActionBar().setTitle("Oglądaj");
                                         ((MainActivity) getActivity()).activateFragment(new LoginFragment());
                                     }
@@ -139,7 +140,7 @@ public class FilesFragment extends TopLevelFragment {
                 }
             });
             if(getActivity() != null){
-                String cookie = Cookies.getCookie(Cookies.LOGIN, getActivity());
+                String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
                 stringRequest.setCookies(cookie);
                 queue.add(stringRequest);
             }
@@ -149,12 +150,20 @@ public class FilesFragment extends TopLevelFragment {
     }
 
     private void onAccountPageFetched(String accountPageHtml) {
+
+        AccountStatus accountStatus = AccountFragment.extractAccountStatus(accountPageHtml);
+        CookieStorage.saveAccountStatus(getActivity(), accountStatus);
+
+
         this.downloadAnchors = getDownloadAnchors(accountPageHtml);
+        List<String> fileNames = getDownloadableFileNames(downloadAnchors);
+
+        CookieStorage.saveNamesOfPurchasedFiles(getActivity(), fileNames);
 
         ListView lv = null;
         if(getActivity() != null){
             lv = getView().findViewById(R.id.file_listview);
-            lv.setAdapter(new DownloadableFileAdapter(getActivity(), generateAccountListNames()));
+            lv.setAdapter(new DownloadableFileAdapter(getActivity(), fileNames));
         }
 
 
@@ -165,8 +174,9 @@ public class FilesFragment extends TopLevelFragment {
                                             int position,
                                             long id) {
                         if(downloadAnchors.size() > 0){
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(extractUrl(
-                                    downloadAnchors.get(position))));
+                            Intent browserIntent =
+                                    new Intent(Intent.ACTION_VIEW, Uri.parse(extractUrl(
+                                            downloadAnchors.get(position))));
                             startActivity(browserIntent);
                         }
 
@@ -175,10 +185,9 @@ public class FilesFragment extends TopLevelFragment {
         if(getActivity() != null && lv != null){
             lv.setOnItemClickListener(itemClickListener);
         }
-
     }
 
-    public static List<String> getDownloadAnchors(String accountPageHtml) {
+    static List<String> getDownloadAnchors(String accountPageHtml) {
         List<String> downloadUrls = new ArrayList<>();
         Matcher m = Pattern.compile("href=\"https:\\/\\/(static|animagia-dl).*?video\\/ddl.*?\">.*?</a")
                 .matcher(accountPageHtml);
@@ -200,12 +209,14 @@ public class FilesFragment extends TopLevelFragment {
         return anchorHtml.substring(start, end);
     }
 
-    private List<String> generateAccountListNames() {
-        List<String> accountLinks = new ArrayList<>();
-        for(int j = 0; j< downloadAnchors.size(); j++){
-            accountLinks.add(extractFileName(downloadAnchors.get(j)));
+    static List<String> getDownloadableFileNames(List<String> downloadAnchorsAsHtml) {
+        List<String> fileNames = new ArrayList<>();
+
+        for (String anchorHtml : downloadAnchorsAsHtml) {
+            fileNames.add(extractFileName(anchorHtml));
         }
-        return accountLinks;
+
+        return fileNames;
     }
 
 }

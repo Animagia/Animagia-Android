@@ -1,18 +1,14 @@
 package pl.animagia;
 
 
-import android.Manifest;
-
 import android.content.Context;
 import android.content.DialogInterface;
-import android.inputmethodservice.Keyboard;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,10 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pl.animagia.error.Alerts;
-import pl.animagia.html.CookieRequest;
-import pl.animagia.user.Cookies;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
+import pl.animagia.user.CookieStorage;
 
 /**
  * A login screen that offers login via email/password.
@@ -126,7 +119,7 @@ public class LoginFragment extends Fragment {
                         int firstIndex = rawCookies.indexOf(";");
                         String cookie = rawCookies.substring(0, firstIndex);
                         if(cookie.startsWith("wordpress_logged_in")) {
-                            Cookies.setCookie(Cookies.LOGIN, cookie, getActivity());
+                            CookieStorage.setCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie, getActivity());
                             activateFragment(new CatalogFragment());
                             emailTextView.setText(email);
                         }

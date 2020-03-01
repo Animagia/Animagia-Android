@@ -1,21 +1,18 @@
 package pl.animagia;
 
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
-import pl.animagia.user.Cookies;
+import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoUrl;
 
 
@@ -32,7 +29,7 @@ public class HTMLTest {
     private String videoUrlWithGoodToken = "";
     private final String firstUrl = "https://animagia.pl/";
     private final String secondUrl = "https://animagia.pl/";
-    private final String cookie = Cookies.LOGIN;
+    private final String cookie = CookieStorage.LOGIN_CREDENTIALS_KEY;
 
 
 
@@ -48,7 +45,7 @@ public class HTMLTest {
         fragment = new CatalogFragment();
         rule.getActivity().getSupportFragmentManager().beginTransaction().add(R.id.frame_for_content, fragment).commitAllowingStateLoss();
         final CountDownLatch signalBad = new CountDownLatch(1);
-        HTML.getHtmlCookie(url, InstrumentationRegistry.getContext(), Cookies.COOKIE_NOT_FOUND, new VolleyCallback() {
+        HTML.getHtmlCookie(url, InstrumentationRegistry.getContext(), CookieStorage.COOKIE_NOT_FOUND, new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 videoUrlWithBadToken =  VideoUrl.getUrl(result);

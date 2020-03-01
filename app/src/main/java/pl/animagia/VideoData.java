@@ -59,7 +59,7 @@ public class VideoData implements Parcelable {
         return videoUrl;
     }
 
-    public int getEpisodes() {
+    public int getEpisodeCount() {
         return episodes;
     }
 
