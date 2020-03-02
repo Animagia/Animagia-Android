@@ -122,7 +122,7 @@ public class PurchaseHelper {
 
             //Purchase p = list.get(0);
 
-            //TokenStorage.storePurchase(ma, PurchasableAnime.KNK_PAST, p);
+            //TokenStorage.storePurchase(ma, ANIME.KNK_PAST, p);
 
             //Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
 
@@ -149,16 +149,6 @@ public class PurchaseHelper {
                 return; //FIXME
             }
         });
-    }
-
-
-    public enum PurchasableAnime {
-        KNK_PAST,
-        KNK_FUTURE,
-        CHU2,
-        AMAGI,
-        TAMAKO,
-        HANAIRO
     }
 
 }

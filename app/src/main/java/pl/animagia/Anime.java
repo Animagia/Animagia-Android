@@ -1,6 +1,6 @@
 package pl.animagia;
 
-enum Anime {
+public enum Anime {
 
     CHUUNIBYOU("Take On Me",
             "https://static.animagia.pl/Chuu_poster.jpg",

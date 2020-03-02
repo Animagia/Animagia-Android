@@ -344,11 +344,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             return true;
         }
 
-        Set<String> locallyPurchasedFiles = TokenStorage.getNamesOfLocallyPurchasedFiles(this);
+        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(this)) {
+            if(anime.formatFullTitle().equals(currentTitle)) {
+                return true;
+            }
+        }
 
         return CookieStorage.getNamesOfFilesPurchasedByAccount(this).toString()
-                .contains(currentTitle);
+                .contains(currentTitle.split(" ")[0]);
     }
+
 
     private boolean userIsAGuest() {
         return cookie.equals(CookieStorage.COOKIE_NOT_FOUND);
