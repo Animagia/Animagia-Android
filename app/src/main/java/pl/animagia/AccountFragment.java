@@ -157,7 +157,7 @@ public class AccountFragment extends TopLevelFragment {
 
         List<String> downloadAnchors = FilesFragment.getDownloadAnchors(accountPageHtml);
         List<String> fileNames = FilesFragment.getDownloadableFileNames(downloadAnchors);
-        CookieStorage.saveNamesOfPurchasedFiles(getActivity(), fileNames);
+        CookieStorage.saveNamesOfFilesPurchasedByAccount(getActivity(), fileNames);
 
         TextView textView = getView().findViewById(R.id.files);
         textView.setText(accountStatus.getFriendlyName());

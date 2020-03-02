@@ -16,13 +16,13 @@ import com.bumptech.glide.Glide;
 public class SingleProductFragment extends Fragment {
 
     enum ArgumentKeys {
-        videoData
+        ANIME
     }
 
-    public static SingleProductFragment newInstance(VideoData vd) {
+    public static SingleProductFragment newInstance(Anime anime) {
 
         Bundle args = new Bundle();
-        args.putParcelable(ArgumentKeys.videoData.name(), vd);
+        args.putString(ArgumentKeys.ANIME.name(), anime.name());
 
         SingleProductFragment fragment = new SingleProductFragment();
         fragment.setArguments(args);
@@ -49,7 +49,7 @@ public class SingleProductFragment extends Fragment {
             }
         });
 
-        VideoData vd = getArguments().getParcelable(ArgumentKeys.videoData.name());
+        Anime vd = Anime.valueOf(getArguments().getString(ArgumentKeys.ANIME.name()));
 
         TextView title = view.findViewById(R.id.product_title);
         title.setText(vd.formatFullTitle());

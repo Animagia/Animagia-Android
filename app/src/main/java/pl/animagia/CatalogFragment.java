@@ -73,11 +73,11 @@ public class CatalogFragment extends TopLevelFragment {
     }
 
 
-    private void launchPlayback(final VideoData videoData) {
+    private void launchPlayback(final Anime videoData) {
         final String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
 
         Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-        intent.putExtra(VideoData.NAME_OF_INTENT_EXTRA, videoData);
+        intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData);
         intent.putExtra(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
 
         startActivity(intent);

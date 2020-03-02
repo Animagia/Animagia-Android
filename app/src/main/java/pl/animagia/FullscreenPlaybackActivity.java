@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
+import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoSourcesKt;
@@ -120,7 +121,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         control = this;
         Intent intent = getIntent();
-        final VideoData video = intent.getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+        final Anime video = intent.getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
         cookie = intent.getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
@@ -155,7 +156,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void startPlaybackFlow(final VideoData vd) {
+    private void startPlaybackFlow(final Anime vd) {
         HTML.getHtmlCookie(vd.getVideoUrl(), this, cookie, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
@@ -196,7 +197,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void prepareForPlayback(VideoData video, String url) {
+    private void prepareForPlayback(Anime video, String url) {
         episodeCount = video.getEpisodeCount();
         currentEpisode = 1;
         currentTitle = video.formatFullTitle();
@@ -337,17 +338,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private boolean userBoughtAccessToFilm() {
-        if(userIsAGuest()) {
-            return false;
-        }
-
         String currentPremiumStatus = CookieStorage.getAccountStatus(this);
         if (AccountStatus.ACTIVE.getFriendlyName().equals(currentPremiumStatus) ||
                 AccountStatus.EXPIRING.getFriendlyName().equals(currentPremiumStatus)) {
             return true;
         }
 
-        return CookieStorage.getNamesOfPurchasedFiles(this).toString().contains(currentTitle);
+        Set<String> locallyPurchasedFiles = TokenStorage.getNamesOfLocallyPurchasedFiles(this);
+
+        return CookieStorage.getNamesOfFilesPurchasedByAccount(this).toString()
+                .contains(currentTitle);
     }
 
     private boolean userIsAGuest() {
@@ -644,7 +644,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View previous = controlView.findViewById(R.id.previous_episode);
 
         final AppCompatActivity ac = this;
-        final VideoData video = getIntent().getParcelableExtra(VideoData.NAME_OF_INTENT_EXTRA);
+        final Anime video = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
 //
         next.setOnClickListener(newEpisodeListener(ac, video, 1));
         previous.setOnClickListener(newEpisodeListener(ac, video, -1));
@@ -709,7 +709,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private View.OnClickListener newEpisodeListener(final AppCompatActivity activity,
-                                                    final VideoData video, final int episodeShift) {
+                                                    final Anime video, final int episodeShift) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {

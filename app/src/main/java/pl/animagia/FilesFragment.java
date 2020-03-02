@@ -158,7 +158,7 @@ public class FilesFragment extends TopLevelFragment {
         this.downloadAnchors = getDownloadAnchors(accountPageHtml);
         List<String> fileNames = getDownloadableFileNames(downloadAnchors);
 
-        CookieStorage.saveNamesOfPurchasedFiles(getActivity(), fileNames);
+        CookieStorage.saveNamesOfFilesPurchasedByAccount(getActivity(), fileNames);
 
         ListView lv = null;
         if(getActivity() != null){

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 public class VideoDataTest {
 
-    private VideoData shake;
+    private Anime shake;
     private String title = "Shake-chan";
     private String poster = "shake.jpg";
     private String video = "syake.mkv";
@@ -15,7 +15,7 @@ public class VideoDataTest {
 
     @Before
     public void setUp() throws Exception {
-        shake = new VideoData(title, poster, video, numberOfEpisodes);
+        shake = new Anime(title, poster, video, numberOfEpisodes);
     }
 
     @Test

@@ -1,13 +1,10 @@
 package pl.animagia;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -22,7 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 
-public class ProductAdapter extends ArrayAdapter<VideoData> {
+public class ProductAdapter extends ArrayAdapter<Anime> {
 
     public ProductAdapter(Context context) {
         super(context, R.layout.product_card, R.id.product_title, VideoThumbnailAdapter.prepareVideos());

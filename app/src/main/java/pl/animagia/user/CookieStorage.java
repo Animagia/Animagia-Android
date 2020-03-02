@@ -33,14 +33,15 @@ public class CookieStorage {
     }
 
 
-    public static void saveNamesOfPurchasedFiles(Activity activity, Collection<String> names)  {
+    public static void saveNamesOfFilesPurchasedByAccount(Activity activity,
+                                                          Collection<String> names) {
         SharedPreferences.Editor editor = activity.getPreferences(Context.MODE_PRIVATE).edit();
         editor.putStringSet(PURCHASED_FILES_KEY, new HashSet<>(names));
         editor.apply();
     }
 
 
-    public static Set<String> getNamesOfPurchasedFiles(Activity activity) {
+    public static Set<String> getNamesOfFilesPurchasedByAccount(Activity activity) {
         SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
         return prefs.getStringSet(PURCHASED_FILES_KEY, Collections.<String>emptySet());
     }
