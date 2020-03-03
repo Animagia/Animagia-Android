@@ -22,14 +22,13 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
     }
 
     static Anime[] prepareVideos() {
-
         int totalTitles = 6;
 
         if (appIsOutdated()) {
             totalTitles = 0;
         }
 
-        Anime[] fullArr = (Anime[]) new ArrayList<>(EnumSet.allOf(Anime.class)).<Anime>toArray();
+        Anime[] fullArr = new ArrayList<>(EnumSet.allOf(Anime.class)).toArray(new Anime[0]);
 
         return Arrays.copyOfRange(fullArr, 0, totalTitles);
     }

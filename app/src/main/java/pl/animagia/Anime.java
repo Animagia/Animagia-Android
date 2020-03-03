@@ -133,12 +133,21 @@ public enum Anime {
 
     @Override
     public String toString() {
-        return title;
+        return formatFullTitle();
     }
 
 
+    static Anime forSku(String sku) {
+        for (Anime anime : values()) {
+            if(anime.name().equalsIgnoreCase(sku)) {
+                return anime;
+            }
+        }
+
+        throw new IllegalArgumentException("No anime exists with SKU: " + sku);
+    }
+
 
     static final String NAME_OF_INTENT_EXTRA = "video data";
-    static final String NAME_OF_URL = "video url";
 
 }

@@ -40,7 +40,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
 
 
-    private static final int REWINDER_INTERVAL = 800;
+    private static final int REWINDER_INTERVAL = 1200;
     private static final int RESTARTER_INTERVAL = 4000;
     private PlayerView mMainView;
     private ImageButton forwardPlayerButton, rewindPlayerButton;
@@ -54,8 +54,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private String timeStampUnconverted;
     private String [] timeStamps;
-
-    private AppCompatActivity control;
 
     private String cookie;
 
@@ -86,9 +84,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
     };
-//
-//    final Handler handler = new Handler();
-//
+
     private final Runnable rewinder = new Runnable()
     {
         public void run()
@@ -102,16 +98,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
         }
     };
-//
-//    final Runnable hideUi = new Runnable()
-//    {
-//        public void run()
-//        {
-//            if(mPlayer.getPlayWhenReady() && mPlayer.getPlaybackState() == Player.STATE_READY) {
-//                hideSystemUi();
-//            }
-//        }
-//    };
+
     private long lastTimeSystemUiWasBroughtBack;
     private boolean subtitleChangesAllowed = false;
 
@@ -119,40 +106,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        control = this;
+
         Intent intent = getIntent();
-        final Anime video = intent.getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
+        final Anime video = Anime.valueOf(intent.getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
         cookie = intent.getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
         startPlaybackFlow(video);
-
-
-//        HTML.getHtmlCookie("https://animagia.pl/", this, cookie, new VolleyCallback() {
-//            @Override
-//            public void onSuccess(String result) {
-//                prepareForPlayback(video, url);
-//            }
-//
-//            @Override
-//            public void onFailure(VolleyError volleyError) {
-//                DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        prepareForPlayback(video, url);
-//                    }
-//                };
-//
-//                if (volleyError instanceof NoConnectionError) {
-//                    Alerts.internetConnectionError(FullscreenPlaybackActivity.this,
-//                            onClickTryAgain);
-//                }
-//            }
-//        });
-
-
     }
 
 
@@ -249,14 +211,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady && playbackState == Player.STATE_READY) {
-                    hideHandler.removeCallbacksAndMessages(null);
-                    hideHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mMainView.hideController();
-                            hideSystemUi();
-                        }
-                    }, 2000);
+                    onPlayerStartedPlaying();
                 }
             }
         });
@@ -394,33 +349,20 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         play.performClick();
 
         restartHandler.postDelayed(playerRestarter, RESTARTER_INTERVAL);
-
-        rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//
-//        if(firstOnStart){
-//            mHideHandler = new Handler();
-//            firstOnStart = false;
-//        }
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        mHideHandler.removeCallbacks(playerRestarter);
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//
-//        mHideHandler.removeCallbacks(playerRestarter);
-//        playerRestarter = null;
-//    }
+
+    private void onPlayerStartedPlaying() {
+        hideHandler.removeCallbacksAndMessages(null);
+        hideHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMainView.hideController();
+                hideSystemUi();
+            }
+        }, 2000);
+        rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
+    }
 
 
     private void createSpinners() {
@@ -535,7 +477,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 releaseMediaPlayer();
                 String url = VideoUrl.getUrl(result);
-                mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(control, url, currentTitle));
+                mPlayer = createPlayer(VideoSourcesKt
+                        .prepareFromAsset(FullscreenPlaybackActivity.this, url, currentTitle));
 
                 mPlayer.setPlayWhenReady(true);
 
@@ -649,7 +592,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View previous = controlView.findViewById(R.id.previous_episode);
 
         final AppCompatActivity ac = this;
-        final Anime video = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
+        final Anime video = Anime.valueOf(getIntent().getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
 //
         next.setOnClickListener(newEpisodeListener(ac, video, 1));
         previous.setOnClickListener(newEpisodeListener(ac, video, -1));

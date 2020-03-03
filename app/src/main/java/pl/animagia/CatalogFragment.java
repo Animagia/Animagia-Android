@@ -77,7 +77,7 @@ public class CatalogFragment extends TopLevelFragment {
         final String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
 
         Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-        intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData);
+        intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData.name());
         intent.putExtra(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
 
         startActivity(intent);

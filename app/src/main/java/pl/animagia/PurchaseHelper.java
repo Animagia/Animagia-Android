@@ -3,11 +3,13 @@ package pl.animagia;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.widget.Toast;
 import com.android.billingclient.api.*;
 import com.android.volley.VolleyError;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
+import pl.animagia.token.TokenStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,24 +88,6 @@ public class PurchaseHelper {
     }
 
 
-    public static void showDialog(final MainActivity activity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-        builder.setMessage(R.string.start_iap);
-
-        builder.setNegativeButton(R.string.return_from_dialog, null);
-        builder.setPositiveButton(R.string.continue_from_dialog,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startPurchase(activity);
-
-                    }
-                });
-
-        builder.show();
-    }
-
     private static class DummyListener implements PurchasesUpdatedListener {
         private final MainActivity ma;
 
@@ -114,18 +98,14 @@ public class PurchaseHelper {
         @Override
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
 
+            for (Purchase purchase :  list ) {
+                if(Purchase.PurchaseState.PURCHASED == purchase.getPurchaseState()) {
+                    TokenStorage.storePurchase(ma, Anime.forSku(purchase.getSku()), purchase);
+                    return;
+                }
+            }
 
-            String combo = new TokenAssembly().assembleCombinedToken("purchaseToken", "orderId");
-
-            getDdlLink(ma, combo);
-
-
-            //Purchase p = list.get(0);
-
-            //TokenStorage.storePurchase(ma, ANIME.KNK_PAST, p);
-
-            //Toast.makeText(ma, "Purchases updated: " + list, Toast.LENGTH_LONG).show();
-
+            Toast.makeText(ma, "Coś poszło nie tak.", Toast.LENGTH_SHORT).show();
         }
     }
 
