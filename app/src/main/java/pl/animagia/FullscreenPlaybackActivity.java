@@ -2,7 +2,6 @@ package pl.animagia;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
+import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
@@ -48,7 +48,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private int episodeCount;
     private int currentEpisode;
     private String currentTitle;
-    private String currentUrl;
+    private String currentVideoPageUrl;
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
@@ -107,23 +107,30 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
-        final Anime video = Anime.valueOf(intent.getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
-        cookie = intent.getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
+        Anime anime = Anime.valueOf(getIntent().getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
+        cookie = getIntent().getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
 
-        startPlaybackFlow(video);
+        startPlaybackFlow(anime);
     }
 
 
-    private void startPlaybackFlow(final Anime vd) {
-        HTML.getHtmlCookie(vd.getVideoUrl(), this, cookie, new VolleyCallback() {
+    private void startPlaybackFlow(final Anime anime) {
+
+        String videoPageUrl = anime.getVideoUrl();
+
+        if(TokenStorage.getLocallyPurchasedAnime(this).contains(anime)) {
+            String token = TokenStorage.getCombinedToken(this, anime);
+            videoPageUrl = TokenAssembly.URL_BASE + token;
+        }
+
+        HTML.getHtmlCookie(videoPageUrl, this, cookie, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
-                String url1 = VideoUrl.getUrl(result);
-                prepareForPlayback(vd, url1);
+                String videoSourceUrl = VideoUrl.getUrl(result);
+                prepareForPlayback(anime, videoSourceUrl);
             }
 
             @Override
@@ -131,7 +138,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startPlaybackFlow(vd);
+                        startPlaybackFlow(anime);
                     }
                 };
                 AlertDialog dialog = new AlertDialog.Builder(FullscreenPlaybackActivity.this)
@@ -159,11 +166,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void prepareForPlayback(Anime video, String url) {
+    private void prepareForPlayback(Anime video, String videoSourceUrl) {
         episodeCount = video.getEpisodeCount();
         currentEpisode = 1;
         currentTitle = video.formatFullTitle();
-        currentUrl = video.getVideoUrl();
+        currentVideoPageUrl = video.getVideoUrl();
 
         updateDisplayedTitle();
 
@@ -192,7 +199,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         listenToSystemUiChanges();
 
-        mPlayer = createPlayer(VideoSourcesKt.prepareFromAsset(this, url, video.getTitle()));
+        mPlayer = createPlayer(
+                VideoSourcesKt.prepareFromAsset(this, videoSourceUrl, video.getTitle()));
 
         createSpinners();
 
@@ -471,7 +479,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void reinitializePlayer(String query){
 
-        HTML.getHtmlCookie(currentUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
+        HTML.getHtmlCookie(currentVideoPageUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
 
             @Override
             public void onSuccess(String result) {
@@ -673,7 +681,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(String result) {
                             currentTitle = video.formatFullTitle();
-                            currentUrl = video.getVideoUrl()
+                            currentVideoPageUrl = video.getVideoUrl()
                                     .substring(0, video.getVideoUrl().length() - 2) +
                                     (currentEpisode + episodeShift);
 
