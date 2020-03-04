@@ -39,6 +39,9 @@
     powiązany\nz płatnością, dzięki czemu nic nie przepadnie.</string>
     <string name="no_account_needed_short">Żeby oglądać anime dostępne bezpłatnie,
         nie musisz zakładać konta.</string>
+    <string name="have_locally_purchased_anime">Masz anime zakupione w aplikacji.</string>
+    <string name="can_bind_anime_to_account">Możesz powiązać je z kontem
+        dla wygodnego dostępu z innych urządzeń.</string>
 
     <string name="concise_info">Korzystanie z naszej aplikacji bez logowania się na konto
         nie wymaga akceptacji regulaminu, w takim przypadku nie zbieramy też
