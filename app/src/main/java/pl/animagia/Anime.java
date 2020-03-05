@@ -133,7 +133,7 @@ public enum Anime {
 
     @Override
     public String toString() {
-        return formatFullTitle();
+        return getTitle();
     }
 
 

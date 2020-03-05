@@ -40,34 +40,40 @@ public class SingleProductFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button btn = view.findViewById(R.id.buy_film_button);
+        final Anime anime = Anime.valueOf(getArguments().getString(ArgumentKeys.ANIME.name()));
 
+        Button btn = view.findViewById(R.id.buy_film_button);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "hello", Toast.LENGTH_SHORT).show();
+                startPurchase(anime);
             }
         });
 
-        Anime vd = Anime.valueOf(getArguments().getString(ArgumentKeys.ANIME.name()));
 
         TextView title = view.findViewById(R.id.product_title);
-        title.setText(vd.formatFullTitle());
+        title.setText(anime.formatFullTitle());
 
         ImageView preview = view.findViewById(R.id.product_preview);
         Glide.with(getContext())
-                .load(vd.getThumbnailAsssetUri())
+                .load(anime.getThumbnailAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                 .into(preview);
 
         ImageView poster = view.findViewById(R.id.product_poster_image);
         Glide.with(getContext())
-                .load(vd.getPosterAsssetUri())
+                .load(anime.getPosterAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
                 .into(poster);
 
 
     }
+
+
+    private void startPurchase(Anime anime) {
+        PurchaseHelper.startPurchase((MainActivity) getActivity(), anime);
+    }
+
 
     @Override
     public void onResume() {

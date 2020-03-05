@@ -1,8 +1,6 @@
 package pl.animagia;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.widget.Toast;
 import com.android.billingclient.api.*;
 import com.android.volley.VolleyError;
@@ -22,11 +20,11 @@ public class PurchaseHelper {
     }
 
 
-    private static void startPurchase(final MainActivity ma) {
+    static void startPurchase(final MainActivity ma, final Anime anime) {
 
         BillingClient.Builder builder = BillingClient.newBuilder(ma);
         builder.enablePendingPurchases();
-        builder.setListener(new DummyListener(ma));
+        builder.setListener(new AnimePurchaseListener(ma));
 
         ma.billingClient = builder.build();
 
@@ -37,11 +35,7 @@ public class PurchaseHelper {
                     // The BillingClient is ready. You can query purchases here.
 
                     List<String> skuList = new ArrayList<>();
-                    skuList.add("android.test.canceled");
-                    skuList.add("android.test.purchased");
-                    skuList.add("android.test.item_unavailable");
-                    skuList.add("knk_past");
-                    skuList.add("hanairo");
+                    skuList.add(anime.name().toLowerCase());
                     SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
                     params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
                     ma.billingClient.querySkuDetailsAsync(params.build(),
@@ -56,7 +50,7 @@ public class PurchaseHelper {
                                         for (SkuDetails skuDetails : skuDetailsList) {
                                             String sku = skuDetails.getSku();
                                             String price = skuDetails.getPrice();
-                                            if ("android.test.canceled".equals(sku)) {
+                                            if (anime.name().equalsIgnoreCase(sku)) {
                                                 com.android.billingclient.api.BillingFlowParams
                                                         flowParams =
                                                         BillingFlowParams.newBuilder()
@@ -66,7 +60,7 @@ public class PurchaseHelper {
                                                 ma.billingClient
                                                         .launchBillingFlow(ma, flowParams);
 
-
+                                                break;
                                             }
                                         }
                                     }
@@ -88,10 +82,10 @@ public class PurchaseHelper {
     }
 
 
-    private static class DummyListener implements PurchasesUpdatedListener {
+    private static class AnimePurchaseListener implements PurchasesUpdatedListener {
         private final MainActivity ma;
 
-        public DummyListener(MainActivity ma) {
+        public AnimePurchaseListener(MainActivity ma) {
             this.ma = ma;
         }
 
