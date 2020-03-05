@@ -4,53 +4,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/emptyAccountHint"
+        android:id="@+id/productsPurchasedLocallyHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_account_needed_short"
+        android:text="@string/have_locally_purchased_anime"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/goToShopFromAccountButton"
+        app:layout_constraintBottom_toTopOf="@+id/productsCanBeBoundHint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <Button
-        android:visibility="gone"
-        android:id="@id/goToShopFromAccountButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Przejdź do sklepu"
-        app:layout_constraintBottom_toTopOf="@+id/emptyAccountLinkHint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emptyAccountHint"
-        app:layout_constraintVertical_chainStyle="packed"
-        style="@style/lowProfileButton"
-        android:layout_marginTop="4dp"/>
-
     <TextView
-        android:id="@id/emptyAccountLinkHint"
+        android:id="@id/productsCanBeBoundHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Masz filmy lub usługi zakupione\nwcześniej na naszej stronie?"
+        android:text="@string/can_bind_anime_to_account"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/linkExistingAccountButton"
+        app:layout_constraintBottom_toTopOf="@+id/bindToNewAccountButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/goToShopFromAccountButton"
+        app:layout_constraintTop_toBottomOf="@id/productsPurchasedLocallyHint"
         app:layout_constraintVertical_chainStyle="packed"
         android:layout_marginTop="56dp"/>
 
     <Button
-        android:id="@id/linkExistingAccountButton"
+        android:id="@id/bindToNewAccountButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Importuj z istniejącego konta"
+        android:text="@string/bind_to_new_account"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/productsCanBeBoundHint"
+        app:layout_constraintBottom_toBottomOf="@+id/bindToExistingAccountButton"
+        app:layout_constraintVertical_chainStyle="packed"
+        style="@style/lowProfileButton"
+        android:layout_marginTop="4dp"/>
+
+    <Button
+        android:id="@id/bindToExistingAccountButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bind_to_existing_account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emptyAccountLinkHint"
+        app:layout_constraintTop_toBottomOf="@id/bindToNewAccountButton"
         app:layout_constraintVertical_chainStyle="packed"
         style="@style/lowProfileButton"
         android:layout_marginTop="4dp"/>

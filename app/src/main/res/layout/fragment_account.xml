@@ -5,28 +5,55 @@
     android:layout_height="match_parent"
     tools:context=".FilesFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/catalog_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="5dp">
-    <TextView
-        android:id="@+id/files"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:text=""
-        android:layout_margin="5dp"/>
 
-    <TextView
-        android:id="@+id/email_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"
-        android:text=""
-        android:layout_margin="5dp"/>
+        <TextView
+            android:id="@+id/files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:text=""
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:id="@+id/email_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            android:text=""
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:id="@+id/productsPurchasedLocallyHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/have_locally_purchased_anime"
+            android:textAlignment="center"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/productsCanBeBoundHint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/can_bind_anime_to_account"
+            android:textAlignment="center"
+            android:layout_marginTop="56dp"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/bindToNewAccountButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bind_to_account"
+            style="@style/lowProfileButton"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"/>
+
     </LinearLayout>
+
 </FrameLayout>

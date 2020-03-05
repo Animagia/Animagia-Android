@@ -42,6 +42,9 @@
     <string name="have_locally_purchased_anime">Masz anime zakupione w aplikacji.</string>
     <string name="can_bind_anime_to_account">Możesz powiązać je z kontem
         dla wygodnego dostępu z innych urządzeń.</string>
+    <string name="bind_to_new_account">Załóż konto i powiąż</string>
+    <string name="bind_to_existing_account">Powiąż z istniejącym kontem</string>
+    <string name="bind_to_account">Powiąż z kontem</string>
 
     <string name="concise_info">Korzystanie z naszej aplikacji bez logowania się na konto
         nie wymaga akceptacji regulaminu, w takim przypadku nie zbieramy też

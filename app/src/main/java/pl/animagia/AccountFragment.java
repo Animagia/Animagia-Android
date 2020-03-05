@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.error.Alerts;
 import pl.animagia.html.CookieRequest;
+import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 
@@ -31,8 +32,13 @@ public class AccountFragment extends TopLevelFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        int layoutResource = isLogged() ?
-                R.layout.fragment_account : R.layout.fragment_account_empty; //TODO
+        int layoutResource = R.layout.fragment_account_empty;
+
+        if(userIsLoggedIn()) {
+            layoutResource = R.layout.fragment_account;
+        } else if(TokenStorage.getLocallyPurchasedAnime(getActivity()).size() != 0) {
+            layoutResource = R.layout.fragment_account_with_creation;
+        }
 
         View contents = inflater.inflate(layoutResource, container, false);
 
@@ -46,7 +52,7 @@ public class AccountFragment extends TopLevelFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(isLogged()) {
+        if(userIsLoggedIn()) {
             if(getActivity() != null){
                 getAccountInfo();
             }
@@ -80,16 +86,9 @@ public class AccountFragment extends TopLevelFragment {
         ((MainActivity) getActivity()).activateFragment(new LoginFragment());
     }
 
-    private boolean isLogged(){
-        boolean logIn = false;
-
+    private boolean userIsLoggedIn(){
         String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
-        System.out.println(cookie);
-        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
-            logIn = true;
-        }
-
-        return logIn;
+        return !cookie.equals(CookieStorage.COOKIE_NOT_FOUND);
     }
 
     private void getAccountInfo(){
