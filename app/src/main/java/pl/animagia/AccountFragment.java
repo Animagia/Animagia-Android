@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -49,6 +50,7 @@ public class AccountFragment extends TopLevelFragment {
         return frame;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -56,6 +58,19 @@ public class AccountFragment extends TopLevelFragment {
             if(getActivity() != null){
                 getAccountInfo();
             }
+        } else if(TokenStorage.getLocallyPurchasedAnime(getActivity()).size() != 0) {
+
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                }
+            };
+
+            getView().findViewById(R.id.bindToNewAccountButton).setOnClickListener(listener);
+            getView().findViewById(R.id.bindToExistingAccountButton).setOnClickListener(listener);
+
         } else {
             Button loginButton = getView().findViewById(R.id.linkExistingAccountButton);
             loginButton.setOnClickListener(new View.OnClickListener() {
@@ -75,6 +90,7 @@ public class AccountFragment extends TopLevelFragment {
 
         }
     }
+
 
     @Override
     public void onResume() {
@@ -120,7 +136,7 @@ public class AccountFragment extends TopLevelFragment {
 
                              builder.show();
 
-                        }else{
+                        } else{
                             onAccountPageFetched(s);
                         }
                     }

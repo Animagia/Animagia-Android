@@ -1,5 +1,6 @@
 package pl.animagia;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,7 +20,7 @@ public class SingleProductFragment extends Fragment {
         ANIME
     }
 
-    public static SingleProductFragment newInstance(Anime anime) {
+    static SingleProductFragment newInstance(Anime anime) {
 
         Bundle args = new Bundle();
         args.putString(ArgumentKeys.ANIME.name(), anime.name());
@@ -35,6 +36,7 @@ public class SingleProductFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_single_product, null);
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -53,6 +55,9 @@ public class SingleProductFragment extends Fragment {
 
         TextView title = view.findViewById(R.id.product_title);
         title.setText(anime.formatFullTitle());
+
+        Button buyButton = view.findViewById(R.id.buy_film_button);
+        buyButton.setText(getResources().getString(R.string.buy_for_some_PLN, anime.getPrice()));
 
         ImageView preview = view.findViewById(R.id.product_preview);
         Glide.with(getContext())
