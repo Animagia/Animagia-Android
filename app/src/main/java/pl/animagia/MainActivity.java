@@ -27,8 +27,6 @@ public class MainActivity extends AppCompatActivity
         PopupMenu.OnMenuItemClickListener,
         FragmentManager.OnBackStackChangedListener {
 
-    BillingClient billingClient;
-
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 

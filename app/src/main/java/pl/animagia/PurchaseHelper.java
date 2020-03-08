@@ -26,19 +26,17 @@ public class PurchaseHelper {
         builder.enablePendingPurchases();
         builder.setListener(new AnimePurchaseListener(ma));
 
-        ma.billingClient = builder.build();
+        final BillingClient billingClient = builder.build();
 
-        ma.billingClient.startConnection(new BillingClientStateListener() {
+        billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    // The BillingClient is ready. You can query purchases here.
-
                     List<String> skuList = new ArrayList<>();
                     skuList.add(anime.name().toLowerCase());
                     SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
                     params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
-                    ma.billingClient.querySkuDetailsAsync(params.build(),
+                    billingClient.querySkuDetailsAsync(params.build(),
                             new SkuDetailsResponseListener() {
                                 @Override
                                 public void onSkuDetailsResponse(BillingResult billingResult,
@@ -49,7 +47,6 @@ public class PurchaseHelper {
                                             skuDetailsList != null) {
                                         for (SkuDetails skuDetails : skuDetailsList) {
                                             String sku = skuDetails.getSku();
-                                            String price = skuDetails.getPrice();
                                             if (anime.name().equalsIgnoreCase(sku)) {
                                                 com.android.billingclient.api.BillingFlowParams
                                                         flowParams =
@@ -57,7 +54,7 @@ public class PurchaseHelper {
                                                                 .setSkuDetails(skuDetails)
                                                                 .build();
 
-                                                ma.billingClient
+                                                billingClient
                                                         .launchBillingFlow(ma, flowParams);
 
                                                 break;
@@ -91,8 +88,11 @@ public class PurchaseHelper {
 
         @Override
         public void onPurchasesUpdated(BillingResult billingResult, List<Purchase> list) {
+            if(list == null) {
+                return;
+            }
 
-            for (Purchase purchase :  list ) {
+            for (Purchase purchase : list ) {
                 if(Purchase.PurchaseState.PURCHASED == purchase.getPurchaseState()) {
                     TokenStorage.storePurchase(ma, Anime.forSku(purchase.getSku()), purchase);
                     return;
