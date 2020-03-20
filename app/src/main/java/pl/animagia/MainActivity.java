@@ -19,7 +19,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
-import com.android.billingclient.api.BillingClient;
 import pl.animagia.user.CookieStorage;
 
 public class MainActivity extends AppCompatActivity
@@ -30,7 +29,10 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
-    private SingleProductFragment preservedFragment;
+    private SingleProductFragment fragmentSavedBeforeRotation;
+    private SingleProductFragment optionalFragmentToImmediatelyShow;
+
+    public static String OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW = "productToShow";
 
 
     @Override
@@ -104,10 +106,21 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        if(!rebuildFromFragments(savedInstanceState)) {
+        if(getIntent().hasExtra(OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW)) {
+            Anime a = Anime.valueOf(getIntent().getStringExtra
+                    (OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW));
+            startByShowingProduct(a);
+        } else if(!rebuildFromFragments(savedInstanceState)) {
             activateFragment(new CatalogFragment());
         }
 
+    }
+
+
+    private void startByShowingProduct(Anime a) {
+        optionalFragmentToImmediatelyShow = SingleProductFragment.newInstance(a);
+        ShopFragment shop = new ShopFragment();
+        activateFragment(shop);
     }
 
 
@@ -117,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         }
         for (Fragment f : getSupportFragmentManager().getFragments()) {
             if(f instanceof SingleProductFragment) {
-                preservedFragment = (SingleProductFragment) f;
+                fragmentSavedBeforeRotation = (SingleProductFragment) f;
                 ShopFragment shop = new ShopFragment();
                 activateFragment(shop);
                 return true;
@@ -134,15 +147,22 @@ public class MainActivity extends AppCompatActivity
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
 
-        if (preservedFragment != null) {
+        if(optionalFragmentToImmediatelyShow != null) {
+            changeHomeButtonToArrow();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.frame_for_content, optionalFragmentToImmediatelyShow)
+                    .addToBackStack(null).commit();
+            optionalFragmentToImmediatelyShow = null;
+        } else if (fragmentSavedBeforeRotation != null) {
             changeHomeButtonToArrow();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             //apparently no need to re-add to back stack after orientation change
-            fragmentTransaction.replace(R.id.frame_for_content, preservedFragment)
+            fragmentTransaction.replace(R.id.frame_for_content, fragmentSavedBeforeRotation)
                     .commit();
-            preservedFragment = null;
+            fragmentSavedBeforeRotation = null;
         }
 
     }

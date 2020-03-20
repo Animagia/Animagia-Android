@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
+import pl.animagia.Anime;
+import pl.animagia.FullscreenPlaybackActivity;
+import pl.animagia.MainActivity;
 import pl.animagia.R;
 
 public class Alerts {
@@ -29,11 +32,21 @@ public class Alerts {
                 .show();
     }
 
-    public static void primeVideoError(final Context context){
-        new AlertDialog.Builder(context)
+    public static void primeVideoError(final FullscreenPlaybackActivity fpa, final Anime anime) {
+        new AlertDialog.Builder(fpa)
                 .setCancelable(true)
                 .setMessage(R.string.free_streaming_message)
                 .setNegativeButton(R.string.return_from_dialog, null)
+                .setPositiveButton("Sklep", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent showProductInShop = new Intent(fpa, MainActivity.class);
+                        showProductInShop.putExtra(
+                                MainActivity.OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW,
+                                anime.name());
+                        fpa.startActivity(showProductInShop);
+                    }
+                })
                 .show();
     }
 

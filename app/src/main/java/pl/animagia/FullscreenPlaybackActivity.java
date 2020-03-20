@@ -47,6 +47,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private SimpleExoPlayer mPlayer;
     private int episodeCount;
     private int currentEpisode;
+    private Anime currentAnime;
     private String currentTitle;
     private String currentVideoPageUrl;
 
@@ -92,7 +93,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             long sek = mPlayer.getCurrentPosition();
             if(sek >= previewMilliseconds){
                 mPlayer.seekTo(previewMilliseconds - 1000);
-                Alerts.primeVideoError(FullscreenPlaybackActivity.this);
+                Alerts.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
                 onPause();
             }
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
@@ -169,6 +170,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void prepareForPlayback(Anime video, String videoSourceUrl) {
         episodeCount = video.getEpisodeCount();
         currentEpisode = 1;
+        currentAnime = video;
         currentTitle = video.formatFullTitle();
         currentVideoPageUrl = video.getVideoUrl();
 
@@ -680,6 +682,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                         @Override
                         public void onSuccess(String result) {
+                            currentAnime = video;
                             currentTitle = video.formatFullTitle();
                             currentVideoPageUrl = video.getVideoUrl()
                                     .substring(0, video.getVideoUrl().length() - 2) +
