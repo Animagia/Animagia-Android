@@ -62,13 +62,13 @@ public class SingleProductFragment extends Fragment {
         ImageView preview = view.findViewById(R.id.product_preview);
         Glide.with(getContext())
                 .load(anime.getThumbnailAsssetUri())
-                .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(preview);
 
         ImageView poster = view.findViewById(R.id.product_poster_image);
         Glide.with(getContext())
                 .load(anime.getPosterAsssetUri())
-                .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(poster);
 
 

@@ -52,7 +52,7 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
         ImageView poster = thumbnail.findViewById(R.id.thumbnail_poster);
         Glide.with(getContext())
                 .load(super.getItem(position).getThumbnailAsssetUri())
-                .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(poster);
 
         String filmSubtitle = super.getItem(position).getSubtitle();

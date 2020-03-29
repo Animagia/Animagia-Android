@@ -97,24 +97,25 @@
 
         <ImageView
             android:id="@+id/spinner_subtitles"
-            android:layout_width="5dp"
-            android:layout_height="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="left|center_vertical"
             app:srcCompat="@drawable/ic_subtitles"
-            android:tint="#e0e0e0"/>
+            android:tint="#e0e0e0"
+            android:onClick="crashApp"/>
 
-        <TextView
-            android:id="@+id/film_test_annotation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="left|center_vertical"
-            android:layout_weight="1"
-            android:text="hello"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:paddingRight="4dp"
-            android:textColor="@android:color/white"
-            />
+        <!--<TextView-->
+            <!--android:id="@+id/film_test_annotation"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:gravity="left|center_vertical"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="hello"-->
+            <!--android:maxLines="1"-->
+            <!--android:ellipsize="end"-->
+            <!--android:paddingRight="4dp"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--/>-->
     </LinearLayout>
 	
 </LinearLayout>

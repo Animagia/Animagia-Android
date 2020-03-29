@@ -101,7 +101,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     };
 
     private long lastTimeSystemUiWasBroughtBack;
-    private boolean subtitleChangesAllowed = false;
+    private boolean translationChangesAllowed = false;
 
 
     @Override
@@ -204,14 +204,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         mPlayer = createPlayer(
                 VideoSourcesKt.prepareFromAsset(this, videoSourceUrl, video.getTitle()));
 
-        createSpinners();
+        createSubtitleSelector();
 
         if (isTheatricalFilm(video.getTitle())) {
 
             previewMilliseconds = video.getPreviewMillis();
 
             if (userBoughtAccessToFilm()) {
-               subtitleChangesAllowed = true;
+               translationChangesAllowed = true;
             } else {
                 // handler.postDelayed(rewinder, REWINDER_INTERVAL);
             }
@@ -375,7 +375,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void createSpinners() {
+    private void createSubtitleSelector() {
         View spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
         String[] subtitle = getResources().getStringArray(R.array.subtitles);
         ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
@@ -385,9 +385,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(!translationChangesAllowed) {
+                    Toast.makeText(FullscreenPlaybackActivity.this,
+                            "Bezpłatny podgląd posiada tylko napisy",
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                }
 
                 if (motionEvent.getAction() != MotionEvent.ACTION_UP) {
                     return true;
@@ -397,7 +402,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         new AlertDialog.Builder(FullscreenPlaybackActivity.this);
 
                 builder.setTitle("Wybierz wersję językową");
-                String[] items = {"Napisy „mniej spolszczone”, Napisy „bardziej spolszczone”"};
+                String[] items = {"Napisy „mniej spolszczone”", "Napisy „bardziej spolszczone”"};
                 builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -411,6 +416,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void onTranslationChosen(int which) {
 

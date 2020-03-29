@@ -25,7 +25,7 @@ public class VideoInfoTransferTest {
         final String film_title = "A feature film";
         Anime originalData =
                 new Anime(
-                        film_title, "file:///android_asset/oscar_nord.jpg", "https://animagia.pl",1,
+                        film_title, "file:///android_asset/clapperboard.jpg", "https://animagia.pl",1,
                         "", "", "", "", "", "", "", 1);
         final String url = "http://dl3.webmfiles.org/big-buck-bunny_trailer.webm";
         intent.putExtra("vd-dummy", originalData);

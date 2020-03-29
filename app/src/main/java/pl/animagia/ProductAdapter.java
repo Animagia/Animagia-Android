@@ -43,7 +43,7 @@ public class ProductAdapter extends ArrayAdapter<Anime> {
         } else {
             Glide.with(getContext())
                     .load(super.getItem(position).getPosterAsssetUri())
-                    .error(Glide.with(getContext()).load("file:///android_asset/oscar_nord.jpg"))
+                    .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                     .into(poster);
 
             priceView.setText(super.getItem(position).getPrice());
@@ -55,22 +55,6 @@ public class ProductAdapter extends ArrayAdapter<Anime> {
         return thumbnail;
     }
 
-    private static String getImageUrl(String html) {
-        String line = getImageLine(html);
-
-
-        String customString = "";
-        if (line.equals("")) {
-            customString = "file:///android_asset/oscar_nord.jpg";
-        } else {
-            int firstIndex = line.indexOf("poster=") + "poster=".length() + 1;
-            String subline = line.substring(firstIndex);
-            int last = subline.indexOf("\"") + firstIndex;
-            customString = line.substring(firstIndex, last);
-        }
-
-        return customString;
-    }
 
     private static String getImageLine(String html) {
         Boolean read = true;
