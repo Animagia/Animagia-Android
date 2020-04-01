@@ -15,7 +15,7 @@ public class VideoDataTest {
 
     @Before
     public void setUp() throws Exception {
-        shake = new Anime(title, poster, video, numberOfEpisodes);
+        //shake =
     }
 
     @Test

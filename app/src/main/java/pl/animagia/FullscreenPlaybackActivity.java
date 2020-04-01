@@ -212,8 +212,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
             if (userBoughtAccessToFilm()) {
                translationChangesAllowed = true;
-            } else {
-                // handler.postDelayed(rewinder, REWINDER_INTERVAL);
             }
         }
 

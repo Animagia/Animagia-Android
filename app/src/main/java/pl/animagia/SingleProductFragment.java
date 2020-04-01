@@ -12,9 +12,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.bumptech.glide.Glide;
+import pl.animagia.token.TokenStorage;
+import pl.animagia.user.CookieStorage;
 
 public class SingleProductFragment extends Fragment {
+
 
     enum ArgumentKeys {
         ANIME
@@ -44,20 +48,21 @@ public class SingleProductFragment extends Fragment {
 
         final Anime anime = Anime.valueOf(getArguments().getString(ArgumentKeys.ANIME.name()));
 
-        Button btn = view.findViewById(R.id.buy_film_button);
-        btn.setOnClickListener(new View.OnClickListener() {
+        TextView title = view.findViewById(R.id.product_title);
+        title.setText(anime.formatFullTitle());
+
+        Button buyButton = view.findViewById(R.id.buy_film_button);
+        buyButton.setText(getResources().getString(R.string.buy_for_some_PLN, anime.getPrice()));
+        buyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startPurchase(anime);
             }
         });
 
-
-        TextView title = view.findViewById(R.id.product_title);
-        title.setText(anime.formatFullTitle());
-
-        Button buyButton = view.findViewById(R.id.buy_film_button);
-        buyButton.setText(getResources().getString(R.string.buy_for_some_PLN, anime.getPrice()));
+        if(alreadyPurchased(anime)) {
+            disablePurchaseButton();
+        }
 
         ImageView preview = view.findViewById(R.id.product_preview);
         Glide.with(getContext())
@@ -70,13 +75,36 @@ public class SingleProductFragment extends Fragment {
                 .load(anime.getPosterAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(poster);
-
-
     }
 
 
     private void startPurchase(Anime anime) {
-        PurchaseHelper.startPurchase((MainActivity) getActivity(), anime);
+        PurchaseHelper.startPurchase(this, anime);
+    }
+
+
+
+    void onSuccessfulPurchase() {
+        disablePurchaseButton();
+    }
+
+
+    private boolean alreadyPurchased(Anime a) {
+        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(getActivity())) {
+            if(anime.formatFullTitle().equals(a.formatFullTitle())) {
+                return true;
+            }
+        }
+
+        return CookieStorage.getNamesOfFilesPurchasedByAccount(getActivity()).toString()
+                .contains(a.formatFullTitle().split(" ")[0]);
+    }
+
+
+    private void disablePurchaseButton() {
+        Button purchaseButton = getView().findViewById(R.id.buy_film_button);
+        purchaseButton.setText(R.string.already_bought);
+        purchaseButton.setEnabled(false);
     }
 
 
@@ -85,4 +113,5 @@ public class SingleProductFragment extends Fragment {
         super.onResume();
         ((MainActivity) getActivity()).getSupportActionBar().setTitle("");
     }
+
 }

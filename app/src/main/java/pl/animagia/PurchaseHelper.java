@@ -20,11 +20,13 @@ public class PurchaseHelper {
     }
 
 
-    static void startPurchase(final MainActivity ma, final Anime anime) {
+    static void startPurchase(final SingleProductFragment fragment, final Anime anime) {
+
+        final MainActivity ma = (MainActivity) fragment.getActivity();
 
         BillingClient.Builder builder = BillingClient.newBuilder(ma);
         builder.enablePendingPurchases();
-        builder.setListener(new AnimePurchaseListener(ma));
+        builder.setListener(new AnimePurchaseListener(fragment));
 
         final BillingClient billingClient = builder.build();
 
@@ -81,9 +83,13 @@ public class PurchaseHelper {
 
     private static class AnimePurchaseListener implements PurchasesUpdatedListener {
         private final MainActivity ma;
+        private final SingleProductFragment spf;
 
-        public AnimePurchaseListener(MainActivity ma) {
-            this.ma = ma;
+
+        AnimePurchaseListener(SingleProductFragment fragment)
+        {
+            this.spf = fragment;
+            this.ma = (MainActivity) fragment.getActivity();
         }
 
         @Override
@@ -95,6 +101,9 @@ public class PurchaseHelper {
             for (Purchase purchase : list ) {
                 if(Purchase.PurchaseState.PURCHASED == purchase.getPurchaseState()) {
                     TokenStorage.storePurchase(ma, Anime.forSku(purchase.getSku()), purchase);
+
+                    spf.onSuccessfulPurchase();
+
                     return;
                 }
             }
