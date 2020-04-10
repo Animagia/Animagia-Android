@@ -1,4 +1,4 @@
-package pl.animagia.error;
+package pl.animagia.dialog;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,7 +11,8 @@ import pl.animagia.FullscreenPlaybackActivity;
 import pl.animagia.MainActivity;
 import pl.animagia.R;
 
-public class Alerts {
+public class Dialogs {
+
 
     public static void internetConnectionError(final Context context, DialogInterface.OnClickListener onClickTryAgainButton) {
         String message = context.getString(R.string.no_connection_message);
@@ -32,6 +33,7 @@ public class Alerts {
                 .show();
     }
 
+
     public static void primeVideoError(final FullscreenPlaybackActivity fpa, final Anime anime) {
         new AlertDialog.Builder(fpa)
                 .setCancelable(true)
@@ -50,14 +52,10 @@ public class Alerts {
                 .show();
     }
 
-    public static void logInError(final Context context, DialogInterface.OnClickListener login){
-        String message = context.getString(R.string.not_logged);
-        new AlertDialog.Builder(context)
-                .setCancelable(true)
-                .setIconAttribute(android.R.attr.alertDialogIcon)
-                .setTitle(R.string.login_error)
-                .setMessage(message)
-                .setNeutralButton(R.string.action_sign_in, login)
-                .show();
+
+    public static void showAccountCreation() {
+
     }
+
+
 }

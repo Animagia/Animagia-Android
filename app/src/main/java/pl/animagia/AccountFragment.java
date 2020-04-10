@@ -1,29 +1,29 @@
 package pl.animagia;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import android.widget.*;
+import com.android.volley.*;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import pl.animagia.error.Alerts;
+import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.CookieRequest;
+import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 //TODO extract and share methods that read login cookies
@@ -68,7 +68,13 @@ public class AccountFragment extends TopLevelFragment {
                 }
             };
 
-            getView().findViewById(R.id.bindToNewAccountButton).setOnClickListener(listener);
+            getView().findViewById(R.id.bindToNewAccountButton).setOnClickListener(
+                    new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showAccountCreationDialog();
+                }
+            });
             getView().findViewById(R.id.bindToExistingAccountButton).setOnClickListener(listener);
 
         } else {
@@ -89,6 +95,86 @@ public class AccountFragment extends TopLevelFragment {
             });
 
         }
+    }
+
+
+    private void showAccountCreationDialog() {
+        final Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.account_creation_form);
+
+        final Button btn = dialog.findViewById(R.id.creation_button);
+
+        CheckBox box = dialog.findViewById(R.id.acceptance);
+        box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                btn.setEnabled(checked);
+            }
+        });
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String email = ((TextView) dialog.findViewById(R.id.email)).getText().toString();
+                createAccount(email, dialog);
+            }
+        });
+
+        dialog.show();
+    }
+
+
+    private void createAccount(final String email, final Dialog dialog) {
+
+
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+
+        Response.Listener<String> listener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String s) { }
+        };
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) { }
+        };
+
+
+        String token = "fake";
+        String accountCreationUrl = TokenAssembly.URL_BASE + token + "&forNewAccount=" + email;
+
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                accountCreationUrl,
+                listener, errorListener) {
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                Log.i("response",response.headers.toString());
+                Map<String, String> responseHeaders = response.headers;
+                String rawCookies = responseHeaders.get("Set-Cookie");
+                int firstIndex = rawCookies.indexOf(";");
+                String cookie = rawCookies.substring(0, firstIndex);
+                if(cookie.startsWith("wordpress_logged_in")) {
+                    CookieStorage.setCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie, getActivity());
+                    dialog.dismiss();
+                    onAccountCreated();
+                }
+                else {
+                    Toast.makeText(getActivity(), "Coś poszło nie tak. Spróbuj ponownie", Toast
+                            .LENGTH_SHORT).show();
+                }
+                Log.i("cookies",rawCookies);
+                return super.parseNetworkResponse(response);
+            }
+
+        };
+        queue.add(stringRequest);
+
+    }
+
+
+    private void onAccountCreated() {
+        getAccountInfo();
     }
 
 
@@ -152,7 +238,7 @@ public class AccountFragment extends TopLevelFragment {
                         }
                     };
                     if(getActivity() != null){
-                        Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                        Dialogs.internetConnectionError(getContext(), onClickTryAgain);
                     }
 
                 }

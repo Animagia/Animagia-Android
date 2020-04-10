@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import pl.animagia.error.Alerts;
+import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.HTML;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
@@ -93,7 +93,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             long sek = mPlayer.getCurrentPosition();
             if(sek >= previewMilliseconds){
                 mPlayer.seekTo(previewMilliseconds - 1000);
-                Alerts.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
+                Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
                 onPause();
             }
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);

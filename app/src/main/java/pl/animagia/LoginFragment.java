@@ -26,7 +26,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.animagia.error.Alerts;
+import pl.animagia.dialog.Dialogs;
 import pl.animagia.user.CookieStorage;
 
 /**
@@ -90,7 +90,7 @@ public class LoginFragment extends Fragment {
 
                                 }
                             };
-                            Alerts.internetConnectionError(getContext(), onClickTryAgain);
+                            Dialogs.internetConnectionError(getContext(), onClickTryAgain);
                         }
                         progressBar.setVisibility(View.GONE);
                         signIn.setEnabled(true);
