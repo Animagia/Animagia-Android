@@ -12,15 +12,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.android.volley.*;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.CookieRequest;
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,24 +62,29 @@ public class AccountFragment extends TopLevelFragment {
             if(getActivity() != null){
                 getAccountInfo();
             }
-        } else if(TokenStorage.getLocallyPurchasedAnime(getActivity()).size() != 0) {
-
-            View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
-                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
-                }
-            };
+        } else if(TokenStorage.hasLocallyPurchasedAnime(getActivity())) {
 
             getView().findViewById(R.id.bindToNewAccountButton).setOnClickListener(
                     new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
                     showAccountCreationDialog();
                 }
             });
-            getView().findViewById(R.id.bindToExistingAccountButton).setOnClickListener(listener);
+
+            View.OnClickListener existingAccountListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    activateLoginFragment();
+                }
+            };
+            getView().findViewById(R.id.bindToExistingAccountButton)
+                    .setOnClickListener(existingAccountListener);
+
+            TextView localPurchases = getView().findViewById(R.id.productsPurchasedLocallyHint);
+            localPurchases.setText(getListOfTitles());
 
         } else {
             Button loginButton = getView().findViewById(R.id.linkExistingAccountButton);
@@ -138,10 +147,8 @@ public class AccountFragment extends TopLevelFragment {
             public void onErrorResponse(VolleyError volleyError) { }
         };
 
-
-        String token = "fake";
-        String accountCreationUrl = TokenAssembly.URL_BASE + token + "&forNewAccount=" + email;
-
+        String token = TokenStorage.getBulkImportToken(getActivity());
+        String accountCreationUrl = TokenAssembly.URL_BASE + token + "&forNewUser=" + email;
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 accountCreationUrl,
@@ -149,21 +156,30 @@ public class AccountFragment extends TopLevelFragment {
 
             @Override
             protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                Log.i("response",response.headers.toString());
                 Map<String, String> responseHeaders = response.headers;
                 String rawCookies = responseHeaders.get("Set-Cookie");
                 int firstIndex = rawCookies.indexOf(";");
                 String cookie = rawCookies.substring(0, firstIndex);
-                if(cookie.startsWith("wordpress_logged_in")) {
+
+                String responseBody = "";
+                try {
+                    responseBody = new String(response.data, HttpHeaderParser.parseCharset(response
+                            .headers));
+                } catch (UnsupportedEncodingException e) {
+                    responseBody = new String(response.data);
+                }
+
+                if(cookie.startsWith("wordpress_logged_in") && websiteReportedSuccess(responseBody))
+                {
                     CookieStorage.setCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie, getActivity());
                     dialog.dismiss();
+                    onSuccessfulImport();
                     onAccountCreated();
                 }
                 else {
-                    Toast.makeText(getActivity(), "Coś poszło nie tak. Spróbuj ponownie", Toast
-                            .LENGTH_SHORT).show();
+                    Toasts.promptUserToTryAgain(getActivity());
                 }
-                Log.i("cookies",rawCookies);
+
                 return super.parseNetworkResponse(response);
             }
 
@@ -173,8 +189,44 @@ public class AccountFragment extends TopLevelFragment {
     }
 
 
+    private boolean websiteReportedSuccess(String responseBody) {
+        return !responseBody.contains("użyciu")
+                && !responseBody.contains("Wymagane") &&
+                !responseBody.contains("poszło nie tak");
+    }
+
+
     private void onAccountCreated() {
-        getAccountInfo();
+        getAccountInfo(); //FIXME possible crash due to wrong layout?
+    }
+
+
+    private void onSuccessfulImport() {
+
+    }
+
+
+    private void bindToCurrentAccount() {
+        String token = TokenStorage.getBulkImportToken(getActivity());
+        String email = ((MainActivity) getActivity()).getUsername();
+        String url = TokenAssembly.URL_BASE + token + "&forExistingUser=" + email;
+
+        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+
+        HTML.getHtmlCookie(url, getActivity(), cookie, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                if(websiteReportedSuccess(result)) {
+                    Toasts.promptUserToTryAgain(getActivity());
+                }
+            }
+
+
+            @Override
+            public void onFailure(VolleyError volleyError) {
+
+            }
+        });
     }
 
 
@@ -260,11 +312,28 @@ public class AccountFragment extends TopLevelFragment {
         List<String> fileNames = FilesFragment.getDownloadableFileNames(downloadAnchors);
         CookieStorage.saveNamesOfFilesPurchasedByAccount(getActivity(), fileNames);
 
-        TextView textView = getView().findViewById(R.id.files);
+        TextView textView = getView().findViewById(R.id.account_status);
         textView.setText(accountStatus.getFriendlyName());
 
         TextView textViewEmail = getView().findViewById(R.id.email_text);
-        textViewEmail.setText(extractUserEmail(accountPageHtml));
+        String email = extractUserEmail(accountPageHtml);
+        textViewEmail.setText(email);
+
+        if(TokenStorage.hasLocallyPurchasedAnime(getActivity())) {
+            textView = getView().findViewById(R.id.productsPurchasedLocallyHint);
+            textView.setText(getListOfTitles());
+            textView.setVisibility(View.VISIBLE);
+
+            getView().findViewById(R.id.productsCanBeBoundHint).setVisibility(View.VISIBLE);
+
+            Button btn = getView().findViewById(R.id.bindToCurrentAccountButton);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    bindToCurrentAccount();
+                }
+            });
+        }
     }
 
 
@@ -293,6 +362,15 @@ public class AccountFragment extends TopLevelFragment {
         } catch (StringIndexOutOfBoundsException e) {
             return "";
         }
+    }
+
+
+    private String getListOfTitles() {
+        String titles = "";
+        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(getActivity())) {
+            titles += "\n" + anime.formatFullTitle();
+        }
+        return getResources().getString(R.string.have_locally_purchased_anime, titles);
     }
 
 }

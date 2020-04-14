@@ -1,6 +1,5 @@
 package pl.animagia;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.bumptech.glide.Glide;
 import pl.animagia.token.TokenStorage;
 import pl.animagia.user.CookieStorage;
@@ -75,6 +72,21 @@ public class SingleProductFragment extends Fragment {
                 .load(anime.getPosterAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(poster);
+
+        TextView miscDetails = view.findViewById(R.id.product_misc_details);
+        switch (anime) {
+            case AMAGI:
+                miscDetails.setText(getResources().getString(R.string.product_details_voiceover,
+                        anime.getDuration()));
+                break;
+            case HANAIRO:
+                miscDetails.setText(getResources().getString(R.string.product_details_dub,
+                        anime.getDuration()));
+                break;
+            default:
+                miscDetails.setText(getResources().getString(R.string.product_details_sub,
+                        anime.getDuration()));
+        }
     }
 
 

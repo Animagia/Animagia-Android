@@ -207,12 +207,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         createSubtitleSelector();
 
         if (isTheatricalFilm(video.getTitle())) {
-
             previewMilliseconds = video.getPreviewMillis();
+        }
 
-            if (userBoughtAccessToFilm()) {
-               translationChangesAllowed = true;
-            }
+        if (userBoughtAccessToFilm()) {
+            translationChangesAllowed = true;
         }
 
         mPlayer.addListener(new Player.DefaultEventListener() {
@@ -387,7 +386,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(!translationChangesAllowed) {
                     Toast.makeText(FullscreenPlaybackActivity.this,
-                            "Bezpłatny podgląd posiada tylko napisy",
+                            R.string.only_subtitles_available,
                             Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -404,6 +403,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
                         onTranslationChosen(which);
                     }
                 });
@@ -420,7 +420,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         Map<String,String> params = new HashMap<>();
 
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getName(), Context
+                .MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
         switch(which) {
@@ -466,7 +467,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private Map<String, String> loadTranslationPreference() {
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
 
         Map<String, String> params = new HashMap<>();
 

@@ -190,22 +190,22 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_shop) {
-            getSupportActionBar().setTitle("Sklep");
+            getSupportActionBar().setTitle(R.string.drawer_item_watch);
             activateFragment(new ShopFragment());
         } else if (id == R.id.nav_watch) {
-            getSupportActionBar().setTitle("Oglądaj");
+            getSupportActionBar().setTitle(R.string.drawer_item_watch);
             activateFragment(new CatalogFragment());
         } else if (id == R.id.nav_account) {
-            getSupportActionBar().setTitle("Konto");
+            getSupportActionBar().setTitle(R.string.drawer_item_account);
             activateFragment(new AccountFragment());
         } else if (id == R.id.nav_contact_info) {
-            getSupportActionBar().setTitle("Kontakt");
+            getSupportActionBar().setTitle(R.string.drawer_item_contact_info);
             activateFragment(new ContactInfoFragment());
         } else if (id == R.id.nav_documents) {
-            getSupportActionBar().setTitle("Informacje");
+            getSupportActionBar().setTitle(R.string.drawer_item_misc_info);
             activateFragment(new InfoFragment());
         } else if (id == R.id.nav_downloads) {
-            getSupportActionBar().setTitle("Pliki");
+            getSupportActionBar().setTitle(R.string.drawer_item_downloads);
             activateFragment(new FilesFragment());
         }
 
@@ -296,7 +296,8 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private String getUsername() {
+
+    String getUsername() {
         String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, this);
         if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             int first_index = cookie.indexOf('=');

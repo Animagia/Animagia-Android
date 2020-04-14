@@ -10,10 +10,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ListView;
+import android.widget.*;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -22,6 +19,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.CookieRequest;
+import pl.animagia.html.HTML;
+import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
@@ -36,13 +35,14 @@ import java.util.regex.Pattern;
 
 public class FilesFragment extends TopLevelFragment {
 
-    private List<String> downloadAnchors;
+    private List<String> downloadAnchors = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        int layoutResource = isLoggedIn() ? R.layout.file_list : R.layout.fragment_files_empty;
+        int layoutResource = ( isLoggedIn() || TokenStorage.hasLocallyPurchasedAnime(getActivity()))
+                ? R.layout.file_list : R.layout.fragment_files_empty;
 
         View contents = inflater.inflate(layoutResource, container, false);
 
@@ -65,7 +65,20 @@ public class FilesFragment extends TopLevelFragment {
         for (Anime a : locallyPurchasedAnime) {
             String token = TokenStorage.getCombinedToken(getActivity(), a);
             String videoPageUrl = TokenAssembly.URL_BASE + token;
-            
+
+            HTML.getHtml(videoPageUrl, getActivity(), new VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    onSingleProductFetched(result);
+                }
+
+
+                @Override
+                public void onFailure(VolleyError volleyError) {
+                    Toast.makeText(getActivity(), R.string.something_went_wrong_try_again, Toast
+                            .LENGTH_SHORT).show();
+                }
+            });
         }
 
         if(!isLoggedIn() && locallyPurchasedAnime.isEmpty()) {
@@ -95,7 +108,7 @@ public class FilesFragment extends TopLevelFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_shop);
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_downloads);
     }
 
 
@@ -183,7 +196,8 @@ public class FilesFragment extends TopLevelFragment {
 
 
     private synchronized void onSingleProductFetched(String pageHtml) {
-        this.downloadAnchors.addAll(getDownloadAnchors(pageHtml));
+        List<String> extractedAnchors = getDownloadAnchors(pageHtml);
+        this.downloadAnchors.addAll(extractedAnchors);
         updateDisplayedLinks();
     }
 

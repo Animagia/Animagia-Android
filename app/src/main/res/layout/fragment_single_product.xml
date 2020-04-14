@@ -33,15 +33,15 @@
         app:layout_constraintTop_toBottomOf="@id/product_preview"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:src="@drawable/background"
         app:cardCornerRadius="3dp" >
 
 
        <ImageView
             android:id="@+id/product_poster_image"
-            android:layout_width="112dp"
-            android:layout_height="158dp"
+            android:layout_width="107dp"
+            android:layout_height="151dp"
             android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             android:src="@drawable/background" />
@@ -52,49 +52,48 @@
         android:id="@id/product_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
         android:ellipsize="end"
         android:lines="2"
         android:maxLines="2"
-        android:paddingBottom="2dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="2dp"
         android:text="Full title including subtitle, may be long"
         android:textColor="@color/strong_text"
         android:textSize="16sp"
         android:fontFamily="sans-serif-medium"
-        android:layout_marginLeft="12dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="12dp"
         app:layout_constraintLeft_toRightOf="@id/product_poster"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/product_preview"
-        android:gravity="left|top"/>
+        app:layout_constraintTop_toTopOf="@id/product_poster" />
 
     <TextView
         android:id="@+id/product_misc_details"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
         app:layout_constraintLeft_toRightOf="@id/product_poster"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/product_poster"
-        android:layout_marginLeft="12dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="9dp"
         android:layout_marginRight="12dp"
+        android:maxLines="4"
+        android:lineSpacingMultiplier="1.05"
         android:text="Polskie napisy" />
 
     <TextView
         android:id="@+id/film_sale_terms"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/no_account_needed_short"
+        android:text="@string/sale_terms"
         android:textAlignment="center"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/product_poster"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:lineSpacingMultiplier="0.95"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
@@ -102,12 +101,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/buy_for_some_PLN"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/film_sale_terms"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/product_extended_description"
         app:layout_constraintVertical_chainStyle="packed"
-        android:layout_marginTop="4dp"/>
+        android:layout_marginTop="4dp"
+        android:theme="@style/AccentedButton" />
+
+    <TextView
+        android:id="@id/product_extended_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAlignment="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buy_film_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="22dp"
+        app:layout_constraintVertical_chainStyle="packed" />
 
 
 </android.support.constraint.ConstraintLayout>

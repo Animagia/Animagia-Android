@@ -38,7 +38,7 @@
     powiązany\nz płatnością, dzięki czemu nic nie przepadnie.</string>
     <string name="no_account_needed_short">Żeby oglądać anime dostępne bezpłatnie,
         nie musisz zakładać konta.</string>
-    <string name="have_locally_purchased_anime">Masz anime zakupione w aplikacji.</string>
+    <string name="have_locally_purchased_anime">Masz anime zakupione w aplikacji:%1$s</string>
     <string name="can_bind_anime_to_account">Możesz powiązać je z kontem
         dla wygodnego dostępu z innych urządzeń.</string>
     <string name="bind_to_new_account">Załóż konto i powiąż</string>
@@ -62,9 +62,21 @@
 
     <string name="start_iap">"Kontynuuj zakup z wykorzystaniem płatności Google Play."</string>
     <string name="buy_for_some_PLN">Kup za %1$s</string>
-    <string name="already_bought">Kupione</string>
+    <string name="already_bought">Kupione</string>Kup za %1$s
     <string name="new_account">Nowe konto</string>
     <string name="create_and_bind_account">Nowe konto</string>
+
+    <string name="product_details_voiceover">• 1080p\n• napisy\n• lektor\n• %1$s</string>
+    <string name="product_details_sub">• 1080p\n• napisy\n• %1$s</string>
+    <string name="product_details_dub">• 1080p\n• napisy\n• dubbing\n• %1$s</string>
+
+    <string name="sale_terms">Anime możesz ściągnąć, zachować na zawsze i oglądać także poza aplikacją.
+        Zapewniamy możliwość ściągnięcia i streamowania przez 35 dni od zakupu. Otrzymasz też kod
+        do powiązania z kontem i dostępu z innych urządzeń.</string>
+    
+    <string name="something_went_wrong_try_again">Coś poszło nie tak. Spróbuj ponownie.</string>
+
+    <string name="only_subtitles_available">Bezpłatny podgląd ma tylko napisy</string>
 
     <string-array name="quality">
         <item>1080p</item>

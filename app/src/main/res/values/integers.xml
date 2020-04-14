@@ -5,6 +5,6 @@
     <integer
         name="shop_columns">2</integer>
 
-    <string name="single_product_thumbnail_ratio">16:9</string>
+    <string name="single_product_thumbnail_ratio">2</string>
 
 </resources>

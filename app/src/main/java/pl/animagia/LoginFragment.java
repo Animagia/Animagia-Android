@@ -113,7 +113,6 @@ public class LoginFragment extends Fragment {
 
                     @Override
                     protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                        Log.i("response",response.headers.toString());
                         Map<String, String> responseHeaders = response.headers;
                         String rawCookies = responseHeaders.get("Set-Cookie");
                         int firstIndex = rawCookies.indexOf(";");
@@ -126,7 +125,6 @@ public class LoginFragment extends Fragment {
                         else {
                             setText(errorMessage,getString(R.string.wrong_credentials));
                         }
-                        Log.i("cookies",rawCookies);
                         return super.parseNetworkResponse(response);
                     }
 
