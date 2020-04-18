@@ -10,14 +10,15 @@ import java.util.*;
 public class CookieStorage {
 
     public static final String LOGIN_CREDENTIALS_KEY = "LOGIN";
-    public static final String PURCHASED_FILES_KEY = "LOGIN";
+    public static final String PURCHASED_FILES_KEY = "FILES_PURCHASED_BY_ACCOUNT";
     public static final String COOKIE_NOT_FOUND = "COOKIE_NOT_FOUND";
 
-    public static void setCookie(String key, String cookie, Activity activity){
-        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+    public static void setCookie(String cookie, Activity activity){
+        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(),
+                Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putString(key, cookie);
-        editor.apply();
+        editor.putString(LOGIN_CREDENTIALS_KEY, cookie);
+        editor.commit();
     }
 
 
@@ -48,19 +49,18 @@ public class CookieStorage {
     }
 
 
-    public static String getCookie(String key, Activity activity) {
-        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
-        String cookie = pref.getString(key, COOKIE_NOT_FOUND);
+    public static String getCookie(Activity activity) {
+        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(),
+                Context.MODE_PRIVATE);
+        String cookie = pref.getString(LOGIN_CREDENTIALS_KEY, COOKIE_NOT_FOUND);
         return cookie;
     }
 
     public static void clearLoginCredentials(Activity activity) {
-
-        String key = LOGIN_CREDENTIALS_KEY;
-
-        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences pref = activity.getSharedPreferences(MainActivity.class.getName(),
+                Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.remove(key);
+        editor.remove(LOGIN_CREDENTIALS_KEY);
         editor.apply();
     }
 }

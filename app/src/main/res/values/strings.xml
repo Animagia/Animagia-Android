@@ -19,7 +19,7 @@
     <string name="title_activity_login">Logowanie</string>
     <string name="title_activity_document">DocumentActivity</string>
 
-    <string name="prompt_email">Login</string>
+    <string name="prompt_email">Adres e-mail</string>
     <string name="prompt_password">Hasło</string>
     <string name="action_sign_in">Zaloguj się</string>
     <string name="action_sign_in_short">Logowanie</string>
@@ -64,7 +64,10 @@
     <string name="buy_for_some_PLN">Kup za %1$s</string>
     <string name="already_bought">Kupione</string>Kup za %1$s
     <string name="new_account">Nowe konto</string>
-    <string name="create_and_bind_account">Nowe konto</string>
+    
+    <string name="acceptance">Akceptuję <a href="https://animagia.pl/regulamin">regulamin</a>
+        i <a href="https://animagia.pl/privacy">politkę prywatności</a></string>
+    <string name="create_and_bind_account">Załóż konto</string>
 
     <string name="product_details_voiceover">• 1080p\n• napisy\n• lektor\n• %1$s</string>
     <string name="product_details_sub">• 1080p\n• napisy\n• %1$s</string>

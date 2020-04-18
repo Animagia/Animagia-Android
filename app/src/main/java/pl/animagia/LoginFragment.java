@@ -118,7 +118,7 @@ public class LoginFragment extends Fragment {
                         int firstIndex = rawCookies.indexOf(";");
                         String cookie = rawCookies.substring(0, firstIndex);
                         if(cookie.startsWith("wordpress_logged_in")) {
-                            CookieStorage.setCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie, getActivity());
+                            CookieStorage.setCookie(cookie, getActivity());
                             activateFragment(new CatalogFragment());
                             emailTextView.setText(email);
                         }

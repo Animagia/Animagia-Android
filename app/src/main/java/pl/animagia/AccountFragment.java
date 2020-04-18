@@ -2,11 +2,13 @@ package pl.animagia;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,6 @@ import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +78,7 @@ public class AccountFragment extends TopLevelFragment {
                 @Override
                 public void onClick(View view) {
                     TokenStorage.consumeAllProducts((MainActivity) getActivity());
-                    activateLoginFragment();
+                    //activateLoginFragment();
                 }
             };
             getView().findViewById(R.id.bindToExistingAccountButton)
@@ -91,7 +92,8 @@ public class AccountFragment extends TopLevelFragment {
             loginButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    activateLoginFragment();
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    //activateLoginFragment();
                 }
             });
 
@@ -111,6 +113,9 @@ public class AccountFragment extends TopLevelFragment {
         final Dialog dialog = new Dialog(getActivity());
         dialog.setContentView(R.layout.account_creation_form);
 
+        TextView acceptanceLabel = dialog.findViewById(R.id.acceptance_label);
+        acceptanceLabel.setMovementMethod(LinkMovementMethod.getInstance());
+
         final Button btn = dialog.findViewById(R.id.creation_button);
 
         CheckBox box = dialog.findViewById(R.id.acceptance);
@@ -129,13 +134,12 @@ public class AccountFragment extends TopLevelFragment {
             }
         });
 
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
 
 
-    private void createAccount(final String email, final Dialog dialog) {
-
-
+    private void createAccount(final String email, final Dialog accountCreationDialog) {
         RequestQueue queue = Volley.newRequestQueue(getContext());
 
         Response.Listener<String> listener = new Response.Listener<String>() {
@@ -158,6 +162,12 @@ public class AccountFragment extends TopLevelFragment {
             protected Response<String> parseNetworkResponse(NetworkResponse response) {
                 Map<String, String> responseHeaders = response.headers;
                 String rawCookies = responseHeaders.get("Set-Cookie");
+
+                if(rawCookies == null) {
+                    Toasts.promptUserToTryAgain(getActivity());
+                    return super.parseNetworkResponse(response);
+                }
+
                 int firstIndex = rawCookies.indexOf(";");
                 String cookie = rawCookies.substring(0, firstIndex);
 
@@ -171,10 +181,16 @@ public class AccountFragment extends TopLevelFragment {
 
                 if(cookie.startsWith("wordpress_logged_in") && websiteReportedSuccess(responseBody))
                 {
-                    CookieStorage.setCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie, getActivity());
-                    dialog.dismiss();
-                    onSuccessfulImport();
-                    onAccountCreated();
+                    SharedPreferences pref = getActivity().getSharedPreferences(
+                            MainActivity.class.getName(), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
+//                    editor.putString("test1", cookie);
+//                    editor.putString("test2", "hello" + cookie);
+                    editor.commit();
+                    accountCreationDialog.dismiss();
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    onAccountCreated(email);
                 }
                 else {
                     Toasts.promptUserToTryAgain(getActivity());
@@ -196,22 +212,18 @@ public class AccountFragment extends TopLevelFragment {
     }
 
 
-    private void onAccountCreated() {
-        getAccountInfo(); //FIXME possible crash due to wrong layout?
-    }
-
-
-    private void onSuccessfulImport() {
-
+    private void onAccountCreated(String email) {
+        Toast.makeText(getActivity(), "Zalogowano jako: " + email, Toast.LENGTH_SHORT).show();
+        //((MainActivity) getActivity()).activateFragment(new CatalogFragment());
     }
 
 
     private void bindToCurrentAccount() {
         String token = TokenStorage.getBulkImportToken(getActivity());
-        String email = ((MainActivity) getActivity()).getUsername();
+        String email = ((MainActivity) getActivity()).getUserDisplayName();
         String url = TokenAssembly.URL_BASE + token + "&forExistingUser=" + email;
 
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        String cookie = CookieStorage.getCookie(getActivity());
 
         HTML.getHtmlCookie(url, getActivity(), cookie, new VolleyCallback() {
             @Override
@@ -236,12 +248,14 @@ public class AccountFragment extends TopLevelFragment {
         ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_account);
     }
 
+
     private void activateLoginFragment() {
         ((MainActivity) getActivity()).activateFragment(new LoginFragment());
     }
 
+
     private boolean userIsLoggedIn(){
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        String cookie = CookieStorage.getCookie(getActivity());
         return !cookie.equals(CookieStorage.COOKIE_NOT_FOUND);
     }
 
@@ -296,7 +310,7 @@ public class AccountFragment extends TopLevelFragment {
                 }
             });
             if(getActivity() != null){
-                String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+                String cookie = CookieStorage.getCookie(getActivity());
                 stringRequest.setCookies(cookie);
                 queue.add(stringRequest);
             }

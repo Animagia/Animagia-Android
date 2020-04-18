@@ -115,7 +115,7 @@ public class FilesFragment extends TopLevelFragment {
     private boolean isLoggedIn(){
         boolean logIn = false;
 
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        String cookie = CookieStorage.getCookie(getActivity());
         System.out.println(cookie);
         if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
@@ -170,7 +170,7 @@ public class FilesFragment extends TopLevelFragment {
                 }
             });
             if(getActivity() != null){
-                String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+                String cookie = CookieStorage.getCookie(getActivity());
                 stringRequest.setCookies(cookie);
                 queue.add(stringRequest);
             }

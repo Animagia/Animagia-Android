@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.VISIBLE);
             button.setVisibility(View.VISIBLE);
-            textView.setText(getUsername());
+            textView.setText(getUserDisplayName());
         }
         else {
             textView.setVisibility(View.INVISIBLE);
@@ -267,14 +267,8 @@ public class MainActivity extends AppCompatActivity
 
 
     private boolean isLogged(){
-        boolean logIn = false;
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, this);
-        System.out.println(cookie);
-        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
-            logIn = true;
-        }
-
-        return logIn;
+        String cookie = CookieStorage.getCookie(this);
+        return !(cookie.equals(CookieStorage.COOKIE_NOT_FOUND));
     }
 
     @Override
@@ -297,12 +291,16 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    String getUsername() {
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, this);
+    String getUserDisplayName() {
+        String cookie = CookieStorage.getCookie(this);
         if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             int first_index = cookie.indexOf('=');
             int last_index = cookie.indexOf('%');
-            return cookie.substring(first_index + 1, last_index);
+            try {
+                return cookie.substring(first_index + 1, last_index);
+            } catch (StringIndexOutOfBoundsException e) {
+                return "";
+            }
         }
         return "";
     }

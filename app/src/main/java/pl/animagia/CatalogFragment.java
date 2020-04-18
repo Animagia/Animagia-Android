@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import pl.animagia.user.CookieStorage;
@@ -32,7 +30,7 @@ public class CatalogFragment extends TopLevelFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        GridView gridview = (GridView) view.findViewById(R.id.gridview);
+        GridView gridview = view.findViewById(R.id.gridview);
 
         final VideoThumbnailAdapter adapter = new VideoThumbnailAdapter(getActivity());
         gridview.setAdapter(adapter);
@@ -55,7 +53,7 @@ public class CatalogFragment extends TopLevelFragment {
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.VISIBLE);
             button.setVisibility(View.VISIBLE);
-            textView.setText(getUsername());
+            textView.setText(((MainActivity) getActivity()).getUserDisplayName());
         }
         else {
             textView.setVisibility(View.INVISIBLE);
@@ -74,7 +72,7 @@ public class CatalogFragment extends TopLevelFragment {
 
 
     private void launchPlayback(final Anime videoData) {
-        final String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        final String cookie = CookieStorage.getCookie(getActivity());
 
         Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
         intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData.name());
@@ -84,45 +82,15 @@ public class CatalogFragment extends TopLevelFragment {
     }
 
 
-    public void setText(String message) {
-        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
-
-        TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
-        if (view == null) {
-
-            TextView textView = new TextView(getContext());
-            textView.setId(R.id.geo_text_view);
-            textView.setLayoutParams(
-                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT));
-            textView.setText(message);
-            textView.setGravity(Gravity.CENTER);
-            textView.setPadding(0, 10, 0, 10);
-            textView.setTextSize(18);
-
-            linearLayout.addView(textView, 0);
-        }
-    }
-
     private boolean isLogged(){
         boolean logIn = false;
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
+        String cookie = CookieStorage.getCookie(getActivity());
         System.out.println(cookie);
         if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
             logIn = true;
         }
 
         return logIn;
-    }
-
-    private String getUsername() {
-        String cookie = CookieStorage.getCookie(CookieStorage.LOGIN_CREDENTIALS_KEY, getActivity());
-        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
-            int first_index = cookie.indexOf('=');
-            int last_index = cookie.indexOf('%');
-            return cookie.substring(first_index + 1, last_index);
-        }
-        return "";
     }
 
 }

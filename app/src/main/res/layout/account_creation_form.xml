@@ -35,18 +35,28 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <CheckBox
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Checkbox"
-            android:id="@+id/acceptance" />
+            android:gravity="left|center_vertical">
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/acceptance" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/acceptance"
+                android:id="@+id/acceptance_label"/>
+        </LinearLayout>
 
-        <TextView
+        <!--<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/errorMessage"
             android:textColor="?attr/colorError"
-            android:layout_weight="1"/>
+            android:layout_weight="1"/>-->
+
         <Button
             android:id="@+id/creation_button"
             style="?android:textAppearanceSmall"
@@ -54,12 +64,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/create_and_bind_account"
-            android:textStyle="bold"/>
-        <ProgressBar
-            style="?android:attr/progressBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="117dp"
-            android:id="@+id/progressBar" android:visibility="gone"/>
+            android:textStyle="bold"
+            android:enabled="false"
+            />
+
+        <!--<ProgressBar-->
+            <!--style="?android:attr/progressBarStyle"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="117dp"-->
+            <!--android:id="@+id/progressBar" android:visibility="gone"/>-->
     </LinearLayout>
 
 </ScrollView>
