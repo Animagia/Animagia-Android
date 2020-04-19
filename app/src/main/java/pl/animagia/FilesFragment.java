@@ -19,7 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.CookieRequest;
-import pl.animagia.html.HTML;
+import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
@@ -66,7 +66,7 @@ public class FilesFragment extends TopLevelFragment {
             String token = TokenStorage.getCombinedToken(getActivity(), a);
             String videoPageUrl = TokenAssembly.URL_BASE + token;
 
-            HTML.getHtml(videoPageUrl, getActivity(), new VolleyCallback() {
+            HtClient.getHtml(videoPageUrl, getActivity(), new VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
                     onSingleProductFetched(result);

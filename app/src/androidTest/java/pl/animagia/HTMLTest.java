@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import pl.animagia.html.HTML;
+import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoUrl;
@@ -45,7 +45,7 @@ public class HTMLTest {
         fragment = new CatalogFragment();
         rule.getActivity().getSupportFragmentManager().beginTransaction().add(R.id.frame_for_content, fragment).commitAllowingStateLoss();
         final CountDownLatch signalBad = new CountDownLatch(1);
-        HTML.getHtmlCookie(url, InstrumentationRegistry.getContext(), CookieStorage.COOKIE_NOT_FOUND, new VolleyCallback() {
+        HtClient.getUsingCookie(url, InstrumentationRegistry.getContext(), CookieStorage.COOKIE_NOT_FOUND, new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 videoUrlWithBadToken =  VideoUrl.getUrl(result);
@@ -64,7 +64,7 @@ public class HTMLTest {
             e.printStackTrace();
         }
         final CountDownLatch signalGood = new CountDownLatch(1);
-        HTML.getHtmlCookie(url, InstrumentationRegistry.getContext(), cookie, new VolleyCallback() {
+        HtClient.getUsingCookie(url, InstrumentationRegistry.getContext(), cookie, new VolleyCallback() {
             @Override
             public void onSuccess (String result){
                 videoUrlWithGoodToken =  VideoUrl.getUrl(result);

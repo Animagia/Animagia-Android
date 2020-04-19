@@ -14,7 +14,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HTML{
+public class HtClient {
 
     public static void getHtml(String url, Context con, final VolleyCallback callback){
         RequestQueue queue = Volley.newRequestQueue(con);
@@ -32,7 +32,7 @@ public class HTML{
         queue.add(stringRequest);
     }
 
-    public static void getHtmlCookie(String url, Context con, final String cookie, final VolleyCallback callback){
+    public static void getUsingCookie(String url, Context con, final String cookie, final VolleyCallback callback){
         RequestQueue queue = Volley.newRequestQueue(con);
         CookieRequest cookieRequest = new CookieRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override

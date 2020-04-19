@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import pl.animagia.dialog.Dialogs;
-import pl.animagia.html.HTML;
+import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
@@ -127,7 +127,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             videoPageUrl = TokenAssembly.URL_BASE + token;
         }
 
-        HTML.getHtmlCookie(videoPageUrl, this, cookie, new VolleyCallback() {
+        HtClient.getUsingCookie(videoPageUrl, this, cookie, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
                 String videoSourceUrl = VideoUrl.getUrl(result);
@@ -486,7 +486,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void reinitializePlayer(String query){
 
-        HTML.getHtmlCookie(currentVideoPageUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
+        HtClient.getUsingCookie(currentVideoPageUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
 
             @Override
             public void onSuccess(String result) {
@@ -683,7 +683,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
                                     (currentEpisode + episodeShift) + query;
 
-                    HTML.getHtmlCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
+                    HtClient.getUsingCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
 
                         @Override
                         public void onSuccess(String result) {

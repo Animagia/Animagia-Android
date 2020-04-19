@@ -81,6 +81,8 @@
 
     <string name="only_subtitles_available">Bezpłatny podgląd ma tylko napisy</string>
 
+    <string name="account_status_label">Konto premium:</string>
+
     <string-array name="quality">
         <item>1080p</item>
         <item>480p</item>

@@ -19,7 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.CookieRequest;
-import pl.animagia.html.HTML;
+import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
@@ -69,7 +69,6 @@ public class AccountFragment extends TopLevelFragment {
                     new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
                     showAccountCreationDialog();
                 }
             });
@@ -77,8 +76,8 @@ public class AccountFragment extends TopLevelFragment {
             View.OnClickListener existingAccountListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
-                    //activateLoginFragment();
+                    //TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    activateLoginFragment();
                 }
             };
             getView().findViewById(R.id.bindToExistingAccountButton)
@@ -92,8 +91,8 @@ public class AccountFragment extends TopLevelFragment {
             loginButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
-                    //activateLoginFragment();
+                    //TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    activateLoginFragment();
                 }
             });
 
@@ -118,7 +117,7 @@ public class AccountFragment extends TopLevelFragment {
 
         final Button btn = dialog.findViewById(R.id.creation_button);
 
-        CheckBox box = dialog.findViewById(R.id.acceptance);
+        final CheckBox box = dialog.findViewById(R.id.acceptance);
         box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -130,6 +129,9 @@ public class AccountFragment extends TopLevelFragment {
             @Override
             public void onClick(View view) {
                 String email = ((TextView) dialog.findViewById(R.id.email)).getText().toString();
+                btn.setEnabled(false);
+                box.setEnabled(false);
+                dialog.setCancelable(false);
                 createAccount(email, dialog);
             }
         });
@@ -148,7 +150,9 @@ public class AccountFragment extends TopLevelFragment {
         };
         Response.ErrorListener errorListener = new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError volleyError) { }
+            public void onErrorResponse(VolleyError volleyError) {
+                promptUserToTryAgain(accountCreationDialog);
+            }
         };
 
         String token = TokenStorage.getBulkImportToken(getActivity());
@@ -164,14 +168,14 @@ public class AccountFragment extends TopLevelFragment {
                 String rawCookies = responseHeaders.get("Set-Cookie");
 
                 if(rawCookies == null) {
-                    Toasts.promptUserToTryAgain(getActivity());
+                    promptUserToTryAgain(accountCreationDialog);
                     return super.parseNetworkResponse(response);
                 }
 
                 int firstIndex = rawCookies.indexOf(";");
                 String cookie = rawCookies.substring(0, firstIndex);
 
-                String responseBody = "";
+                String responseBody;
                 try {
                     responseBody = new String(response.data, HttpHeaderParser.parseCharset(response
                             .headers));
@@ -185,15 +189,13 @@ public class AccountFragment extends TopLevelFragment {
                             MainActivity.class.getName(), Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putString(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
-//                    editor.putString("test1", cookie);
-//                    editor.putString("test2", "hello" + cookie);
                     editor.commit();
                     accountCreationDialog.dismiss();
                     TokenStorage.consumeAllProducts((MainActivity) getActivity());
                     onAccountCreated(email);
                 }
                 else {
-                    Toasts.promptUserToTryAgain(getActivity());
+                    promptUserToTryAgain(accountCreationDialog);
                 }
 
                 return super.parseNetworkResponse(response);
@@ -202,6 +204,12 @@ public class AccountFragment extends TopLevelFragment {
         };
         queue.add(stringRequest);
 
+    }
+
+
+    private void promptUserToTryAgain(Dialog accountCreationDialog) {
+        accountCreationDialog.dismiss();
+        Toasts.promptUserToTryAgain(getActivity());
     }
 
 
@@ -214,31 +222,42 @@ public class AccountFragment extends TopLevelFragment {
 
     private void onAccountCreated(String email) {
         Toast.makeText(getActivity(), "Zalogowano jako: " + email, Toast.LENGTH_SHORT).show();
-        //((MainActivity) getActivity()).activateFragment(new CatalogFragment());
+        ((MainActivity) getActivity()).activateFragment(new FilesFragment());
     }
 
 
     private void bindToCurrentAccount() {
+        getView().findViewById(R.id.bindToCurrentAccountButton).setEnabled(false);
+
         String token = TokenStorage.getBulkImportToken(getActivity());
-        String email = ((MainActivity) getActivity()).getUserDisplayName();
+        String email = ((TextView) getView().findViewById(R.id.email_text)).getText().toString()
+                .trim();
         String url = TokenAssembly.URL_BASE + token + "&forExistingUser=" + email;
 
         String cookie = CookieStorage.getCookie(getActivity());
 
-        HTML.getHtmlCookie(url, getActivity(), cookie, new VolleyCallback() {
+        HtClient.getUsingCookie(url, getActivity(), cookie, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
                 if(websiteReportedSuccess(result)) {
-                    Toasts.promptUserToTryAgain(getActivity());
+                    TokenStorage.consumeAllProducts((MainActivity) getActivity());
+                    ((MainActivity) getActivity()).activateFragment(new FilesFragment());
+                } else {
+                    promptUserToRetryImportToExisting();
                 }
             }
 
-
             @Override
             public void onFailure(VolleyError volleyError) {
-
+                promptUserToRetryImportToExisting();
             }
         });
+    }
+
+
+    private void promptUserToRetryImportToExisting() {
+        getView().findViewById(R.id.bindToCurrentAccountButton).setEnabled(true);
+        Toasts.promptUserToTryAgain(getActivity());
     }
 
 
@@ -326,6 +345,8 @@ public class AccountFragment extends TopLevelFragment {
         List<String> fileNames = FilesFragment.getDownloadableFileNames(downloadAnchors);
         CookieStorage.saveNamesOfFilesPurchasedByAccount(getActivity(), fileNames);
 
+        getView().findViewById(R.id.account_status_label).setVisibility(View.VISIBLE);
+
         TextView textView = getView().findViewById(R.id.account_status);
         textView.setText(accountStatus.getFriendlyName());
 
@@ -347,6 +368,7 @@ public class AccountFragment extends TopLevelFragment {
                     bindToCurrentAccount();
                 }
             });
+            btn.setVisibility(View.VISIBLE);
         }
     }
 

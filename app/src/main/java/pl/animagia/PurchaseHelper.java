@@ -4,7 +4,7 @@ import android.content.Context;
 import android.widget.Toast;
 import com.android.billingclient.api.*;
 import com.android.volley.VolleyError;
-import pl.animagia.html.HTML;
+import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
@@ -116,7 +116,7 @@ public class PurchaseHelper {
     private static void getDdlLink(Context ctx, String combinedToken) {
 
         String url = TokenAssembly.URL_BASE + combinedToken;
-        HTML.getHtml(url, ctx, new VolleyCallback() {
+        HtClient.getHtml(url, ctx, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
                 String downloadAnchor = FilesFragment.getDownloadAnchors(result).get(0);
