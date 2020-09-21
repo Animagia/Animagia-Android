@@ -1,52 +1,11 @@
 package pl.animagia;
 
-public enum Anime {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    CHUUNIBYOU("Take On Me",
-            "https://static.animagia.pl/Chuu_poster.jpg",
-            "https://animagia.pl/chuunibyou-demo-koi-ga-shitai-take-on-me/", 1,
-            "https://animagia.pl/wp-content/uploads/2018/07/umbrella_for_store_page.png",
-            "00:00:29.500;00:33:03.115;01:05:03.115",
-            "29,90 zł", "Przygoda", "Chuunibyou demo Koi ga Shitai!",
-            "93 min.", "Dorastanie jest zbyt mainstreamowe.", 430000),
-    AMAGI("Amagi Brilliant Park",
-            "https://static.animagia.pl/Amagi4.jpg",
-            "https://animagia.pl/amagi-brilliant-park-odc-1/", 13,
-            "https://animagia.pl/wp-content/uploads/2018/05/kv-for-store-page.png",
-            "00:03:03.115;00:08:03.115",
-            "39,90 zł", "Przygoda", "",
-            "13 × 24 min.", "Najbardziej magiczne miejse na Ziemi.", Integer.MAX_VALUE),
-    HANAIRO("Home Sweet Home",
-            "https://static.animagia.pl/Hana_poster.jpg",
-            "https://animagia.pl", 1,
-            "https://animagia.pl/wp-content/uploads/2019/02/HanaIro_store_page.png",
-            "00:04:03.115;00:11:03.115",
-            "29,90 zł", "Obyczajowy", "Hanasaku Iroha:",
-            "66 min.", "Chcę lśnić! Ale czy tu mogę zabłysnąć?", 913000),
-    KNK_PAST("Przeszłość",
-            "https://static.animagia.pl/Past_poster.jpg",
-            "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przeszlosc/", 1,
-            "https://animagia.pl/wp-content/uploads/2019/03/knk_past_store_page.png",
-            "00:03:03.115;00:04:03.115",
-            "23,90 zł", "Akcja, dramat", "Kyoukai no Kanata –",
-            "86 min.", "Początek historii Mirai i Akihito.", 772000),
-    KNK_FUTURE("Przyszłość",
-            "https://static.animagia.pl/Future_poster.jpg",
-            "https://animagia.pl/kyoukai-no-kanata-ill-be-here-przyszlosc/", 1,
-            "https://animagia.pl/wp-content/uploads/2019/03/future_store_page.png",
-            "00:00:34.019;01:25:31.738;01:28:36.465",
-            "23,90 zł", "Akcja, dramat", "Kyoukai no Kanata –",
-            "89 min.", "Mirai i Akihito walczą o lepszą przyszłość, ale ich moce mają swoją cenę.",
-            768000),
-    TAMAKO("Tamako Love Story",
-            "https://static.animagia.pl/Tamako_poster.jpg",
-            "https://animagia.pl/tamako-love-story/", 1,
-            "https://animagia.pl/wp-content/uploads/2019/04/Tamako_store_page.png",
-            "00:05:03.115;00:08:03.115",
-            "23,90 zł", "Obyczajowy", "",
-            "83 min.", "Czy to miłość? Tak.", 645000);
+public class Anime implements Parcelable {
 
-
+    static final String NAME_OF_INTENT_EXTRA = "video data";
 
     private final String title;
     private final String thumbnailAsssetUri;
@@ -60,10 +19,14 @@ public enum Anime {
     private final String duration;
     private final String description;
     private final int previewMillis;
+    private final String polishAudio;
+    private final String sku;
+
 
     Anime(String title, String thumbnailAssetUri, String videoUrl, int episodes,
-                 String posterAssetUri, String timeStamps, String price, String genres,
-                 String subtitle, String duration, String description, int previewMillis) {
+          String posterAssetUri, String timeStamps, String price, String genres,
+          String subtitle, String duration, String description, int previewMillis,
+          String polishAudio, String sku) {
         this.title = title;
         this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;
@@ -76,7 +39,48 @@ public enum Anime {
         this.duration = duration;
         this.description = description;
         this.previewMillis = previewMillis;
+        this.polishAudio = polishAudio;
+        this.sku = sku;
     }
+
+
+    protected Anime(Parcel in) {
+        title = in.readString();
+        thumbnailAsssetUri = in.readString();
+        posterAssetUri = in.readString();
+        videoUrl = in.readString();
+        episodes = in.readInt();
+        timeStamps = in.readString();
+        price = in.readString();
+        genres = in.readString();
+        subtitle = in.readString();
+        duration = in.readString();
+        description = in.readString();
+        previewMillis = in.readInt();
+        polishAudio = in.readString();
+        sku = in.readString();
+    }
+
+
+    public static final Creator<Anime> CREATOR = new Creator<Anime>() {
+        @Override
+        public Anime createFromParcel(Parcel in) {
+            return new Anime(in);
+        }
+
+
+        @Override
+        public Anime[] newArray(int size) {
+            return new Anime[size];
+        }
+    };
+
+
+    @Override
+    public String toString() {
+        return getTitle();
+    }
+
 
     public String formatFullTitle() {
         return subtitle.isEmpty() ? title : subtitle + " " + title;
@@ -130,24 +134,36 @@ public enum Anime {
         return previewMillis;
     }
 
+    public String getPolishAudio() {
+        return polishAudio;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
 
     @Override
-    public String toString() {
-        return getTitle();
+    public int describeContents() {
+        return 0;
     }
 
 
-    static Anime forSku(String sku) {
-        for (Anime anime : values()) {
-            if(anime.name().equalsIgnoreCase(sku)) {
-                return anime;
-            }
-        }
-
-        throw new IllegalArgumentException("No anime exists with SKU: " + sku);
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(thumbnailAsssetUri);
+        parcel.writeString(posterAssetUri);
+        parcel.writeString(videoUrl);
+        parcel.writeInt(episodes);
+        parcel.writeString(timeStamps);
+        parcel.writeString(price);
+        parcel.writeString(genres);
+        parcel.writeString(subtitle);
+        parcel.writeString(duration);
+        parcel.writeString(description);
+        parcel.writeInt(previewMillis);
+        parcel.writeString(polishAudio);
+        parcel.writeString(sku);
     }
-
-
-    static final String NAME_OF_INTENT_EXTRA = "video data";
-
 }

@@ -29,6 +29,7 @@ import pl.animagia.user.CookieStorage;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 //TODO extract and share methods that read login cookies
@@ -42,7 +43,7 @@ public class AccountFragment extends TopLevelFragment {
 
         if(userIsLoggedIn()) {
             layoutResource = R.layout.fragment_account;
-        } else if(TokenStorage.getLocallyPurchasedAnime(getActivity()).size() != 0) {
+        } else if(TokenStorage.hasLocallyPurchasedAnime(getActivity())) {
             layoutResource = R.layout.fragment_account_with_creation;
         }
 
@@ -402,11 +403,20 @@ public class AccountFragment extends TopLevelFragment {
 
 
     private String getListOfTitles() {
+
+        Set<Anime> anime = ((MainActivity) getActivity()).getAnimeInCatalog();
+
         String titles = "";
-        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(getActivity())) {
-            titles += "\n" + anime.formatFullTitle();
+
+        for (String sku : TokenStorage.getSkusOfLocallyPurchasedAnime(getActivity())) {
+            for (Anime a : anime) {
+                if(a.getSku().equals(sku)) {
+                    titles += "\n" + a.formatFullTitle();
+                }
+            }
         }
         return getResources().getString(R.string.have_locally_purchased_anime, titles);
+
     }
 
 }

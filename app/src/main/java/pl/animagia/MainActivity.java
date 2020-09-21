@@ -21,6 +21,10 @@ import android.view.View;
 import android.widget.*;
 import pl.animagia.user.CookieStorage;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         PopupMenu.OnMenuItemClickListener,
@@ -33,6 +37,8 @@ public class MainActivity extends AppCompatActivity
     private SingleProductFragment optionalFragmentToImmediatelyShow;
 
     public static String OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW = "productToShow";
+
+    private Set<Anime> animeInCatalog = Collections.emptySet();
 
 
     @Override
@@ -106,9 +112,9 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        if(getIntent().hasExtra(OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW)) {
-            Anime a = Anime.valueOf(getIntent().getStringExtra
-                    (OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW));
+        if (getIntent().hasExtra(OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW)) {
+            Anime a = getIntent().getParcelableExtra(
+                    OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW);
             startByShowingProduct(a);
         } else if(!rebuildFromFragments(savedInstanceState)) {
             activateFragment(new CatalogFragment());
@@ -304,4 +310,11 @@ public class MainActivity extends AppCompatActivity
         }
         return "";
     }
+
+
+    public Set<Anime> getAnimeInCatalog() {
+        return Collections.unmodifiableSet(animeInCatalog);
+    }
+
+
 }

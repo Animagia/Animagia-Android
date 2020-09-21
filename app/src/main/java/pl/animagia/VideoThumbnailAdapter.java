@@ -17,34 +17,12 @@ import java.util.*;
 
 class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
 
-    VideoThumbnailAdapter(Context context) {
-        super(context, R.layout.video_thumbnail, R.id.thumbnail_title, prepareVideos());
+    VideoThumbnailAdapter(MainActivity ma) {
+        super(ma, R.layout.video_thumbnail, R.id.thumbnail_title,
+                new ArrayList<>(ma.getAnimeInCatalog()) );
     }
 
-    static Anime[] prepareVideos() {
-        int totalTitles = 6;
-
-        if (appIsOutdated()) {
-            totalTitles = 0;
-        }
-
-        Anime[] fullArr = new ArrayList<>(EnumSet.allOf(Anime.class)).toArray(new Anime[0]);
-
-        return Arrays.copyOfRange(fullArr, 0, totalTitles);
-    }
-
-    private static boolean appIsOutdated() {
-        GregorianCalendar appBecomesOutdated = new GregorianCalendar();
-        appBecomesOutdated.setTimeZone(TimeZone.getTimeZone("UTC"));
-        appBecomesOutdated.set(2020, GregorianCalendar.JUNE, 1);
-
-        GregorianCalendar now = new GregorianCalendar();
-        now.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        return now.after(appBecomesOutdated);
-    }
-
-
+    @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View thumbnail = super.getView(position, convertView, parent);
@@ -57,7 +35,7 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
 
         String filmSubtitle = super.getItem(position).getSubtitle();
         TextView subtitleView = thumbnail.findViewById(R.id.thumbnail_subtitle);
-        if (filmSubtitle == "") {
+        if (filmSubtitle.equals("")) {
             subtitleView.setVisibility(View.GONE);
         } else {
             subtitleView.setText(filmSubtitle);

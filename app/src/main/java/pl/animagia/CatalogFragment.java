@@ -32,7 +32,8 @@ public class CatalogFragment extends TopLevelFragment {
 
         GridView gridview = view.findViewById(R.id.gridview);
 
-        final VideoThumbnailAdapter adapter = new VideoThumbnailAdapter(getActivity());
+        final VideoThumbnailAdapter adapter =
+                new VideoThumbnailAdapter((MainActivity) getActivity());
         gridview.setAdapter(adapter);
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
@@ -75,7 +76,7 @@ public class CatalogFragment extends TopLevelFragment {
         final String cookie = CookieStorage.getCookie(getActivity());
 
         Intent intent = new Intent(getActivity(), FullscreenPlaybackActivity.class);
-        intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData.name());
+        intent.putExtra(Anime.NAME_OF_INTENT_EXTRA, videoData);
         intent.putExtra(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
 
         startActivity(intent);

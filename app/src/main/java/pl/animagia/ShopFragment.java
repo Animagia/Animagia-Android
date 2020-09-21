@@ -30,7 +30,7 @@ public class ShopFragment extends TopLevelFragment {
 
         GridView gridview = (GridView) view.findViewById(R.id.gridview);
 
-        final ProductAdapter adapter = new ProductAdapter(getActivity());
+        final ProductAdapter adapter = new ProductAdapter((MainActivity) getActivity());
         gridview.setAdapter(adapter);
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,

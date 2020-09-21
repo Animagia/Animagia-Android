@@ -35,7 +35,7 @@ public class PurchaseHelper {
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     List<String> skuList = new ArrayList<>();
-                    skuList.add(anime.name().toLowerCase());
+                    skuList.add(anime.getSku().toLowerCase());
                     SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
                     params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
                     billingClient.querySkuDetailsAsync(params.build(),
@@ -49,7 +49,7 @@ public class PurchaseHelper {
                                             skuDetailsList != null) {
                                         for (SkuDetails skuDetails : skuDetailsList) {
                                             String sku = skuDetails.getSku();
-                                            if (anime.name().equalsIgnoreCase(sku)) {
+                                            if (anime.getSku().equalsIgnoreCase(sku)) {
                                                 com.android.billingclient.api.BillingFlowParams
                                                         flowParams =
                                                         BillingFlowParams.newBuilder()
@@ -100,7 +100,7 @@ public class PurchaseHelper {
 
             for (Purchase purchase : list ) {
                 if(Purchase.PurchaseState.PURCHASED == purchase.getPurchaseState()) {
-                    TokenStorage.storePurchase(ma, Anime.forSku(purchase.getSku()), purchase);
+                    TokenStorage.storePurchase(ma, purchase.getSku(), purchase);
 
                     spf.onSuccessfulPurchase();
 

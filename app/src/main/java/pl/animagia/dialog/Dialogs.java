@@ -44,8 +44,7 @@ public class Dialogs {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent showProductInShop = new Intent(fpa, MainActivity.class);
                         showProductInShop.putExtra(
-                                MainActivity.OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW,
-                                anime.name());
+                                MainActivity.OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW, anime);
                         fpa.startActivity(showProductInShop);
                     }
                 })

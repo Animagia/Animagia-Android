@@ -17,12 +17,14 @@ import com.bumptech.glide.Glide;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 
 
 public class ProductAdapter extends ArrayAdapter<Anime> {
 
-    public ProductAdapter(Context context) {
-        super(context, R.layout.product_card, R.id.product_title, VideoThumbnailAdapter.prepareVideos());
+    public ProductAdapter(MainActivity ma) {
+        super(ma, R.layout.product_card, R.id.product_title,
+                new ArrayList<>(ma.getAnimeInCatalog()));
     }
 
 

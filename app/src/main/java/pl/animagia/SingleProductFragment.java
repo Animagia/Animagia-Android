@@ -24,7 +24,7 @@ public class SingleProductFragment extends Fragment {
     static SingleProductFragment newInstance(Anime anime) {
 
         Bundle args = new Bundle();
-        args.putString(ArgumentKeys.ANIME.name(), anime.name());
+        args.putParcelable(ArgumentKeys.ANIME.name(), anime);
 
         SingleProductFragment fragment = new SingleProductFragment();
         fragment.setArguments(args);
@@ -43,7 +43,7 @@ public class SingleProductFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final Anime anime = Anime.valueOf(getArguments().getString(ArgumentKeys.ANIME.name()));
+        final Anime anime = getArguments().getParcelable(ArgumentKeys.ANIME.name());
 
         TextView title = view.findViewById(R.id.product_title);
         title.setText(anime.formatFullTitle());
@@ -74,19 +74,18 @@ public class SingleProductFragment extends Fragment {
                 .into(poster);
 
         TextView miscDetails = view.findViewById(R.id.product_misc_details);
-        switch (anime) {
-            case AMAGI:
-                miscDetails.setText(getResources().getString(R.string.product_details_voiceover,
-                        anime.getDuration()));
-                break;
-            case HANAIRO:
-                miscDetails.setText(getResources().getString(R.string.product_details_dub,
-                        anime.getDuration()));
-                break;
-            default:
-                miscDetails.setText(getResources().getString(R.string.product_details_sub,
-                        anime.getDuration()));
+
+        if (anime.getPolishAudio().equalsIgnoreCase("voiceover")) {
+            miscDetails.setText(getResources().getString(R.string.product_details_voiceover,
+                    anime.getDuration()));
+        } else if (anime.getPolishAudio().equalsIgnoreCase("dub")) {
+            miscDetails.setText(getResources().getString(R.string.product_details_dub,
+                    anime.getDuration()));
+        } else {
+            miscDetails.setText(getResources().getString(R.string.product_details_sub,
+                    anime.getDuration()));
         }
+
     }
 
 
@@ -102,12 +101,15 @@ public class SingleProductFragment extends Fragment {
 
 
     private boolean alreadyPurchased(Anime a) {
-        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(getActivity())) {
-            if(anime.formatFullTitle().equals(a.formatFullTitle())) {
+        for (String sku : TokenStorage.getSkusOfLocallyPurchasedAnime(getActivity())) {
+            if(a.getSku().equals(sku)) {
                 return true;
             }
         }
 
+
+        //FIXME: needs more rigorous comparing to distinguish knk past from future!
+        //maybe extract full titles from html and use that?
         return CookieStorage.getNamesOfFilesPurchasedByAccount(getActivity()).toString()
                 .contains(a.formatFullTitle().split(" ")[0]);
     }

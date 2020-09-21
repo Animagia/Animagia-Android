@@ -61,9 +61,9 @@ public class FilesFragment extends TopLevelFragment {
            getFilesFromAccount();
         }
 
-        Set<Anime> locallyPurchasedAnime = TokenStorage.getLocallyPurchasedAnime(getActivity());
-        for (Anime a : locallyPurchasedAnime) {
-            String token = TokenStorage.getCombinedToken(getActivity(), a);
+        Set<String> skus = TokenStorage.getSkusOfLocallyPurchasedAnime(getActivity());
+        for (String sku : skus) {
+            String token = TokenStorage.getCombinedToken(getActivity(), sku);
             String videoPageUrl = TokenAssembly.URL_BASE + token;
 
             HtClient.getHtml(videoPageUrl, getActivity(), new VolleyCallback() {
@@ -81,7 +81,7 @@ public class FilesFragment extends TopLevelFragment {
             });
         }
 
-        if(!isLoggedIn() && locallyPurchasedAnime.isEmpty()) {
+        if(!isLoggedIn() && skus.isEmpty()) {
             showEmptyCollection();
         }
     }

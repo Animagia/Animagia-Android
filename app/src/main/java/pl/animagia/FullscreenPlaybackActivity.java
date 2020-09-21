@@ -78,8 +78,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
-                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
+//                        Toast.LENGTH_SHORT).show();
                 reinitializePlayer("");
             }
         }
@@ -91,10 +91,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         public void run()
         {
             long sek = mPlayer.getCurrentPosition();
-            if(sek >= previewMilliseconds){
-                mPlayer.seekTo(previewMilliseconds - 1000);
-                Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
-                onPause();
+
+            if(sek >= previewMilliseconds) {
+
+                //FIXME should disable rewinder entirely when watchtime not limited
+                boolean limitedWatchtime = true;
+                if(currentTitle.contains("Amagi")) {
+                    limitedWatchtime = false;
+                } else if(userBoughtAccessToFilm()) {
+                    limitedWatchtime = false;
+                }
+
+                if(limitedWatchtime) {
+                    mPlayer.seekTo(previewMilliseconds - 1000);
+                    Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
+                    onPause();
+                }
             }
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
         }
@@ -108,7 +120,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Anime anime = Anime.valueOf(getIntent().getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
+        Anime anime = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
         cookie = getIntent().getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
@@ -122,8 +134,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         String videoPageUrl = anime.getVideoUrl();
 
-        if(TokenStorage.getLocallyPurchasedAnime(this).contains(anime)) {
-            String token = TokenStorage.getCombinedToken(this, anime);
+        if(TokenStorage.getSkusOfLocallyPurchasedAnime(this).contains(anime.getSku())) {
+            String token = TokenStorage.getCombinedToken(this, anime.getSku());
             videoPageUrl = TokenAssembly.URL_BASE + token;
         }
 
@@ -300,20 +312,30 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private boolean userBoughtAccessToFilm() {
+        boolean accessBought = false;
+
         String currentPremiumStatus = CookieStorage.getAccountStatus(this);
-        if (AccountStatus.ACTIVE.getFriendlyName().equals(currentPremiumStatus) ||
-                AccountStatus.EXPIRING.getFriendlyName().equals(currentPremiumStatus)) {
-            return true;
+
+        if (AccountStatus.ACTIVE.getFriendlyName().equals(currentPremiumStatus)) {
+            accessBought = true;
         }
 
-        for (Anime anime : TokenStorage.getLocallyPurchasedAnime(this)) {
-            if(anime.formatFullTitle().equals(currentTitle)) {
-                return true;
+        if (AccountStatus.EXPIRING.getFriendlyName().equals(currentPremiumStatus)) {
+            accessBought = true;
+        }
+
+        for (String sku : TokenStorage.getSkusOfLocallyPurchasedAnime(this)) {
+            if(currentAnime.getSku().equals(sku)) {
+                accessBought = true;
             }
         }
 
-        return CookieStorage.getNamesOfFilesPurchasedByAccount(this).toString()
-                .contains(currentTitle.split(" ")[0]);
+        String word = currentTitle.split(" ")[0];
+        if( CookieStorage.getNamesOfFilesPurchasedByAccount(this).toString().contains( word)) {
+            accessBought = true;
+        }
+
+        return accessBought;
     }
 
 
@@ -607,8 +629,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View previous = controlView.findViewById(R.id.previous_episode);
 
         final AppCompatActivity ac = this;
-        final Anime video = Anime.valueOf(getIntent().getStringExtra(Anime.NAME_OF_INTENT_EXTRA));
-//
+        final Anime video = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
+
         next.setOnClickListener(newEpisodeListener(ac, video, 1));
         previous.setOnClickListener(newEpisodeListener(ac, video, -1));
     }
