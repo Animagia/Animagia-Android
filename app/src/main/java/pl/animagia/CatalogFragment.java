@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import pl.animagia.user.CookieStorage;
 
+import java.util.Set;
+
 public class CatalogFragment extends TopLevelFragment {
 
     @Nullable
@@ -93,5 +95,13 @@ public class CatalogFragment extends TopLevelFragment {
 
         return logIn;
     }
+
+
+    public void populate(Set<Anime> animeInCatalog) {
+
+        throw new UnsupportedOperationException();
+
+    }
+
 
 }

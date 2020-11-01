@@ -35,7 +35,7 @@ public class OwnTimeBar extends DefaultTimeBar {
         progressBar = new Rect();
         adMarkerPaint = new Paint();
         adMarkerPaint.setColor(getResources().getColor(R.color.seekbar_marker));
-        chapterMarkerTimeStamps = new ArrayList<Long>();
+        chapterMarkerTimeStamps = new ArrayList<>();
 
         Resources res = context.getResources();
         DisplayMetrics displayMetrics = res.getDisplayMetrics();
@@ -74,10 +74,11 @@ public class OwnTimeBar extends DefaultTimeBar {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawTimeBarMarker(canvas);
+        //drawLockedSegment(canvas);
     }
 
-    private void drawTimeBarMarker(Canvas canvas) {
 
+    private void drawTimeBarMarker(Canvas canvas) {
         int progressBarHeight = progressBar.height();
         int barTop = progressBar.centerY() - progressBarHeight / 2;
         int barBottom = barTop + progressBarHeight;
@@ -96,6 +97,26 @@ public class OwnTimeBar extends DefaultTimeBar {
                 canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth/2, barBottom, paint);
             }
         }
+    }
+
+
+    private void drawLockedSegment(Canvas canvas) {
+        Paint lockedSegmentPaint = new Paint();
+        adMarkerPaint.setColor(getResources().getColor(R.color.colorPrimaryLight));
+
+        int progressBarHeight = progressBar.height();
+        int barTop = progressBar.centerY() - progressBarHeight / 2;
+        int barBottom = barTop + progressBarHeight;
+
+        long previewTimeMs = Util.constrainValue(420000, 0, duration);
+
+        int adMarkerOffset = adMarkerWidth / 2;
+        int markerPositionOffset =
+                (int) (progressBar.width() * previewTimeMs / duration) - adMarkerOffset;
+        int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
+                Math.max(0, markerPositionOffset));
+        canvas.drawRect(
+                markerLeft, barTop, markerLeft + adMarkerWidth/2, barBottom, lockedSegmentPaint);
     }
 
 

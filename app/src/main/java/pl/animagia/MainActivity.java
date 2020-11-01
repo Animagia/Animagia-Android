@@ -1,6 +1,7 @@
 package pl.animagia;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TypefaceSpan;
@@ -19,6 +21,9 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import com.android.volley.VolleyError;
+import pl.animagia.html.HtClient;
+import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.CookieStorage;
 
 import java.util.Collections;
@@ -37,6 +42,9 @@ public class MainActivity extends AppCompatActivity
     private SingleProductFragment optionalFragmentToImmediatelyShow;
 
     public static String OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW = "productToShow";
+
+    //FIXME get rid of this and save Anime objects to instance state directly
+    private String catalogJson = "";
 
     private Set<Anime> animeInCatalog = Collections.emptySet();
 
@@ -117,7 +125,21 @@ public class MainActivity extends AppCompatActivity
                     OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW);
             startByShowingProduct(a);
         } else if(!rebuildFromFragments(savedInstanceState)) {
-            activateFragment(new CatalogFragment());
+
+            HtClient.fetchCatalogJson(this, new VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    catalogJson = HtClient.readAsUnicode(result);
+                    animeInCatalog = HtClient.parseCatalog(result);
+                    activateFragment(new CatalogFragment());
+                }
+
+                @Override
+                public void onFailure(VolleyError volleyError) {
+                    throw new RuntimeException(volleyError.toString());
+                }
+            });
+
         }
 
     }
@@ -134,6 +156,10 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null) {
             return false;
         }
+        
+        catalogJson = savedInstanceState.getString("catalog_json");
+        animeInCatalog = HtClient.parseCatalog(catalogJson);
+        
         for (Fragment f : getSupportFragmentManager().getFragments()) {
             if(f instanceof SingleProductFragment) {
                 fragmentSavedBeforeRotation = (SingleProductFragment) f;
@@ -146,6 +172,14 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return false;
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("catalog_json", catalogJson);
     }
 
 

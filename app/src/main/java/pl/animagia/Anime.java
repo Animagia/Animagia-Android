@@ -23,10 +23,10 @@ public class Anime implements Parcelable {
     private final String sku;
 
 
-    Anime(String title, String thumbnailAssetUri, String videoUrl, int episodes,
-          String posterAssetUri, String timeStamps, String price, String genres,
-          String subtitle, String duration, String description, int previewMillis,
-          String polishAudio, String sku) {
+    public Anime(String title, String thumbnailAssetUri, String videoUrl, int episodes,
+                 String posterAssetUri, String timeStamps, String price, String genres,
+                 String subtitle, String duration, String description, int previewMillis,
+                 String polishAudio, String sku) {
         this.title = title;
         this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;

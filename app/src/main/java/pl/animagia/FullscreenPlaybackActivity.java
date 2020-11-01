@@ -78,8 +78,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
-//                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
-//                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
+                        Toast.LENGTH_SHORT).show();
                 reinitializePlayer("");
             }
         }
