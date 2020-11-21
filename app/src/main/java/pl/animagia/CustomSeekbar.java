@@ -72,7 +72,16 @@ public class CustomSeekbar extends DefaultTimeBar {
         super.onDraw(canvas);
         //drawTimeBarMarker(canvas);
         drawLockedSegment(canvas);
+        //drawTestMarker(canvas);
     }
+
+
+//    private void drawTestMarker(Canvas canvas) {
+//        Paint paint = new Paint();
+//        paint.setColor(getResources().getColor(R.color.colorPrimaryLight));
+//
+//        progressBar.left
+//    }
 
 
     private void drawTimeBarMarker(Canvas canvas) {

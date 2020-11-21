@@ -3,6 +3,7 @@ package pl.animagia;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -570,25 +571,31 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus ) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-
-            mMainView.setSystemUiVisibility(
-
-                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-
-            //hideSystemUi();
+            layOutActivityAsIfSystemBarsWereGone();
         }
     }
 
 
-    private int getNavigationBarHeight() {
-        int navigationBarHeight = 0;
+    private void layOutActivityAsIfSystemBarsWereGone() {
+        mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        alignControls(newConfig.orientation);
+    }
+
+
+    private int getNavigationBarThickness() {
         int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0) {
-            navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+            return getResources().getDimensionPixelSize(resourceId);
         }
-        return navigationBarHeight;
+        return 0;
     }
 
 
@@ -608,18 +615,21 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         player.prepare(mediaSource);
 
-        moveControlsAboveNavigationBar();
+        alignControls(getResources().getConfiguration().orientation);
         setUpInterEpisodeNavigation();
 
         return player;
     }
 
-    private void moveControlsAboveNavigationBar() {
+    private void alignControls(int screenOrientation) {
         PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        ViewGroup.MarginLayoutParams lp =
+                (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
-        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
+        int bottom = getNavigationBarThickness();
+        int leftRight = screenOrientation == Configuration.ORIENTATION_LANDSCAPE ? 16 + bottom : 0;
+        lp.setMargins(leftRight, 0, leftRight, bottom);
 
-        lp.setMargins(0, 0, 0, getNavigationBarHeight());
         controlView.requestLayout();
     }
 
@@ -650,10 +660,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private boolean isTheatricalFilm(String title) {
-        if (title.contains("Amagi")){
-            return false;
-        }
-        return true;
+        return !title.contains("Amagi");
     }
 
 
