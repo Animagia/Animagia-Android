@@ -24,8 +24,11 @@ public class OwnTimeBar extends DefaultTimeBar {
     private final int touchTargetHeight;
     private final Rect seekBounds;
     private final int barHeight;
+    
     private ArrayList<Long> chapterMarkerTimeStamps;
     private long duration;
+    private long previewLength;
+    
     public Context eContext;
 
     public OwnTimeBar(Context context, AttributeSet attrs) {
@@ -47,8 +50,6 @@ public class OwnTimeBar extends DefaultTimeBar {
             TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DefaultTimeBar, 0,
                     0);
             try {
-
-
                 adMarkerWidth = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_ad_marker_width,
                         defaultAdMarkerWidth);
                 touchTargetHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_touch_target_height,
@@ -73,8 +74,8 @@ public class OwnTimeBar extends DefaultTimeBar {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawTimeBarMarker(canvas);
-        //drawLockedSegment(canvas);
+        //drawTimeBarMarker(canvas);
+        drawLockedSegment(canvas);
     }
 
 
@@ -101,8 +102,13 @@ public class OwnTimeBar extends DefaultTimeBar {
 
 
     private void drawLockedSegment(Canvas canvas) {
+
+        if(duration == 0) {
+            return;
+        }
+
         Paint lockedSegmentPaint = new Paint();
-        adMarkerPaint.setColor(getResources().getColor(R.color.colorPrimaryLight));
+        lockedSegmentPaint.setColor(getResources().getColor(R.color.seekbar_locked_segment));
 
         int progressBarHeight = progressBar.height();
         int barTop = progressBar.centerY() - progressBarHeight / 2;
@@ -110,13 +116,19 @@ public class OwnTimeBar extends DefaultTimeBar {
 
         long previewTimeMs = Util.constrainValue(420000, 0, duration);
 
-        int adMarkerOffset = adMarkerWidth / 2;
+       int adMarkerOffset = adMarkerWidth / 2;
+
         int markerPositionOffset =
                 (int) (progressBar.width() * previewTimeMs / duration) - adMarkerOffset;
-        int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
-                Math.max(0, markerPositionOffset));
-        canvas.drawRect(
-                markerLeft, barTop, markerLeft + adMarkerWidth/2, barBottom, lockedSegmentPaint);
+
+        while(markerPositionOffset < progressBar.width() - adMarkerWidth) {
+            int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
+                    Math.max(0, markerPositionOffset));
+            canvas.drawRect(
+                    markerLeft, barTop, markerLeft + adMarkerWidth / 2, barBottom,
+                    lockedSegmentPaint);
+            markerPositionOffset += 1.5 * adMarkerWidth;
+        }
     }
 
 
@@ -136,14 +148,12 @@ public class OwnTimeBar extends DefaultTimeBar {
 
     }
 
-
-    public void setChapterMarkers(@Nullable ArrayList<Long> timestamp) {
-        for(Long e : timestamp)
-            chapterMarkerTimeStamps.add(e);
-    }
-
     public void addChapterMarker(@Nullable long timestamp) {
         chapterMarkerTimeStamps.add(timestamp);
+    }
+
+    public void setPreviewLength(long length) {
+        previewLength = length;
     }
 
     @Override

@@ -5,6 +5,7 @@
     <color name="colorPrimaryLight">#628ef0</color>
 
     <color name="seekbar_marker">#ffffff</color>
+    <color name="seekbar_locked_segment">#eeee15</color>
 
     <color name="black_overlay">#20000000</color>
     <color name="black_semi">#50000000</color>

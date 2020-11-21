@@ -195,6 +195,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         if(!timeStamps[0].equals(""))
         addTimeStamps(chapterMarker, timeStamps);
+        chapterMarker.setPreviewLength(video.getPreviewMillis());
 
         forwardPlayerButton = findViewById(R.id.exo_ffwd);
         forwardPlayerButton.getDrawable().setAlpha(255);
@@ -544,10 +545,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private void addTimeStamps(OwnTimeBar timeBar, String[] timeStamps){
-        for(int i = 0; i < timeStamps.length; i++){
-            timeBar.addChapterMarker(calculateMsTimeStamp(timeStamps[i]));
+        for (String timeStamp : timeStamps) {
+            timeBar.addChapterMarker(calculateMsTimeStamp(timeStamp));
         }
-
     }
 
     private void listenToSystemUiChanges() {
