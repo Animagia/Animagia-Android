@@ -16,10 +16,9 @@ import android.util.DisplayMetrics;
 
 import java.util.ArrayList;
 
-public class OwnTimeBar extends DefaultTimeBar {
+public class CustomSeekbar extends DefaultTimeBar {
 
-    private final Paint adMarkerPaint;
-    private final int adMarkerWidth;
+    private final int markerWidth;
     private final Rect progressBar;
     private final int touchTargetHeight;
     private final Rect seekBounds;
@@ -27,17 +26,13 @@ public class OwnTimeBar extends DefaultTimeBar {
     
     private ArrayList<Long> chapterMarkerTimeStamps;
     private long duration;
-    private long previewLength;
-    
-    public Context eContext;
+    private long previewMillis;
 
-    public OwnTimeBar(Context context, AttributeSet attrs) {
+
+    public CustomSeekbar(Context context, AttributeSet attrs) {
         super(context, attrs);
-        eContext = context;
         seekBounds = new Rect();
         progressBar = new Rect();
-        adMarkerPaint = new Paint();
-        adMarkerPaint.setColor(getResources().getColor(R.color.seekbar_marker));
         chapterMarkerTimeStamps = new ArrayList<>();
 
         Resources res = context.getResources();
@@ -47,20 +42,21 @@ public class OwnTimeBar extends DefaultTimeBar {
         int defaultBarHeight = dpToPx(displayMetrics, DEFAULT_BAR_HEIGHT_DP);
 
         if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.DefaultTimeBar, 0,
-                    0);
+            TypedArray a = context.getTheme().
+                    obtainStyledAttributes( attrs, R.styleable .DefaultTimeBar, 0, 0);
             try {
-                adMarkerWidth = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_ad_marker_width,
+                markerWidth = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_ad_marker_width,
                         defaultAdMarkerWidth);
-                touchTargetHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_touch_target_height,
-                        defaultTouchTargetHeight);
+                touchTargetHeight =
+                        a.getDimensionPixelSize(R.styleable.DefaultTimeBar_touch_target_height,
+                                defaultTouchTargetHeight);
                 barHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_bar_height,
                         defaultBarHeight);
             } finally {
                 a.recycle();
             }
         } else {
-            adMarkerWidth = defaultAdMarkerWidth;
+            markerWidth = defaultAdMarkerWidth;
             touchTargetHeight = defaultTouchTargetHeight;
             barHeight = defaultBarHeight;
         }
@@ -80,29 +76,30 @@ public class OwnTimeBar extends DefaultTimeBar {
 
 
     private void drawTimeBarMarker(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(getResources().getColor(R.color.seekbar_chapter_marker));
+
         int progressBarHeight = progressBar.height();
         int barTop = progressBar.centerY() - progressBarHeight / 2;
         int barBottom = barTop + progressBarHeight;
 
-        int adMarkerOffset = adMarkerWidth / 2;
+        int adMarkerOffset = markerWidth / 2;
 
-        for (int i = 0; i < chapterMarkerTimeStamps.size(); i++) {
-            long adGroupTimeMs = Util.constrainValue(chapterMarkerTimeStamps.get(i), 0, duration);
+        for (Long chapterMarkerTimeStamp : chapterMarkerTimeStamps) {
+            long adGroupTimeMs = Util.constrainValue(chapterMarkerTimeStamp, 0, duration);
 
             if (duration != 0) {
                 int markerPositionOffset =
                         (int) (progressBar.width() * adGroupTimeMs / duration) - adMarkerOffset;
-                int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
+                int markerLeft = progressBar.left + Math.min(progressBar.width() - markerWidth,
                         Math.max(0, markerPositionOffset));
-                Paint paint = adMarkerPaint;
-                canvas.drawRect(markerLeft, barTop, markerLeft + adMarkerWidth/2, barBottom, paint);
+                canvas.drawRect(markerLeft, barTop, markerLeft + markerWidth / 2, barBottom, paint);
             }
         }
     }
 
 
     private void drawLockedSegment(Canvas canvas) {
-
         if(duration == 0) {
             return;
         }
@@ -114,20 +111,18 @@ public class OwnTimeBar extends DefaultTimeBar {
         int barTop = progressBar.centerY() - progressBarHeight / 2;
         int barBottom = barTop + progressBarHeight;
 
-        long previewTimeMs = Util.constrainValue(420000, 0, duration);
+        long previewTimeMs = Util.constrainValue(previewMillis, 0, duration);
+        int cosmeticMargin = progressBar.width() / 33; //FIXME too large in landscape
+        int markerPosition =
+                (int) (progressBar.width() * previewTimeMs / duration) + cosmeticMargin;
 
-       int adMarkerOffset = adMarkerWidth / 2;
-
-        int markerPositionOffset =
-                (int) (progressBar.width() * previewTimeMs / duration) - adMarkerOffset;
-
-        while(markerPositionOffset < progressBar.width() - adMarkerWidth) {
-            int markerLeft = progressBar.left + Math.min(progressBar.width() - adMarkerWidth,
-                    Math.max(0, markerPositionOffset));
+        while(markerPosition < progressBar.width() - markerWidth) {
+            int markerLeft = progressBar.left + Math.min(progressBar.width() - markerWidth,
+                    Math.max(0, markerPosition));
             canvas.drawRect(
-                    markerLeft, barTop, markerLeft + adMarkerWidth / 2, barBottom,
+                    markerLeft, barTop, markerLeft + markerWidth / 2, barBottom,
                     lockedSegmentPaint);
-            markerPositionOffset += 1.5 * adMarkerWidth;
+            markerPosition += 1.5 * markerWidth;
         }
     }
 
@@ -152,8 +147,8 @@ public class OwnTimeBar extends DefaultTimeBar {
         chapterMarkerTimeStamps.add(timestamp);
     }
 
-    public void setPreviewLength(long length) {
-        previewLength = length;
+    public void setPreviewMillis(long length) {
+        previewMillis = length;
     }
 
     @Override

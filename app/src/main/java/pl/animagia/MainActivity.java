@@ -1,6 +1,7 @@
 package pl.animagia;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -26,9 +27,7 @@ import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.user.CookieStorage;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -156,9 +155,9 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null) {
             return false;
         }
-        
-        catalogJson = savedInstanceState.getString("catalog_json");
-        animeInCatalog = HtClient.parseCatalog(catalogJson);
+
+        animeInCatalog =
+                new HashSet<>( savedInstanceState.<Anime>getParcelableArrayList("anime_parcel"));
         
         for (Fragment f : getSupportFragmentManager().getFragments()) {
             if(f instanceof SingleProductFragment) {
@@ -178,8 +177,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        outState.putString("catalog_json", catalogJson);
+        outState.putParcelableArrayList("anime_parcel", new ArrayList<>(animeInCatalog));
     }
 
 

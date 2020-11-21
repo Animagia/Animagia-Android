@@ -58,7 +58,7 @@
             android:includeFontPadding="false"
             android:textColor="#FFBEBEBE"/>
 
-        <pl.animagia.OwnTimeBar
+        <pl.animagia.CustomSeekbar
             android:id="@id/exo_progress"
             android:layout_width="0dp"
             android:layout_weight="1"

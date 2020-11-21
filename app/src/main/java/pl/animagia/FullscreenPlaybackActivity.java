@@ -53,7 +53,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
-    private String timeStampUnconverted;
     private String [] timeStamps;
 
     private String cookie;
@@ -188,14 +187,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         updateDisplayedTitle();
 
-        timeStampUnconverted = video.getTimeStamps();
+        String timeStampUnconverted = video.getTimeStamps();
         timeStamps = timeStampUnconverted.split(";");
 
-        OwnTimeBar chapterMarker = findViewById(R.id.exo_progress);
+        CustomSeekbar chapterMarker = findViewById(R.id.exo_progress);
 
         if(!timeStamps[0].equals(""))
         addTimeStamps(chapterMarker, timeStamps);
-        chapterMarker.setPreviewLength(video.getPreviewMillis());
+        chapterMarker.setPreviewMillis(video.getPreviewMillis());
 
         forwardPlayerButton = findViewById(R.id.exo_ffwd);
         forwardPlayerButton.getDrawable().setAlpha(255);
@@ -544,7 +543,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         return totalTimeInMs;
     }
 
-    private void addTimeStamps(OwnTimeBar timeBar, String[] timeStamps){
+    private void addTimeStamps(CustomSeekbar timeBar, String[] timeStamps){
         for (String timeStamp : timeStamps) {
             timeBar.addChapterMarker(calculateMsTimeStamp(timeStamp));
         }
@@ -571,7 +570,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus ) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            hideSystemUi();
+
+            mMainView.setSystemUiVisibility(
+
+                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+            //hideSystemUi();
         }
     }
 
