@@ -108,12 +108,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     };
 
 
-    private void showPurchasePrompt() {
-        //TODO forwardPlayerButton.getDrawable().setAlpha(255);
-        findViewById(R.id.purchase_prompt).setVisibility(View.VISIBLE);
-    }
-
-
     private long lastTimeSystemUiWasBroughtBack;
     private boolean translationChangesAllowed = false;
 
@@ -320,6 +314,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             forwardPlayerButton.setOnClickListener(listener);
             rewindPlayerButton.setOnClickListener(listener);
         }
+    }
+
+
+    private void showPurchasePrompt() {
+        //TODO forwardPlayerButton.getDrawable().setAlpha(255);
+        findViewById(R.id.purchase_prompt).setVisibility(View.VISIBLE);
+    }
+
+
+    public void showSingleProductDialog(View v) {
+        Toast.makeText(this, "single product", Toast.LENGTH_SHORT).show();
+        Dialogs.showMiniPurchaseDialog(this);
     }
 
 

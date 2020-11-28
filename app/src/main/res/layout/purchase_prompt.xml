@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="gone"
-    android:id="@+id/purchase_prompt" >
+    android:id="@+id/purchase_prompt"
+    android:background="#0fff0f">
 
     <ImageView
         android:id="@+id/prompt_poster"
-        android:layout_width="wrap_content"
+        android:layout_width="90dp"
         android:layout_height="151dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
-        android:src="@drawable/background" />
+        app:srcCompat="@drawable/ic_subtitles"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:orientation="vertical"
         android:id="@+id/endOfPreview_prompt"
-        android:layout_width="0dp"
-        android:layout_height="40dp">
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="#f0f000">
 
         <TextView
             android:layout_width="wrap_content"
@@ -26,7 +31,8 @@
             android:maxLines="2"
             android:text="@string/purchase_full_film"
             android:textSize="13sp"
-            android:textColor="@color/seekbar_chapter_marker" />
+            android:textColor="@color/seekbar_chapter_marker"
+            android:background="#f000f0"/>
 
         <TextView
             android:id="@+id/film_title_in_prompt"
@@ -41,7 +47,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/product_details_button" />
+            android:text="@string/product_details_button"
+            android:textColor="@color/seekbar_chapter_marker"
+            android:onClick="showSingleProductDialog" />
 
     </LinearLayout>
 

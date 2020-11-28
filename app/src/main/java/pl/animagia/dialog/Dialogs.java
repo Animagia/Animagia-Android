@@ -1,11 +1,14 @@
 package pl.animagia.dialog;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.Window;
 import pl.animagia.Anime;
 import pl.animagia.FullscreenPlaybackActivity;
 import pl.animagia.MainActivity;
@@ -34,25 +37,12 @@ public class Dialogs {
     }
 
 
-    public static void primeVideoError(final FullscreenPlaybackActivity fpa, final Anime anime) {
-        new AlertDialog.Builder(fpa)
-                .setCancelable(true)
-                .setMessage(R.string.free_streaming_message)
-                .setNegativeButton(R.string.return_from_dialog, null)
-                .setPositiveButton("Sklep", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent showProductInShop = new Intent(fpa, MainActivity.class);
-                        showProductInShop.putExtra(
-                                MainActivity.OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW, anime);
-                        fpa.startActivity(showProductInShop);
-                    }
-                })
-                .show();
-    }
+    public static void showMiniPurchaseDialog(Context ctx) {
+        Dialog dialog = new Dialog(ctx);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.fragment_single_product);
 
-
-    public static void showAccountCreation() {
+        dialog.show();
 
     }
 
