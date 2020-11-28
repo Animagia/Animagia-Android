@@ -16,29 +16,22 @@ import android.widget.*;
 import com.android.volley.VolleyError;
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.*;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import pl.animagia.dialog.Dialogs;
 import pl.animagia.html.HtClient;
 import pl.animagia.html.VolleyCallback;
 import pl.animagia.token.TokenAssembly;
 import pl.animagia.token.TokenStorage;
-import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
 import java.util.*;
 
-public class FullscreenPlaybackActivity extends AppCompatActivity {
+import static pl.animagia.PlaybackUtils.*;
 
-    private static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
-    private static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
-    private static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
-    private static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
+public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private static final int REWINDER_INTERVAL = 1200;
@@ -46,11 +39,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private PlayerView mMainView;
     private ImageButton forwardPlayerButton, rewindPlayerButton;
     private SimpleExoPlayer mPlayer;
-    private int episodeCount;
+    private int episodeCount; //FIXME no need for separate field, just use Anime
     private int currentEpisode;
     private Anime currentAnime;
-    private String currentTitle;
-    private String currentVideoPageUrl;
+    private String currentTitle; //FIXME no need for separate field, just use Anime
+    private String currentVideoPageUrl; //FIXME no need for separate field, just use Anime
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
@@ -98,19 +91,28 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 boolean limitedWatchtime = true;
                 if(currentTitle.contains("Amagi")) {
                     limitedWatchtime = false;
-                } else if(userBoughtAccessToFilm()) {
+                } else if(userBoughtAccessToFilm(currentAnime, currentTitle,
+                        FullscreenPlaybackActivity.this)) {
                     limitedWatchtime = false;
                 }
 
                 if(limitedWatchtime) {
                     mPlayer.seekTo(previewMilliseconds - 1000);
-                    Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
+                    showPurchasePrompt();
+                    //Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
                     onPause();
                 }
             }
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
         }
     };
+
+
+    private void showPurchasePrompt() {
+        //TODO forwardPlayerButton.getDrawable().setAlpha(255);
+        findViewById(R.id.purchase_prompt).setVisibility(View.VISIBLE);
+    }
+
 
     private long lastTimeSystemUiWasBroughtBack;
     private boolean translationChangesAllowed = false;
@@ -198,7 +200,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         chapterMarker.setPreviewMillis(video.getPreviewMillis());
 
         forwardPlayerButton = findViewById(R.id.exo_ffwd);
-        forwardPlayerButton.getDrawable().setAlpha(255);
         rewindPlayerButton = findViewById(R.id.exo_rew);
 
         mMainView.setOnTouchListener(new View.OnTouchListener() {
@@ -214,7 +215,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         listenToSystemUiChanges();
 
-        mPlayer = createPlayer(
+        mPlayer = installPlayer(
                 VideoSourcesKt.prepareFromAsset(this, videoSourceUrl, video.getTitle()));
 
         createSubtitleSelector();
@@ -223,7 +224,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             previewMilliseconds = video.getPreviewMillis();
         }
 
-        if (userBoughtAccessToFilm()) {
+        if (userBoughtAccessToFilm(currentAnime, currentTitle, this)) {
             translationChangesAllowed = true;
         }
 
@@ -234,6 +235,20 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     onPlayerStartedPlaying();
                 }
             }
+
+
+            @Override
+            public void onPositionDiscontinuity(int reason) {
+                Toast.makeText(FullscreenPlaybackActivity.this, "Seek", Toast.LENGTH_SHORT).show();
+
+                if(Player.DISCONTINUITY_REASON_SEEK == reason &&
+                        mPlayer.getCurrentPosition() < previewMilliseconds - 1100) {
+                    hidePurchasePrompt();
+                }
+
+                return;
+            }
+
         });
 
         mPlayer.setPlayWhenReady(true);
@@ -307,43 +322,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
     }
 
+
+    private void hidePurchasePrompt() {
+        findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
+    }
+
+
     private void updateDisplayedTitle() {
         TextView title = findViewById(R.id.film_name);
         title.setText(formatTitle());
+        title = findViewById(R.id.film_title_in_prompt);
+        title.setText(formatTitle());
     }
-
-    private boolean userBoughtAccessToFilm() {
-        boolean accessBought = false;
-
-        String currentPremiumStatus = CookieStorage.getAccountStatus(this);
-
-        if (AccountStatus.ACTIVE.getFriendlyName().equals(currentPremiumStatus)) {
-            accessBought = true;
-        }
-
-        if (AccountStatus.EXPIRING.getFriendlyName().equals(currentPremiumStatus)) {
-            accessBought = true;
-        }
-
-        for (String sku : TokenStorage.getSkusOfLocallyPurchasedAnime(this)) {
-            if(currentAnime.getSku().equals(sku)) {
-                accessBought = true;
-            }
-        }
-
-        String word = currentTitle.split(" ")[0];
-        if( CookieStorage.getNamesOfFilesPurchasedByAccount(this).toString().contains( word)) {
-            accessBought = true;
-        }
-
-        return accessBought;
-    }
-
-
-    private boolean userIsAGuest() {
-        return cookie.equals(CookieStorage.COOKIE_NOT_FOUND);
-    }
-
 
     private String formatTitle() {
         return episodeCount > 1 ? currentTitle + " odc. " + currentEpisode : currentTitle;
@@ -366,9 +356,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 
-    private static boolean systemUiVisible(int systemUiVisibility) {
-        return (systemUiVisibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0;
-    }
 
     @Override
     protected void onResume() {
@@ -397,17 +384,23 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void createSubtitleSelector() {
         View spinnerOfSubtitles = findViewById(R.id.spinner_subtitles);
-        String[] subtitle = getResources().getStringArray(R.array.subtitles);
+        String[] subtitle = new String[0]; //FIXME getResources().getStringArray(R.array.subtitles);
         ArrayAdapter<String> adapterSubtitles = new ArrayAdapter<>(
                 this, R.layout.spinner_item, subtitle
         );
 
         adapterSubtitles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        spinnerOfSubtitles.setOnTouchListener(new View.OnTouchListener() {
+        View.OnTouchListener listener = createSubtitleSelectionListener();
+        spinnerOfSubtitles.setOnTouchListener(listener);
+    }
+
+
+    private View.OnTouchListener createSubtitleSelectionListener() {
+        return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if(!translationChangesAllowed) {
+                if (!translationChangesAllowed) {
                     Toast.makeText(FullscreenPlaybackActivity.this,
                             R.string.only_subtitles_available,
                             Toast.LENGTH_SHORT).show();
@@ -418,24 +411,19 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     return true;
                 }
 
-                AlertDialog.Builder builder =
-                        new AlertDialog.Builder(FullscreenPlaybackActivity.this);
-
-                builder.setTitle("Wybierz wersję językową");
-                String[] items = {"Napisy „mniej spolszczone”", "Napisy „bardziej spolszczone”"};
-                builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         onTranslationChosen(which);
                     }
-                });
+                };
 
-                builder.show();
+                Dialogs.showSubtitleSelection(FullscreenPlaybackActivity.this, listener);
 
                 return true;
             }
-        });
+        };
     }
 
 
@@ -489,24 +477,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private Map<String, String> loadTranslationPreference() {
-        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
-
-        Map<String, String> params = new HashMap<>();
-
-        if (dubAvailable() && prefs.getBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false)) {
-            params.put("dub", "yes");
-        } else if (PREFERRED_SUBTITLE_NO_HONORIFICS ==
-                prefs.getInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_HONORIFICS)) {
-            params.put("altsub", "yes");
-        } else {
-            params.put("altsub", "no");
-        }
-
-        return params;
-    }
-
-
     private void reinitializePlayer(String query){
 
         HtClient.getUsingCookie(currentVideoPageUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
@@ -515,7 +485,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 releaseMediaPlayer();
                 String url = VideoUrl.getUrl(result);
-                mPlayer = createPlayer(VideoSourcesKt
+                mPlayer = installPlayer(VideoSourcesKt
                         .prepareFromAsset(FullscreenPlaybackActivity.this, url, currentTitle));
 
                 mPlayer.setPlayWhenReady(true);
@@ -532,17 +502,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     }
 
-    private int calculateMsTimeStamp(String timeStampUnconvert){
-
-        int totalTimeInMs;
-
-        totalTimeInMs = 3600 * 1000 * Integer.parseInt(timeStampUnconvert.substring(0,2))
-                + 1000 * 60 * Integer.parseInt(timeStampUnconvert.substring(3,5))
-                + 1000 * Integer.parseInt(timeStampUnconvert.substring(6,8))
-                +  Integer.parseInt(timeStampUnconvert.substring(9));
-
-        return totalTimeInMs;
-    }
 
     private void addTimeStamps(CustomSeekbar timeBar, String[] timeStamps){
         for (String timeStamp : timeStamps) {
@@ -599,17 +558,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private SimpleExoPlayer createPlayer(MediaSource mediaSource) {
-        // 1. Create a default TrackSelector
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        TrackSelector trackSelector =
-                new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        // 2. Create the player
-        SimpleExoPlayer player =
-                ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+    private SimpleExoPlayer installPlayer(MediaSource mediaSource) {
+        SimpleExoPlayer player = createPLayer(this);
 
         mMainView.setPlayer(player);
 
@@ -620,6 +570,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         return player;
     }
+
 
     private void alignControls(int screenOrientation) {
         PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
@@ -713,7 +664,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (canShiftByThisManyEpisodes(episodeShift)) {
 
-                    String query = buildQueryString(loadTranslationPreference());
+                    String query = buildQueryString( loadTranslationPreference
+                            (FullscreenPlaybackActivity.this, dubAvailable()));
                     String url =
                             video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
                                     (currentEpisode + episodeShift) + query;
@@ -730,7 +682,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                             releaseMediaPlayer();
                             String url = VideoUrl.getUrl(result);
-                            mPlayer = createPlayer(VideoSourcesKt
+                            mPlayer = installPlayer(VideoSourcesKt
                                     .prepareFromAsset(activity, url, video.getTitle()));
 
                             mPlayer.setPlayWhenReady(true);

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    android:id="@+id/purchase_prompt" >
+
+    <ImageView
+        android:id="@+id/prompt_poster"
+        android:layout_width="wrap_content"
+        android:layout_height="151dp"
+        android:adjustViewBounds="false"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/endOfPreview_prompt"
+        android:layout_width="0dp"
+        android:layout_height="40dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/purchase_full_film"
+            android:textSize="13sp"
+            android:textColor="@color/seekbar_chapter_marker" />
+
+        <TextView
+            android:id="@+id/film_title_in_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/purchase_full_film"
+            android:textSize="13sp"
+            android:textColor="@color/seekbar_chapter_marker" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/product_details_button" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -57,4 +57,14 @@ public class Dialogs {
     }
 
 
+    public static void showSubtitleSelection(Context c, DialogInterface.OnClickListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+
+        builder.setTitle("Wybierz wersję językową");
+
+        String[] items = {"Napisy „mniej spolszczone”", "Napisy „bardziej spolszczone”"};
+        builder.setSingleChoiceItems(items, 0, listener);
+
+        builder.show();
+    }
 }

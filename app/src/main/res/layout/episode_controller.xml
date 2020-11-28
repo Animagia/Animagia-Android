@@ -8,6 +8,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <include layout="@layout/purchase_prompt" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -101,21 +103,8 @@
             android:layout_height="match_parent"
             android:gravity="left|center_vertical"
             app:srcCompat="@drawable/ic_subtitles"
-            android:tint="#e0e0e0"
-            android:onClick="crashApp"/>
+            android:tint="#e0e0e0" />
 
-        <!--<TextView-->
-            <!--android:id="@+id/film_test_annotation"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:gravity="left|center_vertical"-->
-            <!--android:layout_weight="1"-->
-            <!--android:text="hello"-->
-            <!--android:maxLines="1"-->
-            <!--android:ellipsize="end"-->
-            <!--android:paddingRight="4dp"-->
-            <!--android:textColor="@android:color/white"-->
-            <!--/>-->
     </LinearLayout>
 	
 </LinearLayout>
