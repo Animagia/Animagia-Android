@@ -7,6 +7,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -99,7 +101,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 if(limitedWatchtime) {
                     mPlayer.seekTo(previewMilliseconds - 1000);
                     showPurchasePrompt();
-                    //Dialogs.primeVideoError(FullscreenPlaybackActivity.this, currentAnime);
                     onPause();
                 }
             }
@@ -111,6 +112,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private long lastTimeSystemUiWasBroughtBack;
     private boolean translationChangesAllowed = false;
 
+    private FragmentManager.OnBackStackChangedListener listenerForOverlaidFragment =
+            new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    if(0 == getSupportFragmentManager().getBackStackEntryCount()) {
+                        layOutActivityAsIfSystemBarsWereGone();
+                    } else {
+                        layOutActivityLeavingRoomForSystemBars();
+                    }
+                }
+            };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +134,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_fullscreen_playback);
         mMainView = findViewById(R.id.exoplayerview_activity_video);
+
+        getSupportFragmentManager().addOnBackStackChangedListener(listenerForOverlaidFragment);
 
         startPlaybackFlow(anime);
     }
@@ -233,14 +248,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
             @Override
             public void onPositionDiscontinuity(int reason) {
-                Toast.makeText(FullscreenPlaybackActivity.this, "Seek", Toast.LENGTH_SHORT).show();
-
+//                Toast.makeText(FullscreenPlaybackActivity.this, "Seek", Toast.LENGTH_SHORT).show();
                 if(Player.DISCONTINUITY_REASON_SEEK == reason &&
                         mPlayer.getCurrentPosition() < previewMilliseconds - 1100) {
                     hidePurchasePrompt();
                 }
-
-                return;
             }
 
         });
@@ -324,8 +336,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     public void showSingleProductDialog(View v) {
-        Toast.makeText(this, "single product", Toast.LENGTH_SHORT).show();
-        Dialogs.showMiniPurchaseDialog(this);
+        //Toast.makeText(this, "single product", Toast.LENGTH_SHORT).show();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+
+        ft.add(android.R.id.content, SingleProductFragment.newInstance(currentAnime));
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
 
@@ -352,6 +369,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private boolean readyToHideSystemUi() {
         return SystemClock.elapsedRealtime() - 600 > lastTimeSystemUiWasBroughtBack;
     }
+
 
     private void hideSystemUi() {
         mMainView.setSystemUiVisibility(
@@ -542,9 +560,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void layOutActivityAsIfSystemBarsWereGone() {
-        mMainView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        int vis = mMainView.getSystemUiVisibility();
+        int flagsToAdd = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
+        mMainView.setSystemUiVisibility(vis | flagsToAdd);
+    }
+
+
+    private void layOutActivityLeavingRoomForSystemBars() {
+        int vis = mMainView.getSystemUiVisibility();
+        int flagsToClear = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
+        mMainView.setSystemUiVisibility(vis & ~flagsToClear);
     }
 
 
@@ -572,6 +603,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         player.prepare(mediaSource);
 
         alignControls(getResources().getConfiguration().orientation);
+        mMainView.showController();
         setUpInterEpisodeNavigation();
 
         return player;
@@ -589,6 +621,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         controlView.requestLayout();
     }
+
 
     private void setUpInterEpisodeNavigation() {
 

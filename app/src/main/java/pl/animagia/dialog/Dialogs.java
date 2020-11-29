@@ -5,14 +5,21 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Point;
 import android.provider.Settings;
-import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.Window;
+import android.view.WindowManager;
 import pl.animagia.Anime;
 import pl.animagia.FullscreenPlaybackActivity;
-import pl.animagia.MainActivity;
 import pl.animagia.R;
+import pl.animagia.SingleProductFragment;
 
 public class Dialogs {
 
@@ -37,13 +44,17 @@ public class Dialogs {
     }
 
 
-    public static void showMiniPurchaseDialog(Context ctx) {
-        Dialog dialog = new Dialog(ctx);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.fragment_single_product);
+    private static Point getDisplayDimensions(Context context)
+    {
+        WindowManager wm = ( WindowManager ) context.getSystemService( Context.WINDOW_SERVICE );
+        Display display = wm.getDefaultDisplay();
 
-        dialog.show();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics( metrics );
+        int screenWidth = metrics.widthPixels;
+        int screenHeight = metrics.heightPixels;
 
+        return new Point( screenWidth, screenHeight );
     }
 
 
