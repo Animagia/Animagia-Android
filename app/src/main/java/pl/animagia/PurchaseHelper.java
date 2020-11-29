@@ -1,5 +1,6 @@
 package pl.animagia;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 import com.android.billingclient.api.*;
@@ -22,9 +23,9 @@ public class PurchaseHelper {
 
     static void startPurchase(final SingleProductFragment fragment, final Anime anime) {
 
-        final MainActivity ma = (MainActivity) fragment.getActivity();
+        final Activity ctx = fragment.getActivity();
 
-        BillingClient.Builder builder = BillingClient.newBuilder(ma);
+        BillingClient.Builder builder = BillingClient.newBuilder(ctx);
         builder.enablePendingPurchases();
         builder.setListener(new AnimePurchaseListener(fragment));
 
@@ -57,7 +58,7 @@ public class PurchaseHelper {
                                                                 .build();
 
                                                 billingClient
-                                                        .launchBillingFlow(ma, flowParams);
+                                                        .launchBillingFlow(ctx, flowParams);
 
                                                 break;
                                             }
@@ -82,14 +83,14 @@ public class PurchaseHelper {
 
 
     private static class AnimePurchaseListener implements PurchasesUpdatedListener {
-        private final MainActivity ma;
+        private final Activity ctx;
         private final SingleProductFragment spf;
 
 
         AnimePurchaseListener(SingleProductFragment fragment)
         {
             this.spf = fragment;
-            this.ma = (MainActivity) fragment.getActivity();
+            this.ctx = fragment.getActivity();
         }
 
         @Override
@@ -100,7 +101,7 @@ public class PurchaseHelper {
 
             for (Purchase purchase : list ) {
                 if(Purchase.PurchaseState.PURCHASED == purchase.getPurchaseState()) {
-                    TokenStorage.storePurchase(ma, purchase.getSku(), purchase);
+                    TokenStorage.storePurchase(ctx, purchase.getSku(), purchase);
 
                     spf.onSuccessfulPurchase();
 
@@ -108,7 +109,7 @@ public class PurchaseHelper {
                 }
             }
 
-            Toast.makeText(ma, "Coś poszło nie tak.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, "Coś poszło nie tak.", Toast.LENGTH_SHORT).show();
         }
     }
 

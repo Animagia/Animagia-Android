@@ -21,8 +21,7 @@ public class SingleProductFragment extends Fragment {
         ANIME
     }
 
-    public static SingleProductFragment newInstance(Anime anime) {
-
+    static SingleProductFragment newInstance(Anime anime) {
         Bundle args = new Bundle();
         args.putParcelable(ArgumentKeys.ANIME.name(), anime);
 

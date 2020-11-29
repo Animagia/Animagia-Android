@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.android.volley.VolleyError;
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
@@ -331,6 +332,17 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void showPurchasePrompt() {
         //TODO forwardPlayerButton.getDrawable().setAlpha(255);
+
+        ImageView poster = findViewById(R.id.prompt_poster);
+
+        if(poster.getTag() == null) {
+            Glide.with(this)
+                    .load(currentAnime.getPosterAsssetUri())
+                    .error(Glide.with(this).load("file:///android_asset/clapperboard.jpg"))
+                    .into(poster);
+            poster.setTag(Boolean.TRUE);
+        }
+
         findViewById(R.id.purchase_prompt).setVisibility(View.VISIBLE);
     }
 

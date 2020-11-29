@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:visibility="gone"
     android:id="@+id/purchase_prompt"
-    android:background="#0fff0f">
+    android:background="#c000" >
 
     <ImageView
         android:id="@+id/prompt_poster"
@@ -14,6 +14,10 @@
         android:layout_height="151dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         app:srcCompat="@drawable/ic_subtitles"
         tools:ignore="ContentDescription" />
 
@@ -22,26 +26,28 @@
         android:id="@+id/endOfPreview_prompt"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="#f0f000">
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="2"
+            android:maxLines="1"
             android:text="@string/purchase_full_film"
-            android:textSize="13sp"
-            android:textColor="@color/seekbar_chapter_marker"
-            android:background="#f000f0"/>
+            android:textColor="@color/seekbar_chapter_marker"/>
 
         <TextView
             android:id="@+id/film_title_in_prompt"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="@string/purchase_full_film"
-            android:textSize="13sp"
+            android:text=""
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
             android:textColor="@color/seekbar_chapter_marker" />
 
         <Button
@@ -49,7 +55,8 @@
             android:layout_height="wrap_content"
             android:text="@string/product_details_button"
             android:textColor="@color/seekbar_chapter_marker"
-            android:onClick="showSingleProductDialog" />
+            android:onClick="showSingleProductDialog"
+            android:theme="@style/AccentedButton" />
 
     </LinearLayout>
 
