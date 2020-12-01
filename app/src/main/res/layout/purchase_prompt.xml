@@ -10,7 +10,7 @@
 
     <ImageView
         android:id="@+id/prompt_poster"
-        android:layout_width="90dp"
+        android:layout_width="107dp"
         android:layout_height="151dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"

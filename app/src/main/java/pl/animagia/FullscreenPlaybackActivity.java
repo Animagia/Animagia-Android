@@ -1,5 +1,6 @@
 package pl.animagia;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -40,7 +41,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private static final int REWINDER_INTERVAL = 1200;
     private static final int RESTARTER_INTERVAL = 4000;
     private PlayerView mMainView;
-    private ImageButton forwardPlayerButton, rewindPlayerButton;
     private SimpleExoPlayer mPlayer;
     private int episodeCount; //FIXME no need for separate field, just use Anime
     private int currentEpisode;
@@ -209,14 +209,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         addTimeStamps(chapterMarker, timeStamps);
         chapterMarker.setPreviewMillis(video.getPreviewMillis());
 
-        forwardPlayerButton = findViewById(R.id.exo_ffwd);
-        rewindPlayerButton = findViewById(R.id.exo_rew);
-
         mMainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP &&
-                        readyToHideSystemUi()) {
+                        readyToHideSystemUi() && !purchasePromptVisible()) {
                     hideSystemUi();
                 }
                 return true;
@@ -249,7 +246,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
             @Override
             public void onPositionDiscontinuity(int reason) {
-//                Toast.makeText(FullscreenPlaybackActivity.this, "Seek", Toast.LENGTH_SHORT).show();
                 if(Player.DISCONTINUITY_REASON_SEEK == reason &&
                         mPlayer.getCurrentPosition() < previewMilliseconds - 1100) {
                     hidePurchasePrompt();
@@ -274,7 +270,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
                             if(al.size() > 0){
                                 if(calculateMsTimeStamp(al.get(timeStamps.length - 1)) < mPlayer.getCurrentPosition()){
-                                    forwardPlayerButton.getDrawable().setAlpha(80);
+                                    //forwardPlayerButton.getDrawable().setAlpha(80);
                                     break;
                                 }
                             }
@@ -290,15 +286,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                                 }
 
                                 mPlayer.seekTo(time);
-                                if(!chapterIterator.hasNext())
-                                    forwardPlayerButton.getDrawable().setAlpha(80);
+                                if(!chapterIterator.hasNext()) {
+                                    //forwardPlayerButton.getDrawable().setAlpha(80);
+                                }
                             }
                             break;
                         case R.id.exo_rew:
 
                             if(al.size() > 0){
                                 if(calculateMsTimeStamp(al.get(0)) > mPlayer.getCurrentPosition()){
-                                    forwardPlayerButton.getDrawable().setAlpha(255);
+                                    //forwardPlayerButton.getDrawable().setAlpha(255);
                                     break;
                                 }
                             }
@@ -308,7 +305,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             }
 
                             if(chapterIterator.hasPrevious()){
-                                forwardPlayerButton.getDrawable().setAlpha(255);
+                                //forwardPlayerButton.getDrawable().setAlpha(255);
 
                                 time = calculateMsTimeStamp(chapterIterator.previous());
                                 while(chapterIterator.hasPrevious() && time + 1000 > mPlayer.getCurrentPosition()){
@@ -324,14 +321,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 }
             };
 
-            forwardPlayerButton.setOnClickListener(listener);
-            rewindPlayerButton.setOnClickListener(listener);
+//            findViewById(R.id.exo_ffwd).setOnClickListener(listener);
+//            findViewById(R.id.exo_rew).setOnClickListener(listener);
         }
     }
 
 
     private void showPurchasePrompt() {
-        //TODO forwardPlayerButton.getDrawable().setAlpha(255);
+        disableControllerButtons(R.id.custom_ffwd, R.id.exo_play, R.id.exo_pause);
 
         ImageView poster = findViewById(R.id.prompt_poster);
 
@@ -360,6 +357,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void hidePurchasePrompt() {
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
+        enableControllerButtons(R.id.custom_ffwd, R.id.exo_play, R.id.exo_pause);
+    }
+
+
+    private boolean purchasePromptVisible() {
+        return View.VISIBLE == findViewById(R.id.purchase_prompt).getVisibility();
     }
 
 
@@ -653,6 +656,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         previous.setOnClickListener(newEpisodeListener(ac, video, -1));
     }
 
+
     private void hidePreviousAndNextButtons() {
         PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
         View next = controlView.findViewById(R.id.next_episode);
@@ -660,6 +664,28 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View previous = controlView.findViewById(R.id.previous_episode);
         previous.setVisibility(View.INVISIBLE);
     }
+
+
+    private void disableControllerButtons(Integer... resIds) {
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        for (int resId : resIds) {
+            View button = controlView.findViewById(resId);
+            button.setClickable(false);
+            button.setAlpha(0.5f);
+            button.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    private void enableControllerButtons(Integer... resIds) {
+        for (int resId : resIds) {
+            View v = findViewById(resId);
+            v.setClickable(true);
+            v.setAlpha(1);
+            v.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     private boolean isTheatricalFilm(String title) {
         return !title.contains("Amagi");

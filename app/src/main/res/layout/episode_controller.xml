@@ -20,7 +20,7 @@
         <ImageButton android:id="@+id/previous_episode"
             style="@style/ExoMediaButton.Previous"/>
 
-        <ImageButton android:id="@id/exo_rew"
+        <ImageButton android:id="@+id/custom_rew"
             style="@style/ExoMediaButton.Rewind"/>
 
         <ImageButton android:id="@id/exo_shuffle"
@@ -35,7 +35,7 @@
         <ImageButton android:id="@id/exo_pause"
             style="@style/ExoMediaButton.Pause"/>
 
-        <ImageButton android:id="@id/exo_ffwd"
+        <ImageButton android:id="@+id/custom_ffwd"
             style="@style/ExoMediaButton.FastForward"/>
 
         <ImageButton android:id="@+id/next_episode"
