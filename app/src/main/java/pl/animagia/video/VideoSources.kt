@@ -7,7 +7,7 @@ import android.net.Uri
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 
-fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: String, videoTitle: String): MediaSource {
+fun prepareFromAsset(activity: android.support.v7.app.AppCompatActivity, url: String): MediaSource {
 
     val dataSourceFactory: DataSource.Factory = DataSource.Factory {
         val source = DefaultHttpDataSource(Util.getUserAgent(activity, "animagia"), null)

@@ -1,6 +1,5 @@
 package pl.animagia;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -40,17 +39,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private static final int REWINDER_INTERVAL = 1200;
     private static final int RESTARTER_INTERVAL = 4000;
-    private PlayerView mMainView;
-    private SimpleExoPlayer mPlayer;
-    private int episodeCount; //FIXME no need for separate field, just use Anime
+    private PlayerView mainView;
+    private SimpleExoPlayer player;
     private int currentEpisode;
     private Anime currentAnime;
-    private String currentTitle; //FIXME no need for separate field, just use Anime
-    private String currentVideoPageUrl; //FIXME no need for separate field, just use Anime
 
     private int previewMilliseconds = Integer.MAX_VALUE;
 
-    private String [] timeStamps;
+    private List<Long> chapterTimestamps;
 
     private String cookie;
 
@@ -64,14 +60,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     {
         public void run()
         {
-            if (mPlayer == null) {
+            if (player == null) {
                 return;
             }
 
-            if ((mPlayer.getPlayWhenReady() &&
-                    mPlayer.getPlaybackState() == Player.STATE_READY) ||
-                    (mPlayer.getPlayWhenReady() &&
-                            mPlayer.getPlaybackState() == Player.STATE_BUFFERING)) {
+            if ((player.getPlayWhenReady() &&
+                    player.getPlaybackState() == Player.STATE_READY) ||
+                    (player.getPlayWhenReady() &&
+                            player.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
                 Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
@@ -86,21 +82,20 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     {
         public void run()
         {
-            long sek = mPlayer.getCurrentPosition();
+            long sek = player.getCurrentPosition();
 
             if(sek >= previewMilliseconds) {
 
                 //FIXME should disable rewinder entirely when watchtime not limited
                 boolean limitedWatchtime = true;
-                if(currentTitle.contains("Amagi")) {
+                if(1 != currentAnime.getEpisodeCount()) {
                     limitedWatchtime = false;
-                } else if(userBoughtAccessToFilm(currentAnime, currentTitle,
-                        FullscreenPlaybackActivity.this)) {
+                } else if(userBoughtAccessToFilm(currentAnime, FullscreenPlaybackActivity.this)) {
                     limitedWatchtime = false;
                 }
 
                 if(limitedWatchtime) {
-                    mPlayer.seekTo(previewMilliseconds - 1000);
+                    player.seekTo(previewMilliseconds - 1000);
                     showPurchasePrompt();
                     onPause();
                 }
@@ -134,7 +129,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         cookie = getIntent().getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
-        mMainView = findViewById(R.id.exoplayerview_activity_video);
+        mainView = findViewById(R.id.exoplayerview_activity_video);
 
         getSupportFragmentManager().addOnBackStackChangedListener(listenerForOverlaidFragment);
 
@@ -192,24 +187,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void prepareForPlayback(Anime video, String videoSourceUrl) {
-        episodeCount = video.getEpisodeCount();
         currentEpisode = 1;
         currentAnime = video;
-        currentTitle = video.formatFullTitle();
-        currentVideoPageUrl = video.getVideoUrl();
-
         updateDisplayedTitle();
+        chapterTimestamps = new ArrayList<>();
 
-        String timeStampUnconverted = video.getTimeStamps();
-        timeStamps = timeStampUnconverted.split(";");
+        String[] rawChapterTimestamps = currentAnime.getTimeStamps().split(";");
+        if(!rawChapterTimestamps[0].equals("")) {
+            chapterTimestamps.add(0L);
+            for (String stamp : rawChapterTimestamps) {
+                chapterTimestamps.add((long) calculateMsTimestamp(stamp));
+            }
+            createChapterMarkers();
+        }
 
-        CustomSeekbar chapterMarker = findViewById(R.id.exo_progress);
 
-        if(!timeStamps[0].equals(""))
-        addTimeStamps(chapterMarker, timeStamps);
-        chapterMarker.setPreviewMillis(video.getPreviewMillis());
-
-        mMainView.setOnTouchListener(new View.OnTouchListener() {
+        mainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP &&
@@ -222,20 +215,21 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         listenToSystemUiChanges();
 
-        mPlayer = installPlayer(
-                VideoSourcesKt.prepareFromAsset(this, videoSourceUrl, video.getTitle()));
+        installNewPlayer(VideoSourcesKt.prepareFromAsset(this, videoSourceUrl));
 
         createSubtitleSelector();
 
         if (isTheatricalFilm(video.getTitle())) {
             previewMilliseconds = video.getPreviewMillis();
+            CustomSeekbar seekbar = findViewById(R.id.exo_progress);
+            seekbar.setPreviewMillis(video.getPreviewMillis());
         }
 
-        if (userBoughtAccessToFilm(currentAnime, currentTitle, this)) {
+        if (userBoughtAccessToFilm(currentAnime, this)) {
             translationChangesAllowed = true;
         }
 
-        mPlayer.addListener(new Player.DefaultEventListener() {
+        player.addListener(new Player.DefaultEventListener() {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady && playbackState == Player.STATE_READY) {
@@ -247,88 +241,59 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if(Player.DISCONTINUITY_REASON_SEEK == reason &&
-                        mPlayer.getCurrentPosition() < previewMilliseconds - 1100) {
+                        player.getCurrentPosition() < previewMilliseconds - 1100) {
                     hidePurchasePrompt();
                 }
             }
-
         });
 
-        mPlayer.setPlayWhenReady(true);
 
-        if(!timeStamps[0].equals("")){
-            final ArrayList<String> al = new ArrayList<>(Arrays.asList(timeStamps));
-            final ListIterator<String> chapterIterator =  al.listIterator();
+        if(!chapterTimestamps.isEmpty()) {
+            prepareChapterButtons();
+        }
 
-            View.OnClickListener listener = new View.OnClickListener(){
+        player.setPlayWhenReady(true);
+    }
 
-                @Override
-                public void onClick(View view) {
-                    long time;
-                    switch(view.getId()){
-                        case R.id.exo_ffwd:
 
-                            if(al.size() > 0){
-                                if(calculateMsTimeStamp(al.get(timeStamps.length - 1)) < mPlayer.getCurrentPosition()){
-                                    //forwardPlayerButton.getDrawable().setAlpha(80);
-                                    break;
-                                }
-                            }
-
-                            while(chapterIterator.hasPrevious()){
-                                chapterIterator.previous();
-                            }
-
-                            if(chapterIterator.hasNext()){
-                                time = calculateMsTimeStamp(chapterIterator.next());
-                                while(chapterIterator.hasNext() && time - 1000 < mPlayer.getCurrentPosition()){
-                                    time = calculateMsTimeStamp(chapterIterator.next());
-                                }
-
-                                mPlayer.seekTo(time);
-                                if(!chapterIterator.hasNext()) {
-                                    //forwardPlayerButton.getDrawable().setAlpha(80);
-                                }
-                            }
-                            break;
-                        case R.id.exo_rew:
-
-                            if(al.size() > 0){
-                                if(calculateMsTimeStamp(al.get(0)) > mPlayer.getCurrentPosition()){
-                                    //forwardPlayerButton.getDrawable().setAlpha(255);
-                                    break;
-                                }
-                            }
-
-                            while(chapterIterator.hasNext()){
-                                chapterIterator.next();
-                            }
-
-                            if(chapterIterator.hasPrevious()){
-                                //forwardPlayerButton.getDrawable().setAlpha(255);
-
-                                time = calculateMsTimeStamp(chapterIterator.previous());
-                                while(chapterIterator.hasPrevious() && time + 1000 > mPlayer.getCurrentPosition()){
-                                    time = calculateMsTimeStamp(chapterIterator.previous());
-                                }
-
-                                mPlayer.seekTo(time);
-                            }else{
-                                mPlayer.seekTo(0);
-                            }
-                            break;
+    private void prepareChapterButtons() {
+        View.OnClickListener ffwdListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long currentMillis = player.getCurrentPosition();
+                for (Long chapterTimestamp : chapterTimestamps) {
+                    if (chapterTimestamp > currentMillis) {
+                        player.seekTo(chapterTimestamp);
+                        break;
                     }
                 }
-            };
+            }
+        };
+        findViewById(R.id.custom_ffwd).setOnClickListener(ffwdListener);
 
-//            findViewById(R.id.exo_ffwd).setOnClickListener(listener);
-//            findViewById(R.id.exo_rew).setOnClickListener(listener);
-        }
+        View.OnClickListener rewListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long currentMillis = player.getCurrentPosition();
+                ArrayList<Long> list = new ArrayList<>(chapterTimestamps);
+                Collections.reverse(list);
+                for (Long chapterTimestamp : list) {
+                    if (chapterTimestamp < currentMillis) {
+                        player.seekTo(chapterTimestamp);
+                        break;
+                    }
+                }
+            }
+        };
+        findViewById(R.id.custom_rew).setOnClickListener(rewListener);
     }
 
 
     private void showPurchasePrompt() {
-        disableControllerButtons(R.id.custom_ffwd, R.id.exo_play, R.id.exo_pause);
+        disableControllerButtons(R.id.exo_play, R.id.exo_pause);
+        if(1 == currentAnime.getEpisodeCount()) {
+            disableControllerButtons(R.id.custom_ffwd);
+        }
 
         ImageView poster = findViewById(R.id.prompt_poster);
 
@@ -357,7 +322,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void hidePurchasePrompt() {
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
-        enableControllerButtons(R.id.custom_ffwd, R.id.exo_play, R.id.exo_pause);
+        enableControllerButtons(R.id.exo_play, R.id.exo_pause);
+        if(1 == currentAnime.getEpisodeCount()) {
+            enableControllerButtons(R.id.custom_ffwd);
+        }
     }
 
 
@@ -374,7 +342,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private String formatTitle() {
-        return episodeCount > 1 ? currentTitle + " odc. " + currentEpisode : currentTitle;
+        String title = currentAnime.formatFullTitle();
+        return currentAnime.getEpisodeCount() > 1 ? title + " odc. " + currentEpisode : title;
     }
 
     /**
@@ -387,7 +356,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void hideSystemUi() {
-        mMainView.setSystemUiVisibility(
+        mainView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -400,7 +369,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
         View play = controlView.findViewById(R.id.exo_play);
         play.performClick();
 
@@ -413,7 +382,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         hideHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mMainView.hideController();
+                mainView.hideController();
                 hideSystemUi();
             }
         }, 2000);
@@ -501,7 +470,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private boolean dubAvailable() {
-        return currentTitle.contains("Iroha");
+        return currentAnime.formatFullTitle().contains("Iroha");
     }
 
 
@@ -518,16 +487,17 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void reinitializePlayer(String query){
 
-        HtClient.getUsingCookie(currentVideoPageUrl + query, getApplicationContext(), cookie, new VolleyCallback() {
+        HtClient.getUsingCookie(getVideoPageUrl() + query, getApplicationContext(), cookie,
+                new  VolleyCallback() {
 
             @Override
             public void onSuccess(String result) {
                 releaseMediaPlayer();
                 String url = VideoUrl.getUrl(result);
-                mPlayer = installPlayer(VideoSourcesKt
-                        .prepareFromAsset(FullscreenPlaybackActivity.this, url, currentTitle));
+                installNewPlayer(VideoSourcesKt
+                        .prepareFromAsset(FullscreenPlaybackActivity.this, url));
 
-                mPlayer.setPlayWhenReady(true);
+                player.setPlayWhenReady(true);
 
                 updateDisplayedTitle();
 
@@ -542,11 +512,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void addTimeStamps(CustomSeekbar timeBar, String[] timeStamps){
-        for (String timeStamp : timeStamps) {
-            timeBar.addChapterMarker(calculateMsTimeStamp(timeStamp));
+    private String getVideoPageUrl() {
+        if(1 == currentEpisode) {
+            return currentAnime.getVideoUrl();
+        }
+        return currentAnime.getVideoUrl().substring(0, currentAnime.getVideoUrl().length() - 2) +
+                currentEpisode;
+    }
+
+
+    private void createChapterMarkers(){
+        CustomSeekbar bar = findViewById(R.id.exo_progress);
+        for (long timeStamp : chapterTimestamps) {
+            bar.addChapterMarker(timeStamp);
         }
     }
+
 
     private void listenToSystemUiChanges() {
         View decorView = getWindow().getDecorView();
@@ -555,10 +536,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     @Override
                     public void onSystemUiVisibilityChange(int visibility) {
                         if (systemUiVisible(visibility)) {
-                            mMainView.showController();
+                            mainView.showController();
                             lastTimeSystemUiWasBroughtBack = SystemClock.elapsedRealtime();
                         } else {
-                            mMainView.hideController();
+                            mainView.hideController();
                         }
                     }
                 });
@@ -575,22 +556,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void layOutActivityAsIfSystemBarsWereGone() {
-        int vis = mMainView.getSystemUiVisibility();
+        int vis = mainView.getSystemUiVisibility();
         int flagsToAdd = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
-        mMainView.setSystemUiVisibility(vis | flagsToAdd);
+        mainView.setSystemUiVisibility(vis | flagsToAdd);
     }
 
 
     private void layOutActivityLeavingRoomForSystemBars() {
-        int vis = mMainView.getSystemUiVisibility();
+        int vis = mainView.getSystemUiVisibility();
         int flagsToClear = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 
-        mMainView.setSystemUiVisibility(vis & ~flagsToClear);
+        mainView.setSystemUiVisibility(vis & ~flagsToClear);
     }
 
 
@@ -610,23 +591,23 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private SimpleExoPlayer installPlayer(MediaSource mediaSource) {
+    private void installNewPlayer(MediaSource mediaSource) {
         SimpleExoPlayer player = createPLayer(this);
 
-        mMainView.setPlayer(player);
+        mainView.setPlayer(player);
 
         player.prepare(mediaSource);
 
         alignControls(getResources().getConfiguration().orientation);
-        mMainView.showController();
+        mainView.showController();
         setUpInterEpisodeNavigation();
 
-        return player;
+        this.player = player;
     }
 
 
     private void alignControls(int screenOrientation) {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
         ViewGroup.MarginLayoutParams lp =
                 (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
@@ -640,12 +621,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void setUpInterEpisodeNavigation() {
 
-        if(episodeCount == 1) {
+        if(currentAnime.getEpisodeCount() == 1) {
             hidePreviousAndNextButtons();
             return;
         }
 
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
         View next = controlView.findViewById(R.id.next_episode);
         View previous = controlView.findViewById(R.id.previous_episode);
 
@@ -658,7 +639,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void hidePreviousAndNextButtons() {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
         View next = controlView.findViewById(R.id.next_episode);
         next.setVisibility(View.INVISIBLE);
         View previous = controlView.findViewById(R.id.previous_episode);
@@ -667,7 +648,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void disableControllerButtons(Integer... resIds) {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mMainView);
+        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
         for (int resId : resIds) {
             View button = controlView.findViewById(resId);
             button.setClickable(false);
@@ -701,18 +682,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void haltPlayback() {
-        if (mPlayer != null) {
-            mPlayer.setPlayWhenReady(false);
+        if (player != null) {
+            player.setPlayWhenReady(false);
         }
     }
 
 
     private void releaseMediaPlayer() {
         clearHandlers();
-        if (mPlayer!= null) {
-            mPlayer.stop();
-            mPlayer.release();
-            mPlayer= null;
+        if (player != null) {
+            player.stop();
+            player.release();
+            player = null;
         }
     }
 
@@ -725,7 +706,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private boolean canShiftByThisManyEpisodes(int episodeShift) {
-        return (currentEpisode + episodeShift <= episodeCount &&
+        return (currentEpisode + episodeShift <= currentAnime.getEpisodeCount() &&
                 currentEpisode + episodeShift >= 1);
     }
 
@@ -752,17 +733,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(String result) {
                             currentAnime = video;
-                            currentTitle = video.formatFullTitle();
-                            currentVideoPageUrl = video.getVideoUrl()
-                                    .substring(0, video.getVideoUrl().length() - 2) +
-                                    (currentEpisode + episodeShift);
 
                             releaseMediaPlayer();
                             String url = VideoUrl.getUrl(result);
-                            mPlayer = installPlayer(VideoSourcesKt
-                                    .prepareFromAsset(activity, url, video.getTitle()));
+                            installNewPlayer(VideoSourcesKt
+                                    .prepareFromAsset(activity, url));
 
-                            mPlayer.setPlayWhenReady(true);
+                            player.setPlayWhenReady(true);
 
                             changeCurrentEpisode(episodeShift);
                             updateDisplayedTitle();

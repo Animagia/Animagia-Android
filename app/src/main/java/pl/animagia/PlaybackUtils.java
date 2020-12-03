@@ -19,7 +19,7 @@ import pl.animagia.user.CookieStorage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlaybackUtils {
+class PlaybackUtils {
     static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
     static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
     static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
@@ -46,8 +46,7 @@ public class PlaybackUtils {
     }
 
 
-    static boolean userBoughtAccessToFilm(Anime currentAnime, String currentTitle,
-                                          Activity context) {
+    static boolean userBoughtAccessToFilm(Anime anime, Activity context) {
         boolean accessBought = false;
 
         String currentPremiumStatus = CookieStorage.getAccountStatus(context);
@@ -61,12 +60,12 @@ public class PlaybackUtils {
         }
 
         for (String sku : TokenStorage.getSkusOfLocallyPurchasedAnime(context)) {
-            if(currentAnime.getSku().equals(sku)) {
+            if(anime.getSku().equals(sku)) {
                 accessBought = true;
             }
         }
 
-        String word = currentTitle.split(" ")[0];
+        String word = anime.formatFullTitle().split(" ")[0];
         if( CookieStorage.getNamesOfFilesPurchasedByAccount(context).toString().contains( word)) {
             accessBought = true;
         }
@@ -75,7 +74,7 @@ public class PlaybackUtils {
     }
 
 
-    static int calculateMsTimeStamp(String unconvertedTimestamp){
+    static int calculateMsTimestamp(String unconvertedTimestamp){
 
         int totalTimeInMs;
 
