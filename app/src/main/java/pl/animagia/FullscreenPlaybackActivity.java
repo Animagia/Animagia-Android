@@ -114,6 +114,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 public void onBackStackChanged() {
                     if(0 == getSupportFragmentManager().getBackStackEntryCount()) {
                         layOutActivityAsIfSystemBarsWereGone();
+                        recheckPurchaseStatus();
                     } else {
                         layOutActivityLeavingRoomForSystemBars();
                     }
@@ -482,6 +483,14 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         }
 
         return query.substring(0,query.length()-1);
+    }
+
+
+    private void recheckPurchaseStatus() {
+        if(userBoughtAccessToFilm(currentAnime, this)) {
+            Toast.makeText(this, R.string.reopen_to_watch_all, Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
 
