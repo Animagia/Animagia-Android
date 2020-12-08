@@ -29,8 +29,9 @@ public class CookieStorage {
     }
 
 
-    public static String getAccountStatus(Activity activity) {
-        SharedPreferences prefs = activity.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+    public static String getAccountStatus(Context ctx) {
+        SharedPreferences prefs =
+                ctx.getSharedPreferences(MainActivity.class.getName(), Context .MODE_PRIVATE);
         return prefs.getString(AccountStatus.getPrefKey(), AccountStatus.UNKNOWN.getFriendlyName());
     }
 
@@ -43,9 +44,9 @@ public class CookieStorage {
     }
 
 
-    public static Set<String> getNamesOfFilesPurchasedByAccount(Activity activity) {
-        SharedPreferences prefs = activity.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
-        return prefs.getStringSet(PURCHASED_FILES_KEY, Collections.<String>emptySet());
+    public static Set<String> getNamesOfFilesPurchasedByAccount(Context ctx) {
+        return ctx.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE)
+                .getStringSet(PURCHASED_FILES_KEY, Collections.<String>emptySet());
     }
 
 

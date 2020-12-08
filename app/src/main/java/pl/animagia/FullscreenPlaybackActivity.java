@@ -36,24 +36,22 @@ import static pl.animagia.PlaybackUtils.*;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
-
     private static final int REWINDER_INTERVAL = 1200;
     private static final int RESTARTER_INTERVAL = 4000;
+
     private PlayerView mainView;
     private SimpleExoPlayer player;
     private int currentEpisode;
     private Anime currentAnime;
 
     private int previewMilliseconds = Integer.MAX_VALUE;
-
     private List<Long> chapterTimestamps;
+    private boolean logoSkipped = false;
 
     private String cookie;
 
     private Handler hideHandler = new Handler();
-
     private Handler restartHandler = new Handler();
-
     private Handler rewindHandler = new Handler();
 
     private final Runnable playerRestarter = new Runnable()
@@ -70,35 +68,22 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             player.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
-                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
+//                        Toast.LENGTH_SHORT).show();
                 reinitializePlayer("");
             }
         }
-
     };
+
 
     private final Runnable rewinder = new Runnable()
     {
         public void run()
         {
-            long sek = player.getCurrentPosition();
-
-            if(sek >= previewMilliseconds) {
-
-                //FIXME should disable rewinder entirely when watchtime not limited
-                boolean limitedWatchtime = true;
-                if(1 != currentAnime.getEpisodeCount()) {
-                    limitedWatchtime = false;
-                } else if(userBoughtAccessToFilm(currentAnime, FullscreenPlaybackActivity.this)) {
-                    limitedWatchtime = false;
-                }
-
-                if(limitedWatchtime) {
-                    player.seekTo(previewMilliseconds - 1000);
-                    showPurchasePrompt();
-                    onPause();
-                }
+            if(player.getCurrentPosition() >= previewMilliseconds) {
+                player.seekTo(previewMilliseconds - 1000);
+                haltPlayback();
+                showPurchasePrompt();
             }
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
         }
@@ -199,7 +184,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             for (String stamp : rawChapterTimestamps) {
                 chapterTimestamps.add((long) calculateMsTimestamp(stamp));
             }
-            createChapterMarkers();
+            drawChapterMarkers();
         }
 
 
@@ -220,13 +205,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         createSubtitleSelector();
 
-        if (isTheatricalFilm(video.getTitle())) {
+        if (1 == video.getEpisodeCount()) {
             previewMilliseconds = video.getPreviewMillis();
             CustomSeekbar seekbar = findViewById(R.id.exo_progress);
             seekbar.setPreviewMillis(video.getPreviewMillis());
         }
 
-        if (userBoughtAccessToFilm(currentAnime, this)) {
+        if (userBoughtAccessToAnime(currentAnime, this)) {
             translationChangesAllowed = true;
         }
 
@@ -275,18 +260,25 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View.OnClickListener rewListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                long currentMillis = player.getCurrentPosition();
-                ArrayList<Long> list = new ArrayList<>(chapterTimestamps);
-                Collections.reverse(list);
-                for (Long chapterTimestamp : list) {
-                    if (chapterTimestamp < currentMillis) {
-                        player.seekTo(chapterTimestamp);
-                        break;
-                    }
-                }
+                player.seekTo(
+                        prevChapter(player.getCurrentPosition(), chapterTimestamps));
             }
         };
         findViewById(R.id.custom_rew).setOnClickListener(rewListener);
+    }
+
+
+    private static long prevChapter(long currentMillis, List<Long> chapterTimestamps) {
+        ArrayList<Long> list = new ArrayList<>(chapterTimestamps);
+        Collections.reverse(list);
+        long target = 0;
+        for (Long chapterTimestamp : list) {
+            if (chapterTimestamp < currentMillis) {
+                target = chapterTimestamp;
+                break;
+            }
+        }
+        return target;
     }
 
 
@@ -379,6 +371,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void onPlayerStartedPlaying() {
+        if(!logoSkipped && !chapterTimestamps.isEmpty()) {
+            skipLogo();
+        }
+
         hideHandler.removeCallbacksAndMessages(null);
         hideHandler.postDelayed(new Runnable() {
             @Override
@@ -387,7 +383,17 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 hideSystemUi();
             }
         }, 2000);
-        rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
+
+        if(watchtimeIsLimited(currentAnime, this)) {
+            rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
+        }
+    }
+
+
+    private void skipLogo() {
+        logoSkipped = true;
+        //FIXME causes awkward reinitialization of controller buttons
+        //player.seekTo(chapterTimestamps.get(1));
     }
 
 
@@ -437,12 +443,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void onTranslationChosen(int which) {
-
         Map<String,String> params = new HashMap<>();
 
-        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getName(), Context
-                .MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor =
+                getSharedPreferences( MainActivity.class.getName(), Context.MODE_PRIVATE).edit();
 
         switch(which) {
             case 1:
@@ -458,14 +462,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 break;
             default:
                 params.put("altsub", "no");
-                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
+                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_HONORIFICS);
                 if(dubAvailable()) {
                     editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
                 }
         }
 
         editor.apply();
-
         reinitializePlayer(buildQueryString(params));
     }
 
@@ -477,17 +480,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private String buildQueryString(Map<String, String> params) {
         String query = "?";
-
         for (Map.Entry<String, String> param : params.entrySet()) {
             query += param.getKey() + "=" + param.getValue() + "&";
         }
-
         return query.substring(0,query.length()-1);
     }
 
 
     private void recheckPurchaseStatus() {
-        if(userBoughtAccessToFilm(currentAnime, this)) {
+        if(userBoughtAccessToAnime(currentAnime, this)) {
             Toast.makeText(this, R.string.reopen_to_watch_all, Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -530,7 +531,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private void createChapterMarkers(){
+    private void drawChapterMarkers(){
         CustomSeekbar bar = findViewById(R.id.exo_progress);
         for (long timeStamp : chapterTimestamps) {
             bar.addChapterMarker(timeStamp);
@@ -552,8 +553,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         }
                     }
                 });
-
     }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus ) {
@@ -677,20 +678,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private boolean isTheatricalFilm(String title) {
-        return !title.contains("Amagi");
-    }
-
-
     @Override
     public void onPause(){
         super.onPause();
-        clearHandlers();
         haltPlayback();
     }
 
 
     private void haltPlayback() {
+        clearHandlers();
         if (player != null) {
             player.setPlayWhenReady(false);
         }
