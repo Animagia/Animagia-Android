@@ -15,7 +15,9 @@ import pl.animagia.token.TokenStorage;
 import pl.animagia.user.AccountStatus;
 import pl.animagia.user.CookieStorage;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 class PlaybackUtils {
@@ -94,6 +96,18 @@ class PlaybackUtils {
             limitedWatchtime = false;
         }
         return limitedWatchtime;
+    }
+
+
+    static long prevChapter(long currentMillis, List<Long> chapterTimestamps) {
+        ArrayList<Long> list = new ArrayList<>(chapterTimestamps);
+        Collections.reverse(list);
+        for (Long chapterTimestamp : list) {
+            if (chapterTimestamp + 1000 < currentMillis) {
+                return chapterTimestamp;
+            }
+        }
+        return 0;
     }
 
 }

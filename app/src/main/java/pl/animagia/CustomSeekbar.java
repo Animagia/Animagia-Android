@@ -23,7 +23,7 @@ public class CustomSeekbar extends DefaultTimeBar {
     private final int touchTargetHeight;
     private final Rect seekBounds;
     private final int barHeight;
-    
+
     private ArrayList<Long> chapterMarkerTimeStamps;
     private long duration;
     private long previewMillis;
@@ -31,6 +31,9 @@ public class CustomSeekbar extends DefaultTimeBar {
 
     public CustomSeekbar(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        setBufferedColor(getDefaultUnplayedColor(-1));
+
         seekBounds = new Rect();
         progressBar = new Rect();
         chapterMarkerTimeStamps = new ArrayList<>();
@@ -109,7 +112,7 @@ public class CustomSeekbar extends DefaultTimeBar {
 
 
     private void drawLockedSegment(Canvas canvas) {
-        if(duration == 0) {
+        if(previewMillis >= duration) {
             return;
         }
 
@@ -121,7 +124,7 @@ public class CustomSeekbar extends DefaultTimeBar {
         int barBottom = barTop + progressBarHeight;
 
         long previewTimeMs = Util.constrainValue(previewMillis, 0, duration);
-        int cosmeticMargin = progressBar.width() / 33; //FIXME too large in landscape
+        int cosmeticMargin = markerWidth * 2;
         int markerPosition =
                 (int) (progressBar.width() * previewTimeMs / duration) + cosmeticMargin;
 
@@ -152,13 +155,16 @@ public class CustomSeekbar extends DefaultTimeBar {
 
     }
 
+
     public void addChapterMarker(@Nullable long timestamp) {
         chapterMarkerTimeStamps.add(timestamp);
     }
 
+
     public void setPreviewMillis(long length) {
         previewMillis = length;
     }
+
 
     @Override
     public void setDuration(long duration) {

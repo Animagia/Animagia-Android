@@ -44,7 +44,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private int currentEpisode;
     private Anime currentAnime;
 
-    private int previewMilliseconds = Integer.MAX_VALUE;
     private List<Long> chapterTimestamps;
     private boolean logoSkipped = false;
 
@@ -80,8 +79,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     {
         public void run()
         {
-            if(player.getCurrentPosition() >= previewMilliseconds) {
-                player.seekTo(previewMilliseconds - 1000);
+            if(player.getCurrentPosition() >= currentAnime.getPreviewMillis()) {
+                player.seekTo(currentAnime.getPreviewMillis() - 1000);
                 haltPlayback();
                 showPurchasePrompt();
             }
@@ -205,11 +204,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         createSubtitleSelector();
 
-        if (1 == video.getEpisodeCount()) {
-            previewMilliseconds = video.getPreviewMillis();
-            CustomSeekbar seekbar = findViewById(R.id.exo_progress);
-            seekbar.setPreviewMillis(video.getPreviewMillis());
-        }
+        this.<CustomSeekbar>findViewById(R.id.exo_progress).
+                setPreviewMillis(video.getPreviewMillis());
 
         if (userBoughtAccessToAnime(currentAnime, this)) {
             translationChangesAllowed = true;
@@ -227,7 +223,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if(Player.DISCONTINUITY_REASON_SEEK == reason &&
-                        player.getCurrentPosition() < previewMilliseconds - 1100) {
+                        player.getCurrentPosition() < currentAnime.getPreviewMillis() - 1100) {
                     hidePurchasePrompt();
                 }
             }
@@ -265,20 +261,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         };
         findViewById(R.id.custom_rew).setOnClickListener(rewListener);
-    }
-
-
-    private static long prevChapter(long currentMillis, List<Long> chapterTimestamps) {
-        ArrayList<Long> list = new ArrayList<>(chapterTimestamps);
-        Collections.reverse(list);
-        long target = 0;
-        for (Long chapterTimestamp : list) {
-            if (chapterTimestamp < currentMillis) {
-                target = chapterTimestamp;
-                break;
-            }
-        }
-        return target;
     }
 
 
