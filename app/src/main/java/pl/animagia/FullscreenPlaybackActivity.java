@@ -33,6 +33,7 @@ import pl.animagia.video.VideoUrl;
 import java.util.*;
 
 import static pl.animagia.PlaybackUtils.*;
+import static pl.animagia.ViewUtilsKt.getPlayerControlView;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
@@ -67,8 +68,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             player.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
-//                Toast.makeText(FullscreenPlaybackActivity.this, "restart playera",
-//                        Toast.LENGTH_SHORT).show();
                 reinitializePlayer("");
             }
         }
@@ -217,6 +216,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 if (playWhenReady && playbackState == Player.STATE_READY) {
                     onPlayerStartedPlaying();
                 }
+
+                updatePlayPauseButtons(playWhenReady);
             }
 
 
@@ -234,7 +235,20 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             prepareChapterButtons();
         }
 
+        preparePlayPauseButtons();
+
         player.setPlayWhenReady(true);
+    }
+
+
+    private void preparePlayPauseButtons() {
+        View.OnClickListener playPauseListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                player.setPlayWhenReady(!player.getPlayWhenReady());
+            }
+        };
+        findViewById(R.id.custom_play_pause).setOnClickListener(playPauseListener);
     }
 
 
@@ -265,7 +279,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void showPurchasePrompt() {
-        disableControllerButtons(R.id.exo_play, R.id.exo_pause);
+        disableControllerButtons(R.id.custom_play_pause);
         if(1 == currentAnime.getEpisodeCount()) {
             disableControllerButtons(R.id.custom_ffwd);
         }
@@ -297,7 +311,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void hidePurchasePrompt() {
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
-        enableControllerButtons(R.id.exo_play, R.id.exo_pause);
+        enableControllerButtons(R.id.custom_play_pause);
         if(1 == currentAnime.getEpisodeCount()) {
             enableControllerButtons(R.id.custom_ffwd);
         }
@@ -344,10 +358,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
-        View play = controlView.findViewById(R.id.exo_play);
-        play.performClick();
-
         restartHandler.postDelayed(playerRestarter, RESTARTER_INTERVAL);
     }
 
@@ -374,8 +384,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void skipLogo() {
         logoSkipped = true;
-        //FIXME causes awkward reinitialization of controller buttons
-        //player.seekTo(chapterTimestamps.get(1));
+        player.seekTo(chapterTimestamps.get(1));
     }
 
 
@@ -599,7 +608,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void alignControls(int screenOrientation) {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
+        PlayerControlView controlView = getPlayerControlView(mainView);
         ViewGroup.MarginLayoutParams lp =
                 (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
@@ -618,7 +627,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             return;
         }
 
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
+        PlayerControlView controlView = getPlayerControlView(mainView);
         View next = controlView.findViewById(R.id.next_episode);
         View previous = controlView.findViewById(R.id.previous_episode);
 
@@ -631,7 +640,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void hidePreviousAndNextButtons() {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
+        PlayerControlView controlView = getPlayerControlView(mainView);
         View next = controlView.findViewById(R.id.next_episode);
         next.setVisibility(View.INVISIBLE);
         View previous = controlView.findViewById(R.id.previous_episode);
@@ -640,7 +649,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void disableControllerButtons(Integer... resIds) {
-        PlayerControlView controlView = ViewUtilsKt.getPlayerControlView(mainView);
+        PlayerControlView controlView = getPlayerControlView(mainView);
         for (int resId : resIds) {
             View button = controlView.findViewById(resId);
             button.setClickable(false);
@@ -656,6 +665,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             v.setClickable(true);
             v.setAlpha(1);
             v.setVisibility(View.VISIBLE);
+        }
+    }
+
+
+    private void updatePlayPauseButtons(boolean playerSetToPlayWhenReady) {
+        ImageButton btn = findViewById(R.id.custom_play_pause);
+        if(playerSetToPlayWhenReady) {
+            btn.setImageResource(R.drawable.exo_controls_pause);
+        } else {
+            btn.setImageResource(R.drawable.exo_controls_play);
         }
     }
 
