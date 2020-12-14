@@ -284,17 +284,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             disableControllerButtons(R.id.custom_ffwd);
         }
 
-        ImageView poster = findViewById(R.id.prompt_poster);
+        ViewGroup purchasePrompt = findViewById(R.id.purchase_prompt);
+        ImageView poster = purchasePrompt.findViewById(R.id.prompt_poster);
 
-        if(poster.getTag() == null) {
+        if(purchasePrompt.getTag() == null) {
             Glide.with(this)
                     .load(currentAnime.getPosterAsssetUri())
                     .error(Glide.with(this).load("file:///android_asset/clapperboard.jpg"))
                     .into(poster);
-            poster.setTag(Boolean.TRUE);
+            purchasePrompt.setTag(Boolean.TRUE);
         }
 
-        findViewById(R.id.purchase_prompt).setVisibility(View.VISIBLE);
+        purchasePrompt.setVisibility(View.VISIBLE);
     }
 
 
