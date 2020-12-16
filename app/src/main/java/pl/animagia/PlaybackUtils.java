@@ -2,6 +2,7 @@ package pl.animagia;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 import android.view.View;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -18,32 +19,11 @@ import pl.animagia.user.CookieStorage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 class PlaybackUtils {
 
-    static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
-    static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
-    static final int PREFERRED_SUBTITLE_NO_HONORIFICS = 1;
-    static final String PREFERRED_AUDIO_IS_POLISH_KEY = "preferredAudioIsPolish";
-
 
     private PlaybackUtils() {
-    }
-
-
-    static Map<String, String> loadTranslationPreference(Context ctx, boolean dubAvailable) {
-        SharedPreferences prefs =
-                ctx.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
-
-        if (dubAvailable && prefs.getBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false)) {
-            return Collections.singletonMap("dub", "yes");
-        } else if (PREFERRED_SUBTITLE_NO_HONORIFICS ==
-                prefs.getInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_HONORIFICS)) {
-            return Collections.singletonMap("altsub", "yes");
-        } else {
-            return Collections.singletonMap("altsub", "no");
-        }
     }
 
 
@@ -110,4 +90,35 @@ class PlaybackUtils {
         return 0;
     }
 
+
+    static long firstChapterAfterLogo(Anime anime) {
+        String[] rawChapterTimestamps = anime.getTimeStamps().split(";");
+        return rawChapterTimestamps[0].equals("") ?
+                0 : calculateMsTimestamp(rawChapterTimestamps[0]);
+    }
+
+
+    static String getVideoUrlOfEpisode(Anime anime, int targetEpisode) {
+        return anime.getVideoUrl().substring(0, anime.getVideoUrl().length() - 2) +
+                targetEpisode;
+    }
+
+
+    static int getNavigationBarThickness(Context ctx) {
+        int resourceId =
+                ctx.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return ctx.getResources().getDimensionPixelSize(resourceId);
+        }
+        return 0;
+    }
+
+
+    /**
+     * Checks if navbar has been visible for long enough to allow it to be hidden safely
+     * (hiding navbar too soon can glitch it).
+     */
+    static boolean readyToHideSystemUi(long lastTimeSystemUiWasBroughtBack) {
+        return SystemClock.elapsedRealtime() - 600 > lastTimeSystemUiWasBroughtBack;
+    }
 }

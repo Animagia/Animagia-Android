@@ -2,7 +2,6 @@ package pl.animagia;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,11 +41,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private PlayerView mainView;
     private SimpleExoPlayer player;
+
+    private long timestampToStartAt = -1;
+
+    private Anime anime;
     private int currentEpisode;
-    private Anime currentAnime;
 
     private List<Long> chapterTimestamps;
-    private boolean logoSkipped = false;
 
     private String cookie;
 
@@ -68,7 +69,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                             player.getPlaybackState() == Player.STATE_BUFFERING)) {
                 restartHandler.removeCallbacks(playerRestarter);
             } else {
-                reinitializePlayer("");
+                startPlaybackFlow(PreferenceUtils.loadTranslationPreference(
+                        FullscreenPlaybackActivity.this, anime.hasDub()), currentEpisode, 0);
             }
         }
     };
@@ -78,8 +80,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     {
         public void run()
         {
-            if(player.getCurrentPosition() >= currentAnime.getPreviewMillis()) {
-                player.seekTo(currentAnime.getPreviewMillis() - 1000);
+            if(player.getCurrentPosition() >= anime.getPreviewMillis()) {
+                player.seekTo(anime.getPreviewMillis() - 1000);
                 haltPlayback();
                 showPurchasePrompt();
             }
@@ -109,7 +111,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Anime anime = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
+        anime = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
         cookie = getIntent().getStringExtra(CookieStorage.LOGIN_CREDENTIALS_KEY);
 
         setContentView(R.layout.activity_fullscreen_playback);
@@ -117,11 +119,17 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         getSupportFragmentManager().addOnBackStackChangedListener(listenerForOverlaidFragment);
 
-        startPlaybackFlow(anime);
+
+        long startAt = firstChapterAfterLogo(anime);
+        startPlaybackFlow(
+                PreferenceUtils.loadTranslationPreference(this, anime.hasDub()), 1, startAt);
     }
 
 
-    private void startPlaybackFlow(final Anime anime) {
+    private void startPlaybackFlow(
+            final Localization loc, final int episode, final long startAt) {
+
+        timestampToStartAt = startAt;
 
         String videoPageUrl = anime.getVideoUrl();
 
@@ -142,7 +150,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startPlaybackFlow(anime);
+                        startPlaybackFlow(loc, episode, startAt);
                     }
                 };
                 AlertDialog dialog = new AlertDialog.Builder(FullscreenPlaybackActivity.this)
@@ -172,11 +180,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void prepareForPlayback(Anime video, String videoSourceUrl) {
         currentEpisode = 1;
-        currentAnime = video;
+        anime = video;
         updateDisplayedTitle();
         chapterTimestamps = new ArrayList<>();
 
-        String[] rawChapterTimestamps = currentAnime.getTimeStamps().split(";");
+        String[] rawChapterTimestamps = anime.getTimeStamps().split(";");
         if(!rawChapterTimestamps[0].equals("")) {
             chapterTimestamps.add(0L);
             for (String stamp : rawChapterTimestamps) {
@@ -190,7 +198,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP &&
-                        readyToHideSystemUi() && !purchasePromptVisible()) {
+                        readyToHideSystemUi(lastTimeSystemUiWasBroughtBack) && !purchasePromptVisible()) {
                     hideSystemUi();
                 }
                 return true;
@@ -206,7 +214,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         this.<CustomSeekbar>findViewById(R.id.exo_progress).
                 setPreviewMillis(video.getPreviewMillis());
 
-        if (userBoughtAccessToAnime(currentAnime, this)) {
+        if (userBoughtAccessToAnime(anime, this)) {
             translationChangesAllowed = true;
         }
 
@@ -224,7 +232,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if(Player.DISCONTINUITY_REASON_SEEK == reason &&
-                        player.getCurrentPosition() < currentAnime.getPreviewMillis() - 1100) {
+                        player.getCurrentPosition() < anime.getPreviewMillis() - 1100) {
                     hidePurchasePrompt();
                 }
             }
@@ -280,7 +288,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void showPurchasePrompt() {
         disableControllerButtons(R.id.custom_play_pause);
-        if(1 == currentAnime.getEpisodeCount()) {
+        if(1 == anime.getEpisodeCount()) {
             disableControllerButtons(R.id.custom_ffwd);
         }
 
@@ -289,7 +297,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         if(purchasePrompt.getTag() == null) {
             Glide.with(this)
-                    .load(currentAnime.getPosterAsssetUri())
+                    .load(anime.getPosterAsssetUri())
                     .error(Glide.with(this).load("file:///android_asset/clapperboard.jpg"))
                     .into(poster);
             purchasePrompt.setTag(Boolean.TRUE);
@@ -304,7 +312,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
-        ft.add(android.R.id.content, SingleProductFragment.newInstance(currentAnime));
+        ft.add(android.R.id.content, SingleProductFragment.newInstance(anime));
         ft.addToBackStack(null);
         ft.commit();
     }
@@ -313,7 +321,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void hidePurchasePrompt() {
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
         enableControllerButtons(R.id.custom_play_pause);
-        if(1 == currentAnime.getEpisodeCount()) {
+        if(1 == anime.getEpisodeCount()) {
             enableControllerButtons(R.id.custom_ffwd);
         }
     }
@@ -332,16 +340,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
     private String formatTitle() {
-        String title = currentAnime.formatFullTitle();
-        return currentAnime.getEpisodeCount() > 1 ? title + " odc. " + currentEpisode : title;
-    }
-
-    /**
-     * Checks if navbar has been visible for long enough to allow it to be hidden safely
-     * (hiding navbar too soon can glitch it).
-     */
-    private boolean readyToHideSystemUi() {
-        return SystemClock.elapsedRealtime() - 600 > lastTimeSystemUiWasBroughtBack;
+        String title = anime.formatFullTitle();
+        return anime.getEpisodeCount() > 1 ? title + " odc. " + currentEpisode : title;
     }
 
 
@@ -364,8 +364,10 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void onPlayerStartedPlaying() {
-        if(!logoSkipped && !chapterTimestamps.isEmpty()) {
-            skipLogo();
+
+        if(timestampToStartAt > 0) {
+            player.seekTo(timestampToStartAt);
+            timestampToStartAt = -1;
         }
 
         hideHandler.removeCallbacksAndMessages(null);
@@ -377,15 +379,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             }
         }, 2000);
 
-        if(watchtimeIsLimited(currentAnime, this)) {
+        if(watchtimeIsLimited(anime, this)) {
             rewindHandler.postDelayed(rewinder, REWINDER_INTERVAL);
         }
-    }
-
-
-    private void skipLogo() {
-        logoSkipped = true;
-        player.seekTo(chapterTimestamps.get(1));
     }
 
 
@@ -435,91 +431,31 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void onTranslationChosen(int which) {
-        Map<String,String> params = new HashMap<>();
-
-        SharedPreferences.Editor editor =
-                getSharedPreferences( MainActivity.class.getName(), Context.MODE_PRIVATE).edit();
-
-        switch(which) {
+        Localization loc;
+        switch (which) {
             case 1:
-                params.put("altsub", "yes");
-                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_NO_HONORIFICS);
-                if(dubAvailable()) {
-                    editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
-                }
+                loc = Localization.NO_HONORIFICS;
                 break;
             case 2:
-                params.put("dub", "yes");
-                editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, true);
+                loc = Localization.DUB;
                 break;
             default:
-                params.put("altsub", "no");
-                editor.putInt(PREFERRED_SUBTITLE_KEY, PREFERRED_SUBTITLE_HONORIFICS);
-                if(dubAvailable()) {
-                    editor.putBoolean(PREFERRED_AUDIO_IS_POLISH_KEY, false);
-                }
+                loc = Localization.HONORIFICS;
         }
 
-        editor.apply();
-        reinitializePlayer(buildQueryString(params));
-    }
+        Context ctx = this;
+        boolean dubAvailable = anime.hasDub();
+        PreferenceUtils.saveTranslationPreference(ctx, loc, dubAvailable);
 
-
-    private boolean dubAvailable() {
-        return currentAnime.formatFullTitle().contains("Iroha");
-    }
-
-
-    private String buildQueryString(Map<String, String> params) {
-        String query = "?";
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            query += param.getKey() + "=" + param.getValue() + "&";
-        }
-        return query.substring(0,query.length()-1);
+        startPlaybackFlow(loc, currentEpisode, player.getContentPosition());
     }
 
 
     private void recheckPurchaseStatus() {
-        if(userBoughtAccessToAnime(currentAnime, this)) {
+        if(userBoughtAccessToAnime(anime, this)) {
             Toast.makeText(this, R.string.reopen_to_watch_all, Toast.LENGTH_SHORT).show();
             finish();
         }
-    }
-
-
-    private void reinitializePlayer(String query){
-
-        HtClient.getUsingCookie(getVideoPageUrl() + query, getApplicationContext(), cookie,
-                new  VolleyCallback() {
-
-            @Override
-            public void onSuccess(String result) {
-                releaseMediaPlayer();
-                String url = VideoUrl.getUrl(result);
-                installNewPlayer(VideoSourcesKt
-                        .prepareFromAsset(FullscreenPlaybackActivity.this, url));
-
-                player.setPlayWhenReady(true);
-
-                updateDisplayedTitle();
-
-            }
-
-            @Override
-            public void onFailure(VolleyError volleyError) {
-                restartHandler.postDelayed(playerRestarter,4000);
-            }
-        });
-
-    }
-
-
-    private String getVideoPageUrl() {
-        if(1 == currentEpisode) {
-            return currentAnime.getVideoUrl();
-        }
-        return currentAnime.getVideoUrl().substring(0, currentAnime.getVideoUrl().length() - 2) +
-                currentEpisode;
     }
 
 
@@ -584,15 +520,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private int getNavigationBarThickness() {
-        int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return getResources().getDimensionPixelSize(resourceId);
-        }
-        return 0;
-    }
-
-
     private void installNewPlayer(MediaSource mediaSource) {
         SimpleExoPlayer player = createPLayer(this);
 
@@ -613,7 +540,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         ViewGroup.MarginLayoutParams lp =
                 (ViewGroup.MarginLayoutParams) controlView.getLayoutParams();
 
-        int bottom = getNavigationBarThickness();
+        int bottom = getNavigationBarThickness(this);
         int leftRight = screenOrientation == Configuration.ORIENTATION_LANDSCAPE ? 16 + bottom : 0;
         lp.setMargins(leftRight, 0, leftRight, bottom);
 
@@ -622,8 +549,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void setUpInterEpisodeNavigation() {
-
-        if(currentAnime.getEpisodeCount() == 1) {
+        if(anime.getEpisodeCount() == 1) {
             hidePreviousAndNextButtons();
             return;
         }
@@ -713,12 +639,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private boolean canShiftByThisManyEpisodes(int episodeShift) {
-        return (currentEpisode + episodeShift <= currentAnime.getEpisodeCount() &&
+        return (currentEpisode + episodeShift <= anime.getEpisodeCount() &&
                 currentEpisode + episodeShift >= 1);
-    }
-
-    private void changeCurrentEpisode(int change) {
-        currentEpisode += change;
     }
 
 
@@ -729,40 +651,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (canShiftByThisManyEpisodes(episodeShift)) {
 
-                    String query = buildQueryString( loadTranslationPreference
-                            (FullscreenPlaybackActivity.this, dubAvailable()));
-                    String url =
-                            video.getVideoUrl().substring(0, video.getVideoUrl().length() - 2) +
-                                    (currentEpisode + episodeShift) + query;
-
-                    HtClient.getUsingCookie(url, getApplicationContext(), cookie, new VolleyCallback() {
-
-                        @Override
-                        public void onSuccess(String result) {
-                            currentAnime = video;
-
-                            releaseMediaPlayer();
-                            String url = VideoUrl.getUrl(result);
-                            installNewPlayer(VideoSourcesKt
-                                    .prepareFromAsset(activity, url));
-
-                            player.setPlayWhenReady(true);
-
-                            changeCurrentEpisode(episodeShift);
-                            updateDisplayedTitle();
-                            hideHandler.postDelayed(playerRestarter, 4000);
-                        }
-
-                        @Override
-                        public void onFailure(VolleyError volleyError) {
-                            hideHandler.postDelayed(playerRestarter, 4000);
-                        }
-                    });
-
+                    Localization loc = PreferenceUtils.loadTranslationPreference(
+                            FullscreenPlaybackActivity.this, anime.hasDub());
+                    int targetEpisode = currentEpisode + episodeShift;
+                    startPlaybackFlow(loc, targetEpisode, 0);
                 }
 
             }
         };
     }
+
 
 }

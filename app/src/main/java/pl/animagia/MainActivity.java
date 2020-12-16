@@ -42,10 +42,7 @@ public class MainActivity extends AppCompatActivity
 
     public static String OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW = "productToShow";
 
-    //FIXME get rid of this and save Anime objects to instance state directly
-    private String catalogJson = "";
-
-    private Set<Anime> animeInCatalog = Collections.emptySet();
+    private List<Anime> animeInCatalog = Collections.emptyList();
 
 
     @Override
@@ -128,7 +125,6 @@ public class MainActivity extends AppCompatActivity
             HtClient.fetchCatalogJson(this, new VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
-                    catalogJson = HtClient.readAsUnicode(result);
                     animeInCatalog = HtClient.parseCatalog(result);
                     activateFragment(new CatalogFragment());
                 }
@@ -156,8 +152,7 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
 
-        animeInCatalog =
-                new HashSet<>( savedInstanceState.<Anime>getParcelableArrayList("anime_parcel"));
+        animeInCatalog = savedInstanceState.<Anime>getParcelableArrayList("anime_parcel");
         
         for (Fragment f : getSupportFragmentManager().getFragments()) {
             if(f instanceof SingleProductFragment) {
@@ -344,8 +339,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public Set<Anime> getAnimeInCatalog() {
-        return Collections.unmodifiableSet(animeInCatalog);
+    public List<Anime> getAnimeInCatalog() {
+        return Collections.unmodifiableList(animeInCatalog);
     }
 
 

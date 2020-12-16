@@ -404,7 +404,7 @@ public class AccountFragment extends TopLevelFragment {
 
     private String getListOfTitles() {
 
-        Set<Anime> anime = ((MainActivity) getActivity()).getAnimeInCatalog();
+        List<Anime> anime = ((MainActivity) getActivity()).getAnimeInCatalog();
 
         String titles = "";
 

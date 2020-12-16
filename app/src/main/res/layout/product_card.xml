@@ -71,7 +71,7 @@
         android:paddingLeft="4dp"
         android:paddingRight="1dp"
         android:paddingTop="3dp"
-        android:text="Genre 1, genre 2"
+        android:text=""
         android:textColor="@color/normal_text"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@id/product_price"

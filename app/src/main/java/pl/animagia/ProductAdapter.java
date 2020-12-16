@@ -35,7 +35,7 @@ public class ProductAdapter extends ArrayAdapter<Anime> {
         ImageView poster = thumbnail.findViewById(R.id.product_poster);
 
         TextView priceView = thumbnail.findViewById(R.id.product_price);
-        TextView genresView = thumbnail.findViewById(R.id.product_genres);
+        //FIXME get rid of genres view entirely
         TextView titleView = thumbnail.findViewById(R.id.product_title);
 
         if (super.getItem(position).getPosterAsssetUri().equals("")) {
@@ -49,7 +49,6 @@ public class ProductAdapter extends ArrayAdapter<Anime> {
                     .into(poster);
 
             priceView.setText(super.getItem(position).getPrice());
-            genresView.setText(super.getItem(position).getGenres());
 
             titleView.setText(super.getItem(position).formatFullTitle());
         }

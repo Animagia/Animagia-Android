@@ -14,33 +14,31 @@ public class Anime implements Parcelable {
     private final int episodes;
     private final String timeStamps;
     private final String price;
-    private final String genres;
     private final String subtitle;
     private final String duration;
     private final String description;
     private final int previewMillis;
-    private final String polishAudio;
     private final String sku;
+    private final int hasDub;
 
 
     public Anime(String title, String thumbnailAssetUri, String videoUrl, int episodes,
                  String posterAssetUri, String timeStamps, String price, String genres,
                  String subtitle, String duration, String description, int previewMillis,
-                 String polishAudio, String sku) {
+                 String sku, int hasDub) {
         this.title = title;
         this.thumbnailAsssetUri = thumbnailAssetUri;
         this.videoUrl = videoUrl;
         this.episodes = episodes;
         this.posterAssetUri = posterAssetUri;
         this.timeStamps = timeStamps;
-        this.genres = genres;
         this.price = price;
         this.subtitle = subtitle;
         this.duration = duration;
         this.description = description;
         this.previewMillis = previewMillis;
-        this.polishAudio = polishAudio;
         this.sku = sku;
+        this.hasDub = hasDub;
     }
 
 
@@ -52,13 +50,12 @@ public class Anime implements Parcelable {
         episodes = in.readInt();
         timeStamps = in.readString();
         price = in.readString();
-        genres = in.readString();
         subtitle = in.readString();
         duration = in.readString();
         description = in.readString();
         previewMillis = in.readInt();
-        polishAudio = in.readString();
         sku = in.readString();
+        hasDub = in.readInt();
     }
 
 
@@ -114,10 +111,6 @@ public class Anime implements Parcelable {
         return price;
     }
 
-    public String getGenres() {
-        return genres;
-    }
-
     public String getSubtitle() {
         return subtitle;
     }
@@ -134,12 +127,12 @@ public class Anime implements Parcelable {
         return previewMillis;
     }
 
-    public String getPolishAudio() {
-        return polishAudio;
-    }
-
     public String getSku() {
         return sku;
+    }
+
+    public boolean hasDub() {
+        return hasDub == 1;
     }
 
 
@@ -158,12 +151,12 @@ public class Anime implements Parcelable {
         parcel.writeInt(episodes);
         parcel.writeString(timeStamps);
         parcel.writeString(price);
-        parcel.writeString(genres);
         parcel.writeString(subtitle);
         parcel.writeString(duration);
         parcel.writeString(description);
         parcel.writeInt(previewMillis);
-        parcel.writeString(polishAudio);
         parcel.writeString(sku);
+        parcel.writeInt(hasDub);
     }
+
 }

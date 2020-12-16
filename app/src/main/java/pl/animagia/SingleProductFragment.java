@@ -74,10 +74,7 @@ public class SingleProductFragment extends Fragment {
 
         TextView miscDetails = view.findViewById(R.id.product_misc_details);
 
-        if (anime.getPolishAudio().equalsIgnoreCase("voiceover")) {
-            miscDetails.setText(getResources().getString(R.string.product_details_voiceover,
-                    anime.getDuration()));
-        } else if (anime.getPolishAudio().equalsIgnoreCase("dub")) {
+        if (anime.hasDub()) {
             miscDetails.setText(getResources().getString(R.string.product_details_dub,
                     anime.getDuration()));
         } else {

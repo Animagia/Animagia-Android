@@ -18,10 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class HtClient {
 
@@ -97,9 +94,9 @@ public class HtClient {
 	}
 	
 	
-	public static Set<Anime> parseCatalog(String catalogJson) {
+	public static List<Anime> parseCatalog(String catalogJson) {
 
-        Set<Anime> catalog = new HashSet<>();
+        List<Anime> catalog = new ArrayList<>();
 
         try {
             JSONArray animeArr = new JSONArray(catalogJson);
@@ -112,12 +109,12 @@ public class HtClient {
                         ("episodes"),animeObj.getString("posterAssetUri"),animeObj.getString
                         ("timeStamps"), animeObj.getString("price"), "", animeObj.getString
                         ("subtitle"), animeObj.getString("duration"), animeObj.getString
-                        ("description"), animeObj.getInt("previewMillis"), "", animeObj.getString
-                        ("sku")));
+                        ("description"), animeObj.getInt("previewMillis"), animeObj.getString
+                        ("sku"), animeObj.getInt("hasDub")));
             }
 
-        } catch (JSONException ignore) {
-            throw new RuntimeException(ignore.getMessage());
+        } catch (JSONException e) {
+            throw new RuntimeException(e.getMessage());
         }
 
         return catalog;
