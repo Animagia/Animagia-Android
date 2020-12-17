@@ -3,6 +3,8 @@ package pl.animagia;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -225,6 +227,12 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                     onPlayerStartedPlaying();
                 }
 
+                if(Player.STATE_READY == playbackState) {
+                    findViewById(R.id.exo_buffering).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.exo_buffering).setVisibility(View.VISIBLE);
+                }
+
                 updatePlayPauseButtons(playWhenReady);
             }
 
@@ -287,10 +295,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void showPurchasePrompt() {
-        disableControllerButtons(R.id.custom_play_pause);
-        if(1 == anime.getEpisodeCount()) {
-            disableControllerButtons(R.id.custom_ffwd);
-        }
+        disableControllerButtons(R.id.custom_play_pause, R.id.custom_ffwd);
 
         ViewGroup purchasePrompt = findViewById(R.id.purchase_prompt);
         ImageView poster = purchasePrompt.findViewById(R.id.prompt_poster);
@@ -320,10 +325,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void hidePurchasePrompt() {
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
-        enableControllerButtons(R.id.custom_play_pause);
-        if(1 == anime.getEpisodeCount()) {
-            enableControllerButtons(R.id.custom_ffwd);
-        }
+        enableControllerButtons(R.id.custom_play_pause, R.id.custom_ffwd);
     }
 
 
@@ -523,6 +525,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void installNewPlayer(MediaSource mediaSource) {
         SimpleExoPlayer player = createPLayer(this);
 
+        releaseMediaPlayer();
+
         mainView.setPlayer(player);
 
         player.prepare(mediaSource);
@@ -530,8 +534,16 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         alignControls(getResources().getConfiguration().orientation);
         mainView.showController();
         setUpInterEpisodeNavigation();
+        recolorBufferingIndicator();
 
         this.player = player;
+    }
+
+
+    private void recolorBufferingIndicator() {
+        ProgressBar pb = findViewById(R.id.exo_buffering);
+        pb.getIndeterminateDrawable().setColorFilter(Color.HSVToColor(new float[]{0f, 0f, 0.8f}),
+                android.graphics.PorterDuff.Mode.SRC_IN);
     }
 
 
@@ -622,7 +634,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void releaseMediaPlayer() {
-        clearHandlers();
         if (player != null) {
             player.stop();
             player.release();
