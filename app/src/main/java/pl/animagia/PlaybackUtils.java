@@ -22,6 +22,8 @@ import java.util.List;
 
 class PlaybackUtils {
 
+    static final int REWINDER_INTERVAL = 1200;
+
 
     private PlaybackUtils() {
     }

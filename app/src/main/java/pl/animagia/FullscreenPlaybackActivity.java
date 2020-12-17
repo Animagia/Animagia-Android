@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -38,44 +37,21 @@ import static pl.animagia.ViewUtilsKt.getPlayerControlView;
 
 public class FullscreenPlaybackActivity extends AppCompatActivity {
 
-    private static final int REWINDER_INTERVAL = 1200;
-    private static final int RESTARTER_INTERVAL = 4000;
-
     private PlayerView mainView;
     private SimpleExoPlayer player;
 
-    private long timestampToStartAt = -1;
-
     private Anime anime;
+
+    private long timestampToStartAt = -1;
     private int currentEpisode;
+    private Localization chosenLoc;
 
     private List<Long> chapterTimestamps;
 
     private String cookie;
 
     private Handler hideHandler = new Handler();
-    private Handler restartHandler = new Handler();
     private Handler rewindHandler = new Handler();
-
-    private final Runnable playerRestarter = new Runnable()
-    {
-        public void run()
-        {
-            if (player == null) {
-                return;
-            }
-
-            if ((player.getPlayWhenReady() &&
-                    player.getPlaybackState() == Player.STATE_READY) ||
-                    (player.getPlayWhenReady() &&
-                            player.getPlaybackState() == Player.STATE_BUFFERING)) {
-                restartHandler.removeCallbacks(playerRestarter);
-            } else {
-                startPlaybackFlow(PreferenceUtils.loadTranslationPreference(
-                        FullscreenPlaybackActivity.this, anime.hasDub()), currentEpisode, 0);
-            }
-        }
-    };
 
 
     private final Runnable rewinder = new Runnable()
@@ -131,6 +107,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void startPlaybackFlow(
             final Localization loc, final int episode, final long startAt) {
 
+        //FIXME don't ignore loc and episode args
+
         timestampToStartAt = startAt;
 
         String videoPageUrl = anime.getVideoUrl();
@@ -152,7 +130,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                 DialogInterface.OnClickListener onClickTryAgain = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startPlaybackFlow(loc, episode, startAt);
+                        startPlaybackFlow(loc, episode, Math.max(startAt,
+                                player.getCurrentPosition()));
                     }
                 };
                 AlertDialog dialog = new AlertDialog.Builder(FullscreenPlaybackActivity.this)
@@ -244,6 +223,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         player.getCurrentPosition() < anime.getPreviewMillis() - 1100) {
                     hidePurchasePrompt();
                 }
+            }
+
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+                long timestamp = player.getCurrentPosition();
+                startPlaybackFlow(chosenLoc, currentEpisode, timestamp);
             }
         });
 
@@ -356,14 +342,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        restartHandler.postDelayed(playerRestarter, RESTARTER_INTERVAL);
     }
 
 
@@ -539,6 +517,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         alignControls(getResources().getConfiguration().orientation);
         disableControllerButtons(R.id.custom_play_pause, R.id.custom_rew, R.id.custom_ffwd);
         mainView.showController();
+        hidePurchasePrompt();
         setUpInterEpisodeNavigation();
         recolorBufferingIndicator();
 
@@ -646,7 +625,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void clearHandlers() {
         rewindHandler.removeCallbacksAndMessages(null);
-        restartHandler.removeCallbacksAndMessages(null);
         hideHandler.removeCallbacksAndMessages(null);
     }
 
