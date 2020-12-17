@@ -223,6 +223,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         player.addListener(new Player.DefaultEventListener() {
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
                 if (playWhenReady && playbackState == Player.STATE_READY) {
                     onPlayerStartedPlaying();
                 }
@@ -296,6 +297,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void showPurchasePrompt() {
         disableControllerButtons(R.id.custom_play_pause, R.id.custom_ffwd);
+        findViewById(R.id.exo_buffering).setAlpha(0);
 
         ViewGroup purchasePrompt = findViewById(R.id.purchase_prompt);
         ImageView poster = purchasePrompt.findViewById(R.id.prompt_poster);
@@ -313,7 +315,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     public void showSingleProductDialog(View v) {
-        //Toast.makeText(this, "single product", Toast.LENGTH_SHORT).show();
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
@@ -324,6 +325,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void hidePurchasePrompt() {
+        findViewById(R.id.exo_buffering).setAlpha(1);
         findViewById(R.id.purchase_prompt).setVisibility(View.GONE);
         enableControllerButtons(R.id.custom_play_pause, R.id.custom_ffwd);
     }
@@ -372,12 +374,15 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             timestampToStartAt = -1;
         }
 
+        enableControllerButtons(R.id.custom_ffwd, R.id.custom_rew, R.id.custom_play_pause);
+
         hideHandler.removeCallbacksAndMessages(null);
         hideHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mainView.hideController();
-                hideSystemUi();
+                if(readyToHideSystemUi(lastTimeSystemUiWasBroughtBack)) {
+                    hideSystemUi();
+                }
             }
         }, 2000);
 
@@ -532,6 +537,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         player.prepare(mediaSource);
 
         alignControls(getResources().getConfiguration().orientation);
+        disableControllerButtons(R.id.custom_play_pause, R.id.custom_rew, R.id.custom_ffwd);
         mainView.showController();
         setUpInterEpisodeNavigation();
         recolorBufferingIndicator();
@@ -570,11 +576,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         View next = controlView.findViewById(R.id.next_episode);
         View previous = controlView.findViewById(R.id.previous_episode);
 
-        final AppCompatActivity ac = this;
-        final Anime video = getIntent().getParcelableExtra(Anime.NAME_OF_INTENT_EXTRA);
-
-        next.setOnClickListener(newEpisodeListener(ac, video, 1));
-        previous.setOnClickListener(newEpisodeListener(ac, video, -1));
+        next.setOnClickListener(newEpisodeListener(1));
+        previous.setOnClickListener(newEpisodeListener(-1));
     }
 
 
@@ -593,7 +596,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             View button = controlView.findViewById(resId);
             button.setClickable(false);
             button.setAlpha(0.5f);
-            button.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -655,8 +657,7 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     }
 
 
-    private View.OnClickListener newEpisodeListener(final AppCompatActivity activity,
-                                                    final Anime video, final int episodeShift) {
+    private View.OnClickListener newEpisodeListener(final int episodeShift) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
