@@ -19,10 +19,11 @@ import java.util.ArrayList;
 public class CustomSeekbar extends DefaultTimeBar {
 
     private final int markerWidth;
-    private final Rect progressBar;
     private final int touchTargetHeight;
-    private final Rect seekBounds;
+    private final Rect seekBounds = new Rect();
+    private final Rect progressBar = new Rect();
     private final int barHeight;
+    private final int scrubberPadding;
 
     private ArrayList<Long> chapterMarkerTimeStamps;
     private long duration;
@@ -32,14 +33,20 @@ public class CustomSeekbar extends DefaultTimeBar {
     public CustomSeekbar(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+
+        int scrubberEnabledSize = dpToPx(displayMetrics, 12);
+        int scrubberDisabledSize = dpToPx(displayMetrics, 0);
+        int scrubberDraggedSize = dpToPx(displayMetrics, 16);
+
+        scrubberPadding = (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize,
+                scrubberDraggedSize)) + 1) / 2;
+
         setBufferedColor(getDefaultUnplayedColor(-1));
 
-        seekBounds = new Rect();
-        progressBar = new Rect();
         chapterMarkerTimeStamps = new ArrayList<>();
 
-        Resources res = context.getResources();
-        DisplayMetrics displayMetrics = res.getDisplayMetrics();
+
         int defaultAdMarkerWidth = dpToPx(displayMetrics, DEFAULT_AD_MARKER_WIDTH_DP);
         int defaultTouchTargetHeight = dpToPx(displayMetrics, DEFAULT_TOUCH_TARGET_HEIGHT_DP);
         int defaultBarHeight = dpToPx(displayMetrics, DEFAULT_BAR_HEIGHT_DP);
@@ -73,21 +80,12 @@ public class CustomSeekbar extends DefaultTimeBar {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //drawTimeBarMarker(canvas);
+        drawChapters(canvas);
         drawLockedSegment(canvas);
-        //drawTestMarker(canvas);
     }
 
 
-//    private void drawTestMarker(Canvas canvas) {
-//        Paint paint = new Paint();
-//        paint.setColor(getResources().getColor(R.color.colorPrimaryLight));
-//
-//        progressBar.left
-//    }
-
-
-    private void drawTimeBarMarker(Canvas canvas) {
+    private void drawChapters(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(getResources().getColor(R.color.seekbar_chapter_marker));
 
@@ -95,16 +93,16 @@ public class CustomSeekbar extends DefaultTimeBar {
         int barTop = progressBar.centerY() - progressBarHeight / 2;
         int barBottom = barTop + progressBarHeight;
 
-        int adMarkerOffset = markerWidth / 2;
-
         for (Long chapterMarkerTimeStamp : chapterMarkerTimeStamps) {
-            long adGroupTimeMs = Util.constrainValue(chapterMarkerTimeStamp, 0, duration);
+            long millisBeforeChapter = Util.constrainValue(chapterMarkerTimeStamp, 0, duration);
 
             if (duration != 0) {
-                int markerPositionOffset =
-                        (int) (progressBar.width() * adGroupTimeMs / duration) - adMarkerOffset;
-                int markerLeft = progressBar.left + Math.min(progressBar.width() - markerWidth,
-                        Math.max(0, markerPositionOffset));
+                int markerPositionOffset = (int)
+                        (progressBar.width() * millisBeforeChapter /  duration) - markerWidth / 2;
+                markerPositionOffset =
+                        Math.min(progressBar.width() - markerWidth, markerPositionOffset);
+                markerPositionOffset = Math.max(0, markerPositionOffset);
+                int markerLeft = progressBar.left + markerPositionOffset;
                 canvas.drawRect(markerLeft, barTop, markerLeft + markerWidth / 2, barBottom, paint);
             }
         }
@@ -124,9 +122,7 @@ public class CustomSeekbar extends DefaultTimeBar {
         int barBottom = barTop + progressBarHeight;
 
         long previewTimeMs = Util.constrainValue(previewMillis, 0, duration);
-        int cosmeticMargin = markerWidth * 2;
-        int markerPosition =
-                (int) (progressBar.width() * previewTimeMs / duration) + cosmeticMargin;
+        int markerPosition = (int) (progressBar.width() * previewTimeMs / duration);
 
         while(markerPosition < progressBar.width() - markerWidth) {
             int markerLeft = progressBar.left + Math.min(progressBar.width() - markerWidth,
@@ -150,13 +146,13 @@ public class CustomSeekbar extends DefaultTimeBar {
         int progressY = barY + (touchTargetHeight - barHeight) / 2;
         seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
         seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
-        progressBar.set(seekBounds.left, progressY,
-                seekBounds.right, progressY + barHeight);
+        progressBar.set(seekBounds.left + scrubberPadding, progressY,
+                seekBounds.right - scrubberPadding, progressY + barHeight);
 
     }
 
 
-    public void addChapterMarker(@Nullable long timestamp) {
+    public void addChapterMarker(long timestamp) {
         chapterMarkerTimeStamps.add(timestamp);
     }
 

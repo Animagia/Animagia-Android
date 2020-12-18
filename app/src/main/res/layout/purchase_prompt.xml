@@ -35,7 +35,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/purchase_full_film"
-            android:textColor="@color/seekbar_chapter_marker"/>
+            android:textColor="@android:color/white"/>
 
         <TextView
             android:id="@+id/film_title_in_prompt"
@@ -47,13 +47,13 @@
             android:text=""
             android:textSize="16sp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/seekbar_chapter_marker" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/product_details_button"
-            android:textColor="@color/seekbar_chapter_marker"
+            android:textColor="@android:color/white"
             android:onClick="showSingleProductDialog"
             android:theme="@style/AccentedButton" />
 

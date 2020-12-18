@@ -446,8 +446,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
     private void drawChapterMarkers(){
         CustomSeekbar bar = findViewById(R.id.exo_progress);
-        for (long timeStamp : chapterTimestamps) {
-            bar.addChapterMarker(timeStamp);
+        for (int i = 1; i < chapterTimestamps.size(); i++) {
+            bar.addChapterMarker(chapterTimestamps.get(i));
         }
     }
 
@@ -517,7 +517,9 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         alignControls(getResources().getConfiguration().orientation);
         disableControllerButtons(R.id.custom_play_pause, R.id.custom_rew, R.id.custom_ffwd);
         mainView.showController();
-        hidePurchasePrompt();
+        if(View.VISIBLE == findViewById(R.id.purchase_prompt).getVisibility()) {
+            hidePurchasePrompt();
+        }
         setUpInterEpisodeNavigation();
         recolorBufferingIndicator();
 
@@ -546,33 +548,33 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void setUpInterEpisodeNavigation() {
-        if(anime.getEpisodeCount() == 1) {
-            hidePreviousAndNextButtons();
-            return;
+        if(1 == anime.getEpisodeCount()) {
+            hideControllerButtons(R.id.next_episode, R.id.previous_episode);
+        } else {
+            hideControllerButtons(R.id.custom_ffwd, R.id.custom_rew);
+
+            PlayerControlView controlView = getPlayerControlView(mainView);
+            View next = controlView.findViewById(R.id.next_episode);
+            View previous = controlView.findViewById(R.id.previous_episode);
+
+            next.setOnClickListener(newEpisodeListener(1));
+            previous.setOnClickListener(newEpisodeListener(-1));
         }
-
-        PlayerControlView controlView = getPlayerControlView(mainView);
-        View next = controlView.findViewById(R.id.next_episode);
-        View previous = controlView.findViewById(R.id.previous_episode);
-
-        next.setOnClickListener(newEpisodeListener(1));
-        previous.setOnClickListener(newEpisodeListener(-1));
     }
 
 
-    private void hidePreviousAndNextButtons() {
+    private void hideControllerButtons(Integer... resIds) {
         PlayerControlView controlView = getPlayerControlView(mainView);
-        View next = controlView.findViewById(R.id.next_episode);
-        next.setVisibility(View.INVISIBLE);
-        View previous = controlView.findViewById(R.id.previous_episode);
-        previous.setVisibility(View.INVISIBLE);
+        for (int resId : resIds) {
+            View button = controlView.findViewById(resId);
+            button.setVisibility(View.GONE);
+        }
     }
 
 
     private void disableControllerButtons(Integer... resIds) {
-        PlayerControlView controlView = getPlayerControlView(mainView);
         for (int resId : resIds) {
-            View button = controlView.findViewById(resId);
+            View button = findViewById(resId);
             button.setClickable(false);
             button.setAlpha(0.5f);
         }
@@ -584,7 +586,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
             View v = findViewById(resId);
             v.setClickable(true);
             v.setAlpha(1);
-            v.setVisibility(View.VISIBLE);
         }
     }
 

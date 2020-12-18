@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#00388c</color>
     <color name="colorPrimaryLight">#628ef0</color>
 
-    <color name="seekbar_chapter_marker">#ffffff</color>
+    <color name="seekbar_chapter_marker">#f000</color>
     <color name="seekbar_locked_segment">#eeee15</color>
 
     <color name="black_overlay">#20000000</color>
