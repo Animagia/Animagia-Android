@@ -20,14 +20,16 @@
         <ImageButton android:id="@+id/previous_episode"
             style="@style/ExoMediaButton.Previous"/>
 
-        <ImageButton android:id="@+id/custom_rew"
-            style="@style/ExoMediaButton.Rewind"/>
+        <android.support.v7.widget.AppCompatImageButton android:id="@+id/custom_rew"
+            style="@style/ExoMediaButton"
+            app:srcCompat="@drawable/btn_prev_chapter_32dp" />
 
         <ImageButton android:id="@+id/custom_play_pause"
             style="@style/ExoMediaButton.Play" />
 
-        <ImageButton android:id="@+id/custom_ffwd"
-            style="@style/ExoMediaButton.FastForward"/>
+        <android.support.v7.widget.AppCompatImageButton android:id="@+id/custom_ffwd"
+            style="@style/ExoMediaButton"
+            app:srcCompat="@drawable/btn_next_chapter_32dp" />
 
         <ImageButton android:id="@+id/next_episode"
             style="@style/ExoMediaButton.Next"/>
