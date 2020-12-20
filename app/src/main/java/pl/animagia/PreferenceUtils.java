@@ -56,4 +56,8 @@ class PreferenceUtils {
         editor.apply();
     }
 
+
+    static void saveProgress(Context ctx, Anime anime, int episode, long progress) {
+        throw new UnsupportedOperationException(); //TODO
+    }
 }

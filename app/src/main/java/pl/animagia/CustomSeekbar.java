@@ -80,8 +80,8 @@ public class CustomSeekbar extends DefaultTimeBar {
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawChapters(canvas);
         drawLockedSegment(canvas);
+        drawChapters(canvas);
     }
 
 

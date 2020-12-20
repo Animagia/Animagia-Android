@@ -604,6 +604,13 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         haltPlayback();
+
+        long progress = player.getCurrentPosition();
+        if(watchtimeIsLimited(anime, this)) {
+            progress = Math.min(progress, anime.getPreviewMillis() - 15000);
+        }
+
+        PreferenceUtils.saveProgress(this, anime, currentEpisode, progress);
     }
 
 

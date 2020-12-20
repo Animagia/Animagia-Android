@@ -70,25 +70,6 @@
         app:layout_constraintStart_toEndOf="@+id/thumbnail_poster" />
 
     <TextView
-        android:id="@+id/thumbnail_preview_length"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="4dp"
-        android:background="#66000000"
-        android:textColor="#fff"
-        android:ellipsize="marquee"
-        android:singleLine="true"
-        android:paddingBottom="1dp"
-        android:paddingLeft="1dp"
-        android:paddingRight="1dp"
-        android:paddingTop="1dp"
-        android:text="10 min. bezpłatnie"
-        android:visibility="invisible"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
-        app:layout_constraintBottom_toTopOf="@+id/thumbnail_duration" />
-
-    <TextView
         android:id="@+id/thumbnail_duration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -106,5 +87,13 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
         app:layout_constraintBottom_toBottomOf="@+id/thumbnail_poster" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        app:layout_constraintLeft_toLeftOf="@id/thumbnail_poster"
+        app:layout_constraintRight_toRightOf="@id/thumbnail_poster"
+        app:layout_constraintBottom_toBottomOf="@id/thumbnail_poster"
+        android:background="#f11f" />
 
 </android.support.constraint.ConstraintLayout>
