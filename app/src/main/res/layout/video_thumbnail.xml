@@ -85,15 +85,31 @@
         android:paddingTop="1dp"
         android:text="90 min."
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@+id/thumbnail_poster"
-        app:layout_constraintBottom_toBottomOf="@+id/thumbnail_poster" />
+        app:layout_constraintRight_toRightOf="@+id/thumbnail_poster"
+        app:layout_constraintBottom_toTopOf="@+id/thumbnail_progress" />
 
-    <View
+    <LinearLayout
+        android:id="@+id/thumbnail_progress"
         android:layout_width="0dp"
-        android:layout_height="5dp"
+        android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="@id/thumbnail_poster"
-        app:layout_constraintRight_toRightOf="@id/thumbnail_poster"
         app:layout_constraintBottom_toBottomOf="@id/thumbnail_poster"
-        android:background="#f11f" />
+        app:layout_constraintRight_toRightOf="@id/thumbnail_poster" >
+        <View
+            android:id="@+id/thumbnail_progress_watched"
+            android:layout_width="0dp"
+            android:layout_height="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorPrimaryLight"
+            android:visibility="gone"/>
+        <View
+            android:id="@+id/thumbnail_progress_unwatched"
+            android:layout_width="0dp"
+            android:layout_height="5dp"
+            android:layout_weight="2"
+            android:background="#9fff"
+            android:visibility="gone"/>
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

@@ -22,18 +22,20 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
                 new ArrayList<>(ma.getAnimeInCatalog()) );
     }
 
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View thumbnail = super.getView(position, convertView, parent);
+        Anime anime = super.getItem(position);
 
         ImageView poster = thumbnail.findViewById(R.id.thumbnail_poster);
         Glide.with(getContext())
-                .load(super.getItem(position).getThumbnailAsssetUri())
+                .load(anime.getThumbnailAsssetUri())
                 .error(Glide.with(getContext()).load("file:///android_asset/clapperboard.jpg"))
                 .into(poster);
 
-        String filmSubtitle = super.getItem(position).getSubtitle();
+        String filmSubtitle = anime.getSubtitle();
         TextView subtitleView = thumbnail.findViewById(R.id.thumbnail_subtitle);
         if (filmSubtitle.equals("")) {
             subtitleView.setVisibility(View.GONE);
@@ -42,10 +44,15 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
         }
 
         TextView durationView = thumbnail.findViewById(R.id.thumbnail_duration);
-        durationView.setText(super.getItem(position).getDuration());
+        durationView.setText(anime.getDuration());
 
         TextView descriptionView = thumbnail.findViewById(R.id.thumbnail_description);
-        descriptionView.setText(super.getItem(position).getDescription());
+        descriptionView.setText(anime.getDescription());
+
+        if(anime.getEpisodeCount() != 1) { //FIXME should be if(anime has saved progress)
+            thumbnail.findViewById(R.id.thumbnail_progress_watched).setVisibility(View.VISIBLE);
+            thumbnail.findViewById(R.id.thumbnail_progress_unwatched).setVisibility(View.VISIBLE);
+        }
 
         return thumbnail;
     }
