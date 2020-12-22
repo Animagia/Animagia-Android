@@ -1,4 +1,4 @@
-Animagia-Android as a whole is licensed under the GNU General Public License version 3 (GPLv3).
+The content of this repository as a whole is licensed under the GNU General Public License version 3 (GPLv3).
 
 Hovewer, starting April 22, 2019, we want to keep the option of switching to the more permissive BSD-3-Clause license open.
 
