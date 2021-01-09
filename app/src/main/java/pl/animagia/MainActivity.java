@@ -3,6 +3,7 @@ package pl.animagia;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.PersistableBundle;
+import android.support.design.internal.NavigationMenuPresenter;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -63,40 +64,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        final View headView = navigationView.getHeaderView(0);
-
-        TextView textView = headView.findViewById(R.id.userEmail);
-        ImageView imageView = headView.findViewById(R.id.login);
-        Button button = headView.findViewById(R.id.account_view_icon_button);
-
-        if (isLogged()) {
-            textView.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.VISIBLE);
-            button.setVisibility(View.VISIBLE);
-            textView.setText(getUserDisplayName());
-        }
-        else {
-            textView.setVisibility(View.INVISIBLE);
-            imageView.setVisibility(View.INVISIBLE);
-            button.setVisibility(View.INVISIBLE);
-            textView.setText(R.string.guest);
-        }
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popupMenu = new PopupMenu(MainActivity.this,v);
-                popupMenu.setOnMenuItemClickListener(MainActivity.this);
-                if (isLogged()) {
-                    popupMenu.inflate(R.menu.logged_user_menu);
-                }
-                else {
-                    popupMenu.inflate(R.menu.unlogged_user_menu);
-                }
-                popupMenu.show();
-            }
-        });
-
         setMenuItemFont(navigationView.getMenu().getItem(4));
         setMenuItemFont(navigationView.getMenu().getItem(5));
 
@@ -137,6 +104,44 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+    }
+
+
+    void updateUsernameInHeader() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        final View headView = navigationView.getHeaderView(0);
+
+        TextView textView = headView.findViewById(R.id.userEmail);
+        ImageView imageView = headView.findViewById(R.id.login);
+        Button button = headView.findViewById(R.id.account_view_icon_button);
+
+        if (isLogged()) {
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+            button.setVisibility(View.VISIBLE);
+            textView.setText(getUserDisplayName());
+        }
+        else {
+            textView.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.INVISIBLE);
+            button.setVisibility(View.INVISIBLE);
+            textView.setText(R.string.guest);
+        }
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this,v);
+                popupMenu.setOnMenuItemClickListener(MainActivity.this);
+                if (isLogged()) {
+                    popupMenu.inflate(R.menu.logged_user_menu);
+                }
+                else {
+                    popupMenu.inflate(R.menu.unlogged_user_menu);
+                }
+                popupMenu.show();
+            }
+        });
     }
 
 

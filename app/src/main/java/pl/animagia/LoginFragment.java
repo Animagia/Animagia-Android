@@ -45,7 +45,7 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final Button signIn = (Button) getActivity().findViewById(R.id.sign_in_button);
+        final Button signIn = getActivity().findViewById(R.id.sign_in_button);
         final EditText emailText = getActivity().findViewById(R.id.email);
         final EditText passwordText = getActivity().findViewById(R.id.password);
         final ProgressBar progressBar = getActivity().findViewById(R.id.progressBar);

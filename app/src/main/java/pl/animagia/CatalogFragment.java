@@ -21,7 +21,7 @@ import java.util.Set;
 public class CatalogFragment extends TopLevelFragment {
 
 
-    GridView gridView;
+    private GridView gridView;
 
 
     @Nullable
@@ -48,26 +48,8 @@ public class CatalogFragment extends TopLevelFragment {
             }
         });
 
-        final NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
-        final View headView = navigationView.getHeaderView(0);
-
-        TextView textView = headView.findViewById(R.id.userEmail);
-        ImageView imageView = headView.findViewById(R.id.login);
-        Button button = headView.findViewById(R.id.account_view_icon_button);
-
-
-        if (isLogged()) {
-            textView.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.VISIBLE);
-            button.setVisibility(View.VISIBLE);
-            textView.setText(((MainActivity) getActivity()).getUserDisplayName());
-        }
-        else {
-            textView.setVisibility(View.INVISIBLE);
-            imageView.setVisibility(View.INVISIBLE);
-            button.setVisibility(View.INVISIBLE);
-            textView.setText(R.string.guest);
-        }
+        MainActivity ma = (MainActivity) getActivity();
+        ma.updateUsernameInHeader();
     }
 
 
@@ -87,18 +69,6 @@ public class CatalogFragment extends TopLevelFragment {
         intent.putExtra(CookieStorage.LOGIN_CREDENTIALS_KEY, cookie);
 
         startActivity(intent);
-    }
-
-
-    private boolean isLogged(){
-        boolean logIn = false;
-        String cookie = CookieStorage.getCookie(getActivity());
-        System.out.println(cookie);
-        if (!cookie.equals(CookieStorage.COOKIE_NOT_FOUND)){
-            logIn = true;
-        }
-
-        return logIn;
     }
 
 
