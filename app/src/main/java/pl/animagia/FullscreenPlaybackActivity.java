@@ -17,7 +17,9 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
-import com.google.android.exoplayer2.*;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -30,7 +32,8 @@ import pl.animagia.user.CookieStorage;
 import pl.animagia.video.VideoSourcesKt;
 import pl.animagia.video.VideoUrl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static pl.animagia.PlaybackUtils.*;
 import static pl.animagia.ViewUtilsKt.getPlayerControlView;
@@ -108,11 +111,18 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
     private void startPlaybackFlow(
             final Localization loc, final int episode, final long startAt) {
 
-        //FIXME don't ignore loc and episode args
+        currentEpisode = episode;
+
+        //FIXME don't ignore loc arg
 
         timestampToStartAt = startAt;
 
         String videoPageUrl = anime.getVideoUrl();
+
+        if(currentEpisode > 1) {
+            int index = videoPageUrl.lastIndexOf("-");
+            videoPageUrl = videoPageUrl.substring(0, index + 1) + episode;
+        }
 
         if(TokenStorage.getSkusOfLocallyPurchasedAnime(this).contains(anime.getSku())) {
             String token = TokenStorage.getCombinedToken(this, anime.getSku());
@@ -161,7 +171,6 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
 
     private void prepareForPlayback(Anime video, String videoSourceUrl) {
-        currentEpisode = 1;
         anime = video;
         updateDisplayedTitle();
         chapterTimestamps = new ArrayList<>();
@@ -606,11 +615,20 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         super.onPause();
         haltPlayback();
 
+        saveProgress();
+    }
+
+
+    private void saveProgress() {
         long progress = player.getCurrentPosition();
+
+        if(progress < firstChapterAfterLogo(anime) + PreferenceUtils.MINIMUM_PROGRESS_TO_SAVE) {
+            progress = 0;
+        }
+
         if(watchtimeIsLimited(anime, this)) {
             progress = Math.min(progress, anime.getPreviewMillis() - 15000);
         }
-
         PreferenceUtils.saveProgress(this, anime, currentEpisode, progress);
     }
 

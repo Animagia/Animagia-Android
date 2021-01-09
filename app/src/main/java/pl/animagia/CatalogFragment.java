@@ -20,6 +20,10 @@ import java.util.Set;
 
 public class CatalogFragment extends TopLevelFragment {
 
+
+    GridView gridView;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -32,12 +36,12 @@ public class CatalogFragment extends TopLevelFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        GridView gridview = view.findViewById(R.id.gridview);
+        gridView = view.findViewById(R.id.gridview);
 
         final VideoThumbnailAdapter adapter =
                 new VideoThumbnailAdapter((MainActivity) getActivity());
-        gridview.setAdapter(adapter);
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 launchPlayback(adapter.getItem(position));
@@ -70,6 +74,7 @@ public class CatalogFragment extends TopLevelFragment {
     @Override
     public void onResume() {
         super.onResume();
+        gridView.invalidateViews(); //FIXME redundant rebuild when fragment first created?
         ((MainActivity) getActivity()).getSupportActionBar().setTitle(R.string.drawer_item_watch);
     }
 

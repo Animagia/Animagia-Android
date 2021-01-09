@@ -63,13 +63,16 @@ class PreferenceUtils {
 
 
     static void saveProgress(Context ctx, Anime anime, int episode, long progress) {
-
         SharedPreferences.Editor edit =
                 ctx.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE).edit();
 
         String key = PROGRESS_PREFIX + anime.getSku();
-
         edit.putLong(key, progress);
+
+        if(episode > 1) {
+            key = REACHED_EPISODE_PREFIX + anime.getSku();
+            edit.putInt(key, episode);
+        }
 
         edit.apply();
     }
