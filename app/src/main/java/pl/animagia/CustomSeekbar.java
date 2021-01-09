@@ -27,7 +27,7 @@ public class CustomSeekbar extends DefaultTimeBar {
 
     private ArrayList<Long> chapterMarkerTimeStamps;
     private long duration;
-    private long previewMillis;
+    private long previewMillis = Long.MAX_VALUE;
 
 
     public CustomSeekbar(Context context, AttributeSet attrs) {

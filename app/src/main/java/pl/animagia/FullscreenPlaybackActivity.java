@@ -202,8 +202,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         createSubtitleSelector();
 
-        this.<CustomSeekbar>findViewById(R.id.exo_progress).
-                setPreviewMillis(video.getPreviewMillis());
+        if(watchtimeIsLimited(anime, this)) {
+            this.<CustomSeekbar>findViewById(R.id.exo_progress).
+                    setPreviewMillis(video.getPreviewMillis());
+        }
+
 
         if (userBoughtAccessToAnime(anime, this)) {
             translationChangesAllowed = true;
@@ -629,6 +632,8 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
         if(watchtimeIsLimited(anime, this)) {
             progress = Math.min(progress, anime.getPreviewMillis() - 15000);
         }
+        progress = Math.min(progress, player.getDuration() - 15000);
+
         PreferenceUtils.saveProgress(this, anime, currentEpisode, progress);
     }
 
