@@ -79,6 +79,11 @@ public class Anime implements Parcelable {
     }
 
 
+    public long getLengthMillis() {
+        return 1000 * 60 * Integer.parseInt(this.duration.split(" ")[0]);
+    }
+
+
     public String formatFullTitle() {
         return subtitle.isEmpty() ? title : subtitle + " " + title;
     }
@@ -158,5 +163,4 @@ public class Anime implements Parcelable {
         parcel.writeString(sku);
         parcel.writeInt(hasDub);
     }
-
 }

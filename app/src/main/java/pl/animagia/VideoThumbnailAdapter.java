@@ -8,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 
 import java.util.*;
+
+import static pl.animagia.PlaybackUtils.firstChapterAfterLogo;
 
 
 class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
@@ -49,12 +52,46 @@ class VideoThumbnailAdapter extends ArrayAdapter<Anime> {
         TextView descriptionView = thumbnail.findViewById(R.id.thumbnail_description);
         descriptionView.setText(anime.getDescription());
 
-        if(anime.getEpisodeCount() != 1) { //FIXME should be if(anime has saved progress)
-            thumbnail.findViewById(R.id.thumbnail_progress_watched).setVisibility(View.VISIBLE);
-            thumbnail.findViewById(R.id.thumbnail_progress_unwatched).setVisibility(View.VISIBLE);
-        }
+
+        prepareProgressBar(thumbnail, anime);
+
 
         return thumbnail;
     }
+
+
+    private void prepareProgressBar(View thumbnail, Anime anime) {
+        View watchedBar = thumbnail.findViewById(R.id.thumbnail_progress_watched);
+        View unwatchedBar = thumbnail.findViewById(R.id.thumbnail_progress_unwatched);
+        float watchedWeight;
+        float unwatchedWeight;
+        int vis;
+
+        if(anime.getEpisodeCount() == 1) {
+            long length = anime.getLengthMillis();
+            long progress = PreferenceUtils.getSavedProgress(getContext(), anime, 1);
+            progress = Math.min(progress, length);
+            vis = progress > firstChapterAfterLogo(anime) +
+                    PreferenceUtils.MINIMUM_PROGRESS_TO_SAVE ? View.VISIBLE : View.GONE;
+            watchedWeight = progress / 1000;
+            unwatchedWeight = (length - progress) / 1000;
+
+        } else {
+            int episodeReached = PreferenceUtils.getReachedEpisode(getContext(), anime);
+            vis = episodeReached > 1 ? View.VISIBLE : View.GONE;
+            watchedWeight = episodeReached;
+            unwatchedWeight = anime.getEpisodeCount() + 1 - episodeReached;
+        }
+
+        watchedBar.setVisibility(vis);
+        unwatchedBar.setVisibility(vis);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) watchedBar.getLayoutParams();
+        lp.weight = watchedWeight;
+        watchedBar.setLayoutParams(lp);
+        lp = (LinearLayout.LayoutParams) unwatchedBar.getLayoutParams();
+        lp.weight = unwatchedWeight;
+        unwatchedBar.setLayoutParams(lp);
+    }
+
 
 }

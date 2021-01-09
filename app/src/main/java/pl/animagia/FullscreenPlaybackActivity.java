@@ -97,10 +97,11 @@ public class FullscreenPlaybackActivity extends AppCompatActivity {
 
         getSupportFragmentManager().addOnBackStackChangedListener(listenerForOverlaidFragment);
 
-
-        long startAt = firstChapterAfterLogo(anime);
+        int episode = PreferenceUtils.getReachedEpisode(this, anime);
+        long startAt = PreferenceUtils.getSavedProgress(this, anime, episode);
+        startAt = Math.max(startAt, firstChapterAfterLogo(anime));
         startPlaybackFlow(
-                PreferenceUtils.loadTranslationPreference(this, anime.hasDub()), 1, startAt);
+                PreferenceUtils.loadTranslationPreference(this, anime.hasDub()), episode, startAt);
     }
 
 

@@ -10,6 +10,11 @@ class PreferenceUtils {
     private static final String PREFERRED_SUBTITLE_KEY = "preferredSubtitles";
     private static final int PREFERRED_SUBTITLE_HONORIFICS = 0;
 
+    private static final String REACHED_EPISODE_PREFIX = "reached-episode-";
+    private static final String PROGRESS_PREFIX = "progress-";
+
+    static final long MINIMUM_PROGRESS_TO_SAVE = 5000;
+
 
     private PreferenceUtils() {
     }
@@ -58,6 +63,29 @@ class PreferenceUtils {
 
 
     static void saveProgress(Context ctx, Anime anime, int episode, long progress) {
-        throw new UnsupportedOperationException(); //TODO
+
+        SharedPreferences.Editor edit =
+                ctx.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE).edit();
+
+        String key = PROGRESS_PREFIX + anime.getSku();
+
+        edit.putLong(key, progress);
+
+        edit.apply();
     }
+
+
+    static int getReachedEpisode(Context ctx, Anime anime) {
+        SharedPreferences prefs = ctx.getSharedPreferences(MainActivity.class.getName(),
+                Context.MODE_PRIVATE);
+        return prefs.getInt(REACHED_EPISODE_PREFIX + anime.getSku(), 1);
+    }
+
+
+    static long getSavedProgress(Context ctx, Anime anime, int episode) {
+        SharedPreferences prefs =
+                ctx.getSharedPreferences(MainActivity.class.getName(), Context.MODE_PRIVATE);
+        return prefs.getLong(PROGRESS_PREFIX + anime.getSku(), 0);
+    }
+
 }

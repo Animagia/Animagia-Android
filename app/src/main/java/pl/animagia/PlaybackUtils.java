@@ -47,14 +47,6 @@ class PlaybackUtils {
     }
 
 
-    static int calculateMsTimestamp(String unconvertedTimestamp) {
-        return 3600 * 1000 * Integer.parseInt(unconvertedTimestamp.substring(0, 2))
-                + 1000 * 60 * Integer.parseInt(unconvertedTimestamp.substring(3, 5))
-                + 1000 * Integer.parseInt(unconvertedTimestamp.substring(6, 8))
-                + Integer.parseInt(unconvertedTimestamp.substring(9));
-    }
-
-
     static SimpleExoPlayer createPLayer(Context ctx) {
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
@@ -123,4 +115,14 @@ class PlaybackUtils {
     static boolean readyToHideSystemUi(long lastTimeSystemUiWasBroughtBack) {
         return SystemClock.elapsedRealtime() - 600 > lastTimeSystemUiWasBroughtBack;
     }
+
+
+    static int calculateMsTimestamp(String unconvertedTimestamp) {
+        return 3600 * 1000 * Integer.parseInt(unconvertedTimestamp.substring(0, 2))
+                + 1000 * 60 * Integer.parseInt(unconvertedTimestamp.substring(3, 5))
+                + 1000 * Integer.parseInt(unconvertedTimestamp.substring(6, 8))
+                + Integer.parseInt(unconvertedTimestamp.substring(9));
+    }
+
+
 }
