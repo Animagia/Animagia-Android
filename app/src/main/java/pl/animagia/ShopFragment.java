@@ -3,6 +3,7 @@ package pl.animagia;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-public class ShopFragment extends TopLevelFragment {
+public class ShopFragment extends Fragment {
 
 
     @Nullable
@@ -49,11 +50,10 @@ public class ShopFragment extends TopLevelFragment {
     }
 
 
-    void openProduct(Anime vd) {
+    private void openProduct(Anime vd) {
         SingleProductFragment frag = SingleProductFragment.newInstance(vd);
 
         MainActivity ma = (MainActivity) getActivity();
-        ma.changeHomeButtonToArrow();
 
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
@@ -65,9 +65,9 @@ public class ShopFragment extends TopLevelFragment {
 
 
     public void setText(String message) {
-        LinearLayout linearLayout = (LinearLayout) getActivity().findViewById(R.id.catalog_layout);
+        LinearLayout linearLayout = getActivity().findViewById(R.id.catalog_layout);
 
-        TextView view = (TextView) getActivity().findViewById(R.id.geo_text_view);
+        TextView view = getActivity().findViewById(R.id.geo_text_view);
         if(view == null){
 
             TextView textView = new TextView(getContext());

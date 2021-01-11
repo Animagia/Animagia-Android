@@ -23,7 +23,7 @@ public class VideoInfoTransferTest {
 
         Intent intent = new Intent();
         final String film_title = "A feature film";
-        Anime originalData = Anime.CHUUNIBYOU;
+        Anime originalData = null;
 //                new Anime(
 //                        film_title, "file:///android_asset/clapperboard.jpg", "https://animagia.pl",1,
 //                        "", "", "", "", "", "", "", 1);

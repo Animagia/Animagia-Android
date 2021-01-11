@@ -1,9 +1,8 @@
 package pl.animagia;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.os.PersistableBundle;
-import android.support.design.internal.NavigationMenuPresenter;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,7 +14,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.TypefaceSpan;
@@ -37,11 +35,6 @@ public class MainActivity extends AppCompatActivity
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-
-    private SingleProductFragment fragmentSavedBeforeRotation;
-    private SingleProductFragment optionalFragmentToImmediatelyShow;
-
-    public static String OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW = "productToShow";
 
     private List<Anime> animeInCatalog = Collections.emptyList();
 
@@ -83,12 +76,7 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        if (getIntent().hasExtra(OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW)) {
-            Anime a = getIntent().getParcelableExtra(
-                    OPTIONAL_NAME_OF_PRODUCT_TO_IMMEDIATELY_SHOW);
-            startByShowingProduct(a);
-        } else if(!rebuildFromFragments(savedInstanceState)) {
-
+        if(savedInstanceState == null) {
             HtClient.fetchCatalogJson(this, new VolleyCallback() {
                 @Override
                 public void onSuccess(String result) {
@@ -102,6 +90,24 @@ public class MainActivity extends AppCompatActivity
                 }
             });
 
+        } else {
+            animeInCatalog = savedInstanceState.getParcelableArrayList("anime_parcel");
+
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+
+                if (fragment.getClass().getPackage().getName().
+                        startsWith(this.getClass().getPackage().getName())) {
+
+                    FragmentTransaction fragmentTransaction =
+                            getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.frame_for_content, fragment);
+                    fragmentTransaction.commit();
+
+                    onBackStackChanged();
+
+                    break;
+                }
+            }
         }
 
     }
@@ -145,65 +151,12 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void startByShowingProduct(Anime a) {
-        optionalFragmentToImmediatelyShow = SingleProductFragment.newInstance(a);
-        ShopFragment shop = new ShopFragment();
-        activateFragment(shop);
-    }
-
-
-    private boolean rebuildFromFragments(final Bundle savedInstanceState) {
-        if(savedInstanceState == null) {
-            return false;
-        }
-
-        animeInCatalog = savedInstanceState.<Anime>getParcelableArrayList("anime_parcel");
-        
-        for (Fragment f : getSupportFragmentManager().getFragments()) {
-            if(f instanceof SingleProductFragment) {
-                fragmentSavedBeforeRotation = (SingleProductFragment) f;
-                ShopFragment shop = new ShopFragment();
-                activateFragment(shop);
-                return true;
-            } else if(f instanceof TopLevelFragment) {
-                activateFragment(f);
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("anime_parcel", new ArrayList<>(animeInCatalog));
     }
 
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-
-        if(optionalFragmentToImmediatelyShow != null) {
-            changeHomeButtonToArrow();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.frame_for_content, optionalFragmentToImmediatelyShow)
-                    .addToBackStack(null).commit();
-            optionalFragmentToImmediatelyShow = null;
-        } else if (fragmentSavedBeforeRotation != null) {
-            changeHomeButtonToArrow();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            //apparently no need to re-add to back stack after orientation change
-            fragmentTransaction.replace(R.id.frame_for_content, fragmentSavedBeforeRotation)
-                    .commit();
-            fragmentSavedBeforeRotation = null;
-        }
-
-    }
 
     private void setMenuItemFont(MenuItem item){
         TypefaceSpan typefaceSpan = new TypefaceSpan("sans-serif-light");
@@ -222,6 +175,7 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -265,16 +219,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
     @Override
     public void onBackStackChanged() {
         int count = getSupportFragmentManager().getBackStackEntryCount();
         if(0 == count) {
             changeHomeButtonToHamburger();
+        } else {
+            changeHomeButtonToArrow();
         }
     }
 
 
-    void changeHomeButtonToArrow() {
+    private void changeHomeButtonToArrow() {
         drawerToggle.setDrawerIndicatorEnabled(false);
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
@@ -292,6 +249,11 @@ public class MainActivity extends AppCompatActivity
         drawerToggle.setDrawerIndicatorEnabled(true);
 
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        for (int i = 0; i < navigationView.getMenu().size(); i++) {
+            navigationView.getMenu().getItem(i).setChecked(false);
+        }
     }
 
 
@@ -300,6 +262,9 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         fragmentTransaction.replace(R.id.frame_for_content, fragment);
+        if(!(fragment instanceof CatalogFragment)) {
+            fragmentTransaction.addToBackStack(null);
+        }
         fragmentTransaction.commit();
     }
 

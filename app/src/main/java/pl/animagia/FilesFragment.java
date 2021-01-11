@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FilesFragment extends TopLevelFragment {
+public class FilesFragment extends Fragment {
 
     private List<String> downloadAnchors = new ArrayList<>();
 
