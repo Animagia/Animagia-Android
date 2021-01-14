@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,6 +39,7 @@ public class LoginFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.activity_login, null);
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -78,7 +78,6 @@ public class LoginFragment extends Fragment {
                         passwordText.setFocusable(true);
                         emailText.setFocusableInTouchMode(true);
                         emailText.setFocusable(true);
-//
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -137,6 +136,7 @@ public class LoginFragment extends Fragment {
 
     }
 
+
     private void activateFragment(Fragment fragment) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -145,10 +145,13 @@ public class LoginFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
+
     private void hideSoftKeyboard() {
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
+
+
     private void setText(final TextView text,final String value){
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -158,4 +161,17 @@ public class LoginFragment extends Fragment {
         });
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        hideSoftKeyboard();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).getSupportActionBar().setTitle("Logowanie");
+    }
 }

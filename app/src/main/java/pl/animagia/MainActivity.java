@@ -1,8 +1,7 @@
 package pl.animagia;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +19,7 @@ import android.text.style.TypefaceSpan;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import com.android.volley.VolleyError;
 import pl.animagia.html.HtClient;
@@ -61,37 +61,47 @@ public class MainActivity extends AppCompatActivity
         setMenuItemFont(navigationView.getMenu().getItem(5));
 
 
-        int childCount = actionBarView.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View v = actionBarView.getChildAt(i);
-            if(v instanceof AppCompatImageButton) {
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onDrawerHomeButtonClicked();
-                    }
-                });
-            }
-        }
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         if(savedInstanceState == null) {
+
+            findViewById(R.id.catalog_fetching_progress).setVisibility(View.VISIBLE);
+
             HtClient.fetchCatalogJson(this, new VolleyCallback() {
+                private Handler retryHandler;
+
                 @Override
                 public void onSuccess(String result) {
                     animeInCatalog = HtClient.parseCatalog(result);
+                    ((ViewGroup) findViewById(R.id.frame_for_content)).removeAllViews();
                     activateFragment(new CatalogFragment());
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    makeHomeButtonClickable();
                 }
 
                 @Override
                 public void onFailure(VolleyError volleyError) {
-                    throw new RuntimeException(volleyError.toString());
+
+                    final VolleyCallback callback = this;
+                    if(retryHandler == null) {
+                        retryHandler = new Handler();
+                    }
+                    retryHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            findViewById(R.id.catalog_fetching_error).setVisibility(View.VISIBLE);
+                            HtClient.fetchCatalogJson(MainActivity.this, callback);
+                        }
+                    }, 1500);
                 }
             });
-
         } else {
             animeInCatalog = savedInstanceState.getParcelableArrayList("anime_parcel");
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            makeHomeButtonClickable();
 
             for (Fragment fragment : getSupportFragmentManager().getFragments()) {
 
@@ -110,6 +120,23 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+    }
+
+
+    private void makeHomeButtonClickable() {
+        Toolbar actionBarView = findViewById(R.id.toolbar);
+        int childCount = actionBarView.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View v = actionBarView.getChildAt(i);
+            if(v instanceof AppCompatImageButton) {
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onDrawerHomeButtonClicked();
+                    }
+                });
+            }
+        }
     }
 
 

@@ -27,6 +27,7 @@
     <string name="guest">Gość</string>
     <string name="no_connection_message">Brak połączenia z Internetem. Sprawdź połączenie i spróbuj ponownie.</string>
     <string name="no_connection_short">Brak połącznia z Internetem</string>
+    <string name="error_fetching_catalog">Sprawdź połączenie z Internetem</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="turn_on_internet">Włącz internet</string>
     <string name="not_logged">Nie zalogowano na konto</string>

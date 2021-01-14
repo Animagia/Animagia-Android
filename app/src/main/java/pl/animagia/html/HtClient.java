@@ -74,8 +74,15 @@ public class HtClient {
             }
         };
 
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                callback.onFailure(null);
+            }
+        };
+
         JsonRequest<JSONArray> req = new JsonRequest<JSONArray>(Request.Method.GET, catalogUrl,
-                null, listener, null) {
+                null, listener, errorListener) {
             @Override
             protected Response<JSONArray> parseNetworkResponse(NetworkResponse networkResponse) {
                 try {
@@ -83,8 +90,7 @@ public class HtClient {
                     return Response.success(new JSONArray(utf8String), HttpHeaderParser.parseCacheHeaders
                             (networkResponse));
                 } catch (UnsupportedEncodingException | JSONException e) {
-                    return Response.success(new JSONArray(), HttpHeaderParser.parseCacheHeaders
-                            (networkResponse));
+                    return Response.error(null);
                 }
             }
         };
